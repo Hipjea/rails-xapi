@@ -11,7 +11,7 @@ module XapiMiddleware
     end
 
     def output
-      log_output
+      log_output if XapiMiddleware.configuration.output_xapi_logs
       self
     end
 
@@ -22,7 +22,7 @@ module XapiMiddleware
       end
 
       def log_output
-        Rails.logger.info Rainbow("#{I18n.t("xapi_middleware.xapi_statement")} : #{self.pretty_print}").yellow
+        Rails.logger.info Rainbow("#{I18n.t("xapi_middleware.xapi_statement")} => #{self.pretty_print}").yellow
       end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "xapi_middleware/version"
 require "xapi_middleware/engine"
 require "xapi_middleware/configuration"
