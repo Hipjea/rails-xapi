@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  class Statement < ApplicationRecord
-    self.abstract_class = true
-
+  class Statement
     def initialize(verb_uri:, object_id: nil, object_name: nil, actor_name: nil, actor_mbox: nil)
       @verb_uri = verb_uri
       @object_id = object_id

@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  class Object < ApplicationRecord
-    self.abstract_class = true
-
+  class Object
     attr_accessor :id, :definition
 
     def initialize

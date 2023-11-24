@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  class Verb < ApplicationRecord
-    self.abstract_class = true
-
+  class Verb
     attr_accessor :id, :display
 
     VERBS_LIST = {
