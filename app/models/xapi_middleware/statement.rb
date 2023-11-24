@@ -2,31 +2,27 @@
 
 module XapiMiddleware
   class Statement
+    attr_accessor :object, :actor
+
     def initialize(verb_uri:, object_id: nil, object_name: nil, actor_name: nil, actor_mbox: nil)
       @verb_uri = verb_uri
-      @object_id = object_id
-      @object_name = object_name
-      @actor_name = actor_name
-      @actor_mbox = actor_mbox
-    end
-
-    def define
-      actor.name = @actor_name
-      actor.mbox = @actor_mbox
-      object.id = @object_id
-      object.definition.name = @object_name
+      @object = XapiMiddleware::Object.new(id: object_id, name: object_name)
+      @actor = XapiMiddleware::Actor.new(name: actor_name, mbox: actor_mbox)
     end
 
     def output
+      log_output
       self
     end
 
     private
 
-      def initialize_components
-        @actor ||= Xapi::Actor.new
-        @object ||= Xapi::Object.new
-        @verb ||= Xapi::Verb.new(@verb_uri)
+      def pretty_print
+        JSON.pretty_generate(self.as_json)
+      end
+
+      def log_output
+        Rails.logger.info Rainbow("#{I18n.t("xapi_middleware.xapi_statement")} : #{self.pretty_print}").yellow
       end
   end
 end

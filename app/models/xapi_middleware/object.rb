@@ -4,17 +4,9 @@ module XapiMiddleware
   class Object
     attr_accessor :id, :definition
 
-    def initialize
-      @definition = XapiMiddleware::Definition.new
+    def initialize(id:, name:)
+      @id = id
+      @definition = XapiMiddleware::Definition.new(name: name)
     end
-
-    private
-
-      def initialize_object(object_id:, object_name:)
-        obj = XapiMiddleware::Object.new
-        obj.id = object_id
-        obj.definition.name = object_name
-        obj
-      end
   end
 end
