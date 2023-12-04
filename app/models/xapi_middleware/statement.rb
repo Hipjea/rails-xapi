@@ -7,6 +7,9 @@ module XapiMiddleware
     after_initialize :set_data
 
     validates :verb_id, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp, message: "is not a valid URL" }
+    validates :object_identifier, presence: true
+    validates :actor_name, presence: true
+    validates :statement_json, presence: true
 
     def set_data
       @verb = XapiMiddleware::Verb.new(verb_id)
