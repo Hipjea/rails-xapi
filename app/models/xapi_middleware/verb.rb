@@ -189,9 +189,9 @@ module XapiMiddleware
       "https://brindlewaye.com/xAPITerms/verbs/walked/" => "walked"
     }
 
-    def initialize(verb_uri)
-      @id = verb_uri
-      @display = VERBS_LIST[verb_uri]
+    def initialize(verb_id)
+      @id = verb_id
+      @display = VERBS_LIST[verb_id]
     end
   end
 end

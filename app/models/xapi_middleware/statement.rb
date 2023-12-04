@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  class Statement
-    attr_accessor :object, :actor, :verb_uri, :result
+  class Statement < ApplicationRecord
+    attr_accessor :object, :actor, :result
 
-    def initialize(verb_uri: "", object:, actor:, result: nil)
+    after_initialize :set_data
+
+    def set_data
       @actor = XapiMiddleware::Actor.new(actor)
-      @verb_uri = verb_uri
       @object = XapiMiddleware::Object.new(object)
       @result = XapiMiddleware::Result.new(result) if result.present?
+      self.object_identifier = @object.id
+      self.statement_json = as_json
     end
 
     def output
@@ -18,12 +21,21 @@ module XapiMiddleware
 
     private
 
-    def pretty_print
-      JSON.pretty_generate(as_json)
-    end
+      def as_json
+        {
+          verb_id: verb_id,
+          object: @object&.as_json,
+          actor: @actor&.as_json,
+          result: @result&.as_json
+        }
+      end
 
-    def log_output
-      Rails.logger.info Rainbow("#{I18n.t("xapi_middleware.xapi_statement")} => #{pretty_print}").yellow
-    end
+      def pretty_print
+        JSON.pretty_generate(as_json)
+      end
+
+      def log_output
+        Rails.logger.info Rainbow("#{I18n.t("xapi_middleware.xapi_statement")} => #{statement_json}").yellow
+      end
   end
 end

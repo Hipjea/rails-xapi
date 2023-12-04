@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  actorname: MyString
+  verb-id: MyString
+  xapi_object_id: MyString
+  statement_json: MyText
+
+two:
+  actorname: MyString
+  verb-id: MyString
+  xapi_object_id: MyString
+  statement_json: MyText
