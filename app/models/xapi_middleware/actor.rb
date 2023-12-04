@@ -4,9 +4,9 @@ module XapiMiddleware
   class Actor
     attr_accessor :name, :mbox
 
-    def initialize(name:, mbox:)
-      @name = name
-      @mbox = mbox
+    def initialize(actor)
+      @name = actor[:name]
+      @mbox = actor[:mbox]
     end
   end
 end
