@@ -11,6 +11,7 @@ module XapiMiddleware
       @object = XapiMiddleware::Object.new(object)
       @result = XapiMiddleware::Result.new(result) if result.present?
       self.object_identifier = @object.id
+      self.actor_name = @actor.name
       self.statement_json = as_json
     end
 

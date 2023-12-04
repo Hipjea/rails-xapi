@@ -6,7 +6,7 @@ module XapiMiddleware
 
     def initialize(actor)
       @name = actor[:name]
-      @mbox = actor[:mbox]
+      @mbox = XapiMiddleware::Mbox.new(actor[:mbox])
     end
   end
 end
