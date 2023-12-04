@@ -191,7 +191,9 @@ module XapiMiddleware
 
     def initialize(verb_id)
       @id = verb_id
-      @display = VERBS_LIST[verb_id]
+      @display = {
+        "en-US": VERBS_LIST[verb_id]
+      }
     end
   end
 end

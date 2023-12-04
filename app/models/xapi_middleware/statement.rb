@@ -9,6 +9,7 @@ module XapiMiddleware
     validates :verb_id, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp, message: "is not a valid URL" }
 
     def set_data
+      @verb = XapiMiddleware::Verb.new(verb_id)
       @actor = XapiMiddleware::Actor.new(actor)
       @object = XapiMiddleware::Object.new(object)
       @result = XapiMiddleware::Result.new(result) if result.present?
@@ -26,7 +27,7 @@ module XapiMiddleware
 
       def prepare_json
         {
-          verb_id: verb_id,
+          verb: @verb,
           object: @object,
           actor: @actor,
           result: @result
