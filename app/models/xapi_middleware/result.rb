@@ -10,7 +10,7 @@ module XapiMiddleware
 
     # Initializes a new Result instance.
     #
-    # @param result [Hash] The result hash containing response, success, and score data.
+    # @param [Hash] result The result hash containing response, success, and score data.
     # @raise [ResultError] If the result structure or values are invalid.
     def initialize(result)
       validate_result(result)

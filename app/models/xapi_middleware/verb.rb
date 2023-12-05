@@ -4,6 +4,16 @@ module XapiMiddleware
   class Verb
     attr_accessor :id, :display
 
+    # Constants representing a mapping of xAPI activity verbs.
+    #
+    # The constant maps the activity verbs from several schemas
+    # to their corresponding human-readable output.
+    #
+    # @example Usage:
+    #   VERBS_LIST["http://activitystrea.ms/schema/1.0/accept"]  # => "accepted"
+    #   VERBS_LIST["http://activitystrea.ms/schema/1.0/access"]  # => "accessed"
+    #
+    # @note The list is build from https://registry.tincanapi.com/#home/verbs
     VERBS_LIST = {
       "http://activitystrea.ms/schema/1.0/accept" => "accepted",
       "http://activitystrea.ms/schema/1.0/access" => "accessed",
@@ -189,6 +199,9 @@ module XapiMiddleware
       "https://brindlewaye.com/xAPITerms/verbs/walked/" => "walked"
     }
 
+    # Initializes a new Verb instance.
+    #
+    # @param [string] verb_id The verb identifier. Must be a valid URL.
     def initialize(verb_id)
       @id = verb_id
       @display = {
