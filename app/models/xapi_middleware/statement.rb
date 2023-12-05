@@ -41,7 +41,6 @@ module XapiMiddleware
         }.to_json
       end
 
-
       def log_output
         Rails.logger.info "#{I18n.t("xapi_middleware.xapi_statement")} => #{pretty_print}"
       end

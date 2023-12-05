@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
+  # Representation class of an error raised by the Result class.
   class ResultError < StandardError; end
 
+  # Represents a result containing response, success, and score data.
   class Result
     attr_accessor :response, :success, :score
 
@@ -40,6 +42,10 @@ module XapiMiddleware
         }
       end
 
+      # Validates the overall structure of the result.
+      #
+      # @param [Hash] result The result hash to validate.
+      # @return [ResultError] If the result structure is invalid.
       def validate_result(result)
         validate_result_structure(result)
         validate_result_values(result)
@@ -65,12 +71,34 @@ module XapiMiddleware
       # @raise [ResultError] If the result values are missing.
       def validate_result_values(result)
         required_keys = %i[response success score_raw score_min score_max]
-        missing_values = required_keys.reject { |key| result[key].present? }
+        missing_values = required_keys.reject do |key|
+          value = result[key]
+          value.present? && valid_value_type?(key, value)
+        end
 
-        raise ResultError, "missing values #{missing_values.join(', ')}" unless missing_values.empty?
+        raise ResultError, "missing values or invalid type #{missing_values.join(', ')}" unless missing_values.empty?
+      end
+
+      # Checks if the value has the correct type.
+      #
+      # @param [Symbol] key The key of the value being checked.
+      # @param [Object] value The value to check.
+      # @return [Boolean] True if the value has the correct type, false otherwise.
+      def valid_value_type?(key, value)
+        case key
+        when :response
+          value.is_a?(String)
+        when :success
+          [true, false].include?(value)
+        when :score_raw, :score_min, :score_max
+          value.is_a?(Integer)
+        else
+          true
+        end
       end
   end
 
+  # Represents a score with raw, min, and max values.
   class Score
     attr_accessor :raw, :min, :max
 
