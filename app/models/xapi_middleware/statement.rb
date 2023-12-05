@@ -14,7 +14,8 @@ module XapiMiddleware
 
     validates :verb_id, presence: true
     validate :validate_verb_id_format
-    validates :object_identifier, presence: true
+    validates :object_type, presence: true
+    validates :object_identifier, presence: true, unless: -> { object_type == "SubStatement" }
     validates :actor_name, presence: true
     validates :statement_json, presence: true
 
@@ -32,7 +33,8 @@ module XapiMiddleware
       @actor = XapiMiddleware::Actor.new(actor)
       @object = XapiMiddleware::Object.new(object)
       @result = XapiMiddleware::Result.new(result) if result.present?
-      self.object_identifier = @object.id
+      self.object_type = @object.object_type
+      self.object_identifier = @object.id&.presence
       self.actor_name = @actor.name
       self.statement_json = prepare_json
     end
@@ -67,7 +69,7 @@ module XapiMiddleware
       def prepare_json
         {
           verb: @verb,
-          object: @object,
+          object: @object.to_hash,
           actor: @actor.to_hash,
           result: @result
         }.to_json
@@ -87,6 +89,7 @@ end
 #  id                :integer          not null, primary key
 #  actor_name        :string
 #  object_identifier :string
+#  object_type       :string
 #  statement_json    :text
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null

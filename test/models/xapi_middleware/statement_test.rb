@@ -3,9 +3,48 @@ require "test_helper"
 module XapiMiddleware
   class StatementTest < ActiveSupport::TestCase
     def setup
+      @pre_statement = XapiMiddleware::Statement.new(
+        verb_id: "http://example.com/verb",
+        object: {
+          id: "http://example.com/object"
+        },
+        actor: {
+          name: "Actor 1",
+          mbox: "mailto:actor1@localhost.com",
+          account: {
+            name: "Actor#1"
+          },
+          openid: "http://example.com/object/Actor#1" 
+        },
+        result: { 
+          response: "The actor 1 answered",
+          success: true,
+          score_raw: 50,
+          score_min: 0,
+          score_max: 100
+        }
+      )
+
       @statement = XapiMiddleware::Statement.new(
         verb_id: "http://example.com/verb",
-        object: { id: "http://example.com/object" },
+        object: {
+          object_type: "SubStatement",
+          actor: {
+            objectType: "Agent",
+            name: "Example Admin",
+            mbox: "mailto:admin@example.adlnet.gov"
+          },
+          verb: {
+            id: "http://adlnet.gov/expapi/verbs/voided",
+            display: {
+              "en-US": "voided"
+            }
+          },
+          object: {
+            objectType: "StatementRef",
+            id: "e05aa883-acaf-40ad-bf54-02c8ce485fb0"
+          }
+        },
         actor: {
           name: "ÿøhnNÿ DœE",
           mbox: "mailto:yohnny.doe@localhost.com",
@@ -23,9 +62,10 @@ module XapiMiddleware
         }
       )
 
-      p"*"*90
-      p JSON.parse(@statement.statement_json)["actor"]
-      p"*"*90
+      #p"*"*90
+      #p @pre_statement.valid?
+      #p JSON.parse(@statement.statement_json)["object"]
+      #p"*"*90
     end
 
     test "valid statement" do
@@ -80,6 +120,7 @@ end
 #  id                :integer          not null, primary key
 #  actor_name        :string
 #  object_identifier :string
+#  object_type       :string
 #  statement_json    :text
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null

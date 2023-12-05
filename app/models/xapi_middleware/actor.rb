@@ -52,7 +52,7 @@ module XapiMiddleware
       end
     end
 
-    # Class method to normalize actor data.
+    # Normalizes the actor data.
     #
     # @param [Hash] actor The actor data.
     # @return [Hash] The normalized actor data.

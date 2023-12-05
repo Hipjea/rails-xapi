@@ -5,6 +5,7 @@
 #  id                :integer          not null, primary key
 #  actor_name        :string
 #  object_identifier :string
+#  object_type       :string
 #  statement_json    :text
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null

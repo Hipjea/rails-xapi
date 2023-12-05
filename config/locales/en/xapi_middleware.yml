@@ -3,7 +3,9 @@ en:
     xapi_statement: "xAPI statement"
 
     errors:
-      invalid_actor_object_type: "invalid actor object type : %{name}"
+      invalid_actor_object_type: "invalid actor's object type : %{name}"
+      invalid_object_object_type: "invalid object's object type : %{name}"
+      invalid_object_substatement: "invalid object substatement"
       invalid_verb_id_url: "verb_id is not a valid URL"
       malformed_account_home_page_url: "malformed account home_page URL : %{url}"
       malformed_mbox: "malformed mbox value : %{name}"
