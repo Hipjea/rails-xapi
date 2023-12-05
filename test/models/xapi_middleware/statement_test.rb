@@ -4,9 +4,9 @@ module XapiMiddleware
   class StatementTest < ActiveSupport::TestCase
     def setup
       @statement = XapiMiddleware::Statement.new(
-        verb_id: 'http://example.com/verb',
-        object: { id: 'http://example.com/object' },
-        actor: { name: 'John Doe' },
+        verb_id: "http://example.com/verb",
+        object: { id: "http://example.com/object" },
+        actor: { name: "ÿøhnNÿ DœE" },
         result: { 
           response: "The user answered",
           success: true,
@@ -15,6 +15,10 @@ module XapiMiddleware
           score_max: 100
         }
       )
+
+      p"*"*90
+      p @statement
+      p"*"*90
     end
 
     test 'valid statement' do

@@ -3,4 +3,4 @@ en:
     xapi_statement: "xAPI statement"
 
     errors:
-      invalid_url: "is not a valid URL"
+      invalid_verb_id_url: "verb_id is not a valid URL"

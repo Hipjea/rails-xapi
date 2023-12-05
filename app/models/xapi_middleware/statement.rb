@@ -1,15 +1,29 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
+  # Representation class of an error raised by the Statement class.
+  class StatementError < StandardError; end
+
   class Statement < ApplicationRecord
     attr_accessor :object, :actor, :result
 
+    LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
+    LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
+
     after_initialize :set_data
 
-    validates :verb_id, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp, message: I18n.t("errors.invalid_url")}
+    validates :verb_id, presence: true
+    validate :validate_verb_id_format
     validates :object_identifier, presence: true
     validates :actor_name, presence: true
     validates :statement_json, presence: true
+
+    normalizes :actor_name, with: ->(actor_name) {
+      actor_name.gsub(LATIN_LETTERS_REGEX, "")
+        .to_s
+        .humanize
+        .gsub(/\b('?[#{LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
+    }
 
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
@@ -32,6 +46,20 @@ module XapiMiddleware
     end
 
     private
+
+      # Validates the verb_id URL.
+      #
+      # @return [StatementError] If the verb_id value is invalid.
+      def validate_verb_id_format
+        return if verb_id.blank?
+
+        uri = URI.parse(verb_id)
+        is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+
+        unless verb_id.present? && is_valid
+          raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url")
+        end
+      end
 
       # Output of the statement as JSON.
       #
