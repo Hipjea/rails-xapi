@@ -17,7 +17,7 @@ module XapiMiddleware
       )
 
       p"*"*90
-      p @statement
+      p @statement.statement_json
       p"*"*90
     end
 
