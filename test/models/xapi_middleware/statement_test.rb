@@ -8,7 +8,10 @@ module XapiMiddleware
         object: { id: "http://example.com/object" },
         actor: {
           name: "ÿøhnNÿ DœE",
-          mbox: "mailto:yohnny.doe@localhost.com"
+          mbox: "mailto:yohnny.doe@localhost.com",
+          account: {
+            name: "JohnnyAccount#1"
+          }
         },
         result: { 
           response: "The user answered",
@@ -19,26 +22,23 @@ module XapiMiddleware
         }
       )
 
-      p"*"*90
-      p @statement.statement_json
-      p"*"*90
     end
 
-    test 'valid statement' do
-      assert @statement.valid?, 'Statement should be valid'
+    test "valid statement" do
+      assert @statement.valid?, "Statement should be valid"
     end
 
-    test 'invalid statement without verb_id' do
+    test "invalid statement without verb_id" do
       @statement.verb_id = nil
-      assert_not @statement.valid?, 'Statement should be invalid without verb_id'
+      assert_not @statement.valid?, "Statement should be invalid without verb_id"
     end
 
-    test 'output logs when configuration allows' do
+    test "output logs when configuration allows" do
       XapiMiddleware.configuration.output_xapi_logs = true
       assert_not @statement.output.nil?
     end
 
-    test 'output does not log when configuration disallows' do
+    test "output does not log when configuration disallows" do
       XapiMiddleware.configuration.output_xapi_logs = false
       assert_nothing_logged { @statement.output }
     end

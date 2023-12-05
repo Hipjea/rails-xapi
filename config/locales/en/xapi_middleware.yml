@@ -5,3 +5,5 @@ en:
     errors:
       invalid_verb_id_url: "verb_id is not a valid URL"
       malformed_mbox: "malformed mbox value"
+      missing_keys: "missing keys %{keys}"
+      missing_values_or_invalid_type: "missing values or invalid type %{values}"

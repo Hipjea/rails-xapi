@@ -60,7 +60,7 @@ module XapiMiddleware
         required_keys = %i[response success score_raw score_min score_max]
         missing_keys = required_keys - result.keys
 
-        raise ResultError, "missing keys: #{missing_keys.join(", ")}" unless missing_keys.empty?
+        raise ResultError, I18n.t("xapi_middleware.errors.missing_keys", keys: missing_keys.join(", ")) unless missing_keys.empty?
       end
 
       # Validates the values of the result hash.
@@ -74,7 +74,7 @@ module XapiMiddleware
           value.present? && valid_value_type?(key, value)
         end
 
-        raise ResultError, "missing values or invalid type #{missing_values.join(", ")}" unless missing_values.empty?
+        raise ResultError, I18n.t("xapi_middleware.errors.missing_values_or_invalid_type", values: missing_values.join(", ")) unless missing_values.empty?
       end
 
       # Checks if the value has the correct type.

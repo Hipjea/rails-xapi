@@ -5,7 +5,7 @@ module XapiMiddleware
   class ActorError < StandardError; end
 
   class Actor
-    attr_accessor :name, :mbox
+    attr_accessor :name, :mbox, :account
 
     # Initializes a new Actor instance.
     #
@@ -17,6 +17,7 @@ module XapiMiddleware
 
       @name = normalized_actor[:name]
       @mbox = normalized_actor[:mbox] if normalized_actor[:mbox].present?
+      @account = normalized_actor[:account] if normalized_actor[:account].present?
     end
 
     # Validates the actor data.
@@ -40,7 +41,9 @@ module XapiMiddleware
 
       normalized_mbox = actor[:mbox].strip.downcase if actor[:mbox].present?
 
-      {name: normalized_name, mbox: normalized_mbox}
+      normalized_account = actor[:account] if actor[:account].present?
+
+      {name: normalized_name, mbox: normalized_mbox, account: normalized_account}
     end
   end
 end
