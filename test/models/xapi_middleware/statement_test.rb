@@ -7,7 +7,13 @@ module XapiMiddleware
         verb_id: 'http://example.com/verb',
         object: { id: 'http://example.com/object' },
         actor: { name: 'John Doe' },
-        result: { score: 90 }
+        result: { 
+          response: "The user answered",
+          success: true,
+          score_raw: 50,
+          score_min: 0,
+          score_max: 100
+        }
       )
     end
 
