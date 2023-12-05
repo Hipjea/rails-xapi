@@ -6,7 +6,10 @@ module XapiMiddleware
       @statement = XapiMiddleware::Statement.new(
         verb_id: "http://example.com/verb",
         object: { id: "http://example.com/object" },
-        actor: { name: "ÿøhnNÿ DœE" },
+        actor: {
+          name: "ÿøhnNÿ DœE",
+          mbox: "mailto:yohnny.doe@localhost.com"
+        },
         result: { 
           response: "The user answered",
           success: true,
