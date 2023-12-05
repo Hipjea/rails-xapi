@@ -1,14 +1,14 @@
 require_relative "lib/xapi_middleware/version"
 
 Gem::Specification.new do |spec|
-  spec.name        = "xapi_middleware"
-  spec.version     = XapiMiddleware::VERSION
-  spec.authors     = ["Hipjea"]
-  spec.email       = ["pierre.duverneix@gmail.com"]
-  spec.homepage    = "https://github.com/fondation-unit/xapi_middleware"
-  spec.summary     = "Summary of XapiMiddleware."
+  spec.name = "xapi_middleware"
+  spec.version = XapiMiddleware::VERSION
+  spec.authors = ["Hipjea"]
+  spec.email = ["pierre.duverneix@gmail.com"]
+  spec.homepage = "https://github.com/fondation-unit/xapi_middleware"
+  spec.summary = "Summary of XapiMiddleware."
   spec.description = "Description of XapiMiddleware."
-  spec.license     = "MIT"
+  spec.license = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the "allowed_push_host"
   # to allow pushing to a single host or delete this section to allow pushing to any host.

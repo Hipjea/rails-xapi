@@ -23,9 +23,7 @@ module XapiMiddleware
     # Returns an array of keys present in the result hash.
     #
     # @return [Array<Symbol>] The array of keys.
-    def keys
-      result_hash.keys
-    end
+    delegate :keys, to: :result_hash
 
     private
 
@@ -58,11 +56,11 @@ module XapiMiddleware
       def validate_result_structure(result)
         result_hash = result.is_a?(Hash) ? result : result.as_json
         raise ResultError, "must be a hash or an object that responds to as_json" unless result_hash.is_a?(Hash)
-    
+
         required_keys = %i[response success score_raw score_min score_max]
         missing_keys = required_keys - result.keys
 
-        raise ResultError, "missing keys: #{missing_keys.join(', ')}" unless missing_keys.empty?
+        raise ResultError, "missing keys: #{missing_keys.join(", ")}" unless missing_keys.empty?
       end
 
       # Validates the values of the result hash.
@@ -76,7 +74,7 @@ module XapiMiddleware
           value.present? && valid_value_type?(key, value)
         end
 
-        raise ResultError, "missing values or invalid type #{missing_values.join(', ')}" unless missing_values.empty?
+        raise ResultError, "missing values or invalid type #{missing_values.join(", ")}" unless missing_values.empty?
       end
 
       # Checks if the value has the correct type.

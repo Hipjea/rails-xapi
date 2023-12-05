@@ -6,7 +6,7 @@ module XapiMiddleware
 
     after_initialize :set_data
 
-    validates :verb_id, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp, message: "is not a valid URL" }
+    validates :verb_id, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp, message: I18n.t("errors.invalid_url")}
     validates :object_identifier, presence: true
     validates :actor_name, presence: true
     validates :statement_json, presence: true
@@ -26,10 +26,6 @@ module XapiMiddleware
       self
     end
 
-    def pretty_print
-      JSON.pretty_generate(as_json)
-    end
-
     private
 
       def prepare_json
@@ -42,7 +38,7 @@ module XapiMiddleware
       end
 
       def log_output
-        Rails.logger.info "#{I18n.t("xapi_middleware.xapi_statement")} => #{pretty_print}"
+        Rails.logger.info { "#{I18n.t("xapi_middleware.xapi_statement")} => #{JSON.pretty_generate(as_json)}" }
       end
   end
 end

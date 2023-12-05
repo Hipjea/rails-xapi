@@ -1,3 +1,6 @@
 en:
   xapi_middleware:
     xapi_statement: "xAPI statement"
+
+    errors:
+      invalid_url: "is not a valid URL"
