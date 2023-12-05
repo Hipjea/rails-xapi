@@ -3,7 +3,8 @@ en:
     xapi_statement: "xAPI statement"
 
     errors:
+      invalid_actor_object_type: "invalid actor object type : %{name}"
       invalid_verb_id_url: "verb_id is not a valid URL"
-      malformed_mbox: "malformed mbox value"
+      malformed_mbox: "malformed mbox value : %{name}"
       missing_keys: "missing keys %{keys}"
       missing_values_or_invalid_type: "missing values or invalid type %{values}"

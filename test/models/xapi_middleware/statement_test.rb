@@ -7,6 +7,7 @@ module XapiMiddleware
         verb_id: "http://example.com/verb",
         object: { id: "http://example.com/object" },
         actor: {
+          object_type: "Group",
           name: "ÿøhnNÿ DœE",
           mbox: "mailto:yohnny.doe@localhost.com",
           account: {
