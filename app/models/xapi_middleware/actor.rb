@@ -72,7 +72,6 @@ module XapiMiddleware
     end
 
     # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
-    #
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
     #
     # @return [Hash] The actor hash with the camel-case version of object_type.
@@ -81,10 +80,23 @@ module XapiMiddleware
         objectType: @object_type,
         name: @name,
         mbox: @mbox,
+        mbox_sha1sum: mbox_sha1sum,
         account: @account,
         openid: @openid
       }.compact
     end
+
+    private
+
+      # Produces the hex-encoded SHA1 hash of the actor mailto.
+      #
+      # @return [String] The hex-encoded SHA1 hash of the actor mailto.
+      def mbox_sha1sum
+        return nil if @mbox.blank?
+
+        sha1 = Digest::SHA1.hexdigest(@mbox)
+        "sha1:#{sha1}"
+      end
   end
 
   # Represents an account with home_page and name.
@@ -101,6 +113,10 @@ module XapiMiddleware
       @name = account[:name]
     end
 
+    # Validates the account data.
+    #
+    # @param [Hash] account The actor account data.
+    # @raise [ActorError] If the account home_page value provided is malformed.
     def validates_account(account)
       return if account[:home_page].blank?
 
@@ -111,7 +127,6 @@ module XapiMiddleware
     end
 
     # Overrides the Hash class method to camelize home_page, according to the xAPI specification.
-    #
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2424-account-object
     #
     # @return [Hash] The account hash with the camel-case version of home_page, if home_page is provided.

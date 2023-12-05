@@ -2,6 +2,10 @@
 
 module XapiMiddleware
   class Verb
+    # The Verb defines the action between an Actor and an Activity.
+    # The systems reading the statements must use the verb IRI to infer meaning.
+    # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
+
     attr_accessor :id, :display
 
     # Constants representing a mapping of xAPI activity verbs.
