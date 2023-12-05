@@ -11,6 +11,8 @@ module XapiMiddleware
     validates :actor_name, presence: true
     validates :statement_json, presence: true
 
+    # Sets the data to construct the xAPI statement to be stored in the database.
+    # The full statement is represented in JSON in statement_json.
     def set_data
       @verb = XapiMiddleware::Verb.new(verb_id)
       @actor = XapiMiddleware::Actor.new(actor)
@@ -21,6 +23,9 @@ module XapiMiddleware
       self.statement_json = prepare_json
     end
 
+    # Outputs the xAPI statement in the logs.
+    #
+    # @return [Statement]
     def output
       log_output if XapiMiddleware.configuration.output_xapi_logs
       self
@@ -28,6 +33,9 @@ module XapiMiddleware
 
     private
 
+      # Output of the statement as JSON.
+      #
+      # @return [String] The JSON representation of the statement.
       def prepare_json
         {
           verb: @verb,
@@ -37,6 +45,7 @@ module XapiMiddleware
         }.to_json
       end
 
+      # Outputs the xAPI statement in the logs.
       def log_output
         Rails.logger.info { "#{I18n.t("xapi_middleware.xapi_statement")} => #{JSON.pretty_generate(as_json)}" }
       end
