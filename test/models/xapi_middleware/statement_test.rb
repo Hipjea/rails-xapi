@@ -11,7 +11,8 @@ module XapiMiddleware
           mbox: "mailto:yohnny.doe@localhost.com",
           account: {
             name: "JohnnyAccount#1"
-          }
+          },
+          openid: "http://example.com/object/JohnnyAccount#1" 
         },
         result: { 
           response: "The user answered",
@@ -21,6 +22,10 @@ module XapiMiddleware
           score_max: 100
         }
       )
+
+      p"*"*90
+      p JSON.parse(@statement.statement_json)["actor"]
+      p"*"*90
     end
 
     test "valid statement" do

@@ -37,7 +37,7 @@ module XapiMiddleware
           score_raw: @score&.raw,
           score_min: @score&.min,
           score_max: @score&.max
-        }
+        }.compact
       end
 
       # Validates the overall structure of the result.

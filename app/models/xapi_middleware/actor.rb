@@ -5,7 +5,10 @@ module XapiMiddleware
   class ActorError < StandardError; end
 
   class Actor
-    attr_accessor :object_type, :name, :mbox, :account
+    # The Actor defines who performed the action. The Actor of a Statement can be an Agent or a Group.
+    # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
+
+    attr_accessor :object_type, :name, :mbox, :account, :openid
 
     OBJECT_TYPES = ["Agent", "Group"]
 
@@ -14,6 +17,8 @@ module XapiMiddleware
     # @param [String] object_type The type of the actor, either Agent or Group.
     # @param [String] name The name of the actor.
     # @param [String] mbox The mbox of the actor.
+    # @param [String] openid The openid URI of the actor.
+    # @param [Hash] account The account hash of the actor.
     def initialize(actor)
       validate_actor(actor)
       normalized_actor = normalize_actor(actor)
@@ -21,7 +26,8 @@ module XapiMiddleware
       @object_type = normalized_actor[:object_type]
       @name = normalized_actor[:name]
       @mbox = normalized_actor[:mbox] if normalized_actor[:mbox].present?
-      @account = normalized_actor[:account] if normalized_actor[:account].present?
+      @openid = actor[:openid] if actor[:openid].present?
+      @account = Account.new(actor[:account]) if actor[:account].present?
     end
 
     # Validates the actor data.
@@ -37,6 +43,13 @@ module XapiMiddleware
         object_type_valid = OBJECT_TYPES.include?(actor[:object_type])
         raise ActorError, I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:object_type]) unless object_type_valid
       end
+
+      if actor[:openid].present?
+        uri = URI.parse(actor[:openid])
+        is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+
+        raise ActorError, I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor[:openid]) unless is_valid_openid_uri
+      end
     end
 
     # Class method to normalize actor data.
@@ -50,30 +63,63 @@ module XapiMiddleware
         .humanize
         .gsub(/\b('?[#{XapiMiddleware::Statement::LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
       normalized_mbox = actor[:mbox].strip.downcase if actor[:mbox].present?
-      normalized_account = actor[:account] if actor[:account].present?
 
       {
         object_type: normalized_object_type,
         name: normalized_name,
-        mbox: normalized_mbox,
-        account: normalized_account
+        mbox: normalized_mbox
       }
     end
 
-    # Overrides the Hash class method to camelize object_type,
-    # according to the xAPI specification.
+    # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
     #
-    # See https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
+    # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
     #
     # @return [Hash] The actor hash with the camel-case version of object_type.
-    #
     def to_hash
       {
         objectType: @object_type,
         name: @name,
         mbox: @mbox,
-        account: @account
-      }
+        account: @account,
+        openid: @openid
+      }.compact
+    end
+  end
+
+  # Represents an account with home_page and name.
+  class Account
+    attr_accessor :home_page, :name
+
+    # Initializes a new Account instance.
+    #
+    # @param account [Hash] The account data.
+    def initialize(account)
+      validates_account(account)
+
+      @home_page = account[:home_page]
+      @name = account[:name]
+    end
+
+    def validates_account(account)
+      return if account[:home_page].blank?
+
+      uri = URI.parse(account[:home_page])
+      is_valid_home_page = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+
+      raise ActorError, I18n.t("xapi_middleware.errors.malformed_account_home_page_url", url: account[:home_page]) unless is_valid_home_page
+    end
+
+    # Overrides the Hash class method to camelize home_page, according to the xAPI specification.
+    #
+    # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2424-account-object
+    #
+    # @return [Hash] The account hash with the camel-case version of home_page, if home_page is provided.
+    def to_hash
+      {
+        homePage: @home_page,
+        name: @name
+      }.compact
     end
   end
 end
