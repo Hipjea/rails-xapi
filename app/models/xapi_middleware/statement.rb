@@ -42,3 +42,16 @@ module XapiMiddleware
       end
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_statements
+#
+#  id                :integer          not null, primary key
+#  actor_name        :string
+#  object_identifier :string
+#  statement_json    :text
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  verb_id           :string
+#
