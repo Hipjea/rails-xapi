@@ -165,7 +165,6 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
-    rainbow (3.1.1)
     rake (13.1.0)
     rdoc (6.6.0)
       psych (>= 4.0.0)
@@ -196,7 +195,6 @@ PLATFORMS
 
 DEPENDENCIES
   puma
-  rainbow
   sprockets-rails
   sqlite3
   xapi_middleware!

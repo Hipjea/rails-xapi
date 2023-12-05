@@ -26,6 +26,10 @@ module XapiMiddleware
       self
     end
 
+    def pretty_print
+      JSON.pretty_generate(as_json)
+    end
+
     private
 
       def prepare_json
@@ -37,12 +41,9 @@ module XapiMiddleware
         }.to_json
       end
 
-      def pretty_print
-        JSON.pretty_generate(as_json)
-      end
 
       def log_output
-        Rails.logger.info Rainbow("#{I18n.t("xapi_middleware.xapi_statement")} => #{pretty_print}").yellow
+        Rails.logger.info "#{I18n.t("xapi_middleware.xapi_statement")} => #{pretty_print}"
       end
   end
 end
