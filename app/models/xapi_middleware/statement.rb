@@ -68,7 +68,7 @@ module XapiMiddleware
         {
           verb: @verb,
           object: @object,
-          actor: @actor,
+          actor: @actor.to_hash,
           result: @result
         }.to_json
       end

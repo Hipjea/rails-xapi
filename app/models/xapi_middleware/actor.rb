@@ -7,6 +7,8 @@ module XapiMiddleware
   class Actor
     attr_accessor :object_type, :name, :mbox, :account
 
+    OBJECT_TYPES = ["Agent", "Group"]
+
     # Initializes a new Actor instance.
     #
     # @param [String] object_type The type of the actor, either Agent or Group.
@@ -32,7 +34,7 @@ module XapiMiddleware
       end
 
       if actor[:object_type].present?
-        object_type_valid = ["Agent", "Group"].include?(actor[:object_type])
+        object_type_valid = OBJECT_TYPES.include?(actor[:object_type])
         raise ActorError, I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:object_type]) unless object_type_valid
       end
     end
@@ -42,7 +44,7 @@ module XapiMiddleware
     # @param [Hash] actor The actor data.
     # @return [Hash] The normalized actor data.
     def normalize_actor(actor)
-      normalized_object_type = (actor[:object_type].presence || "Agent")
+      normalized_object_type = (actor[:object_type].presence || OBJECT_TYPES.first)
       normalized_name = actor[:name].gsub(XapiMiddleware::Statement::LATIN_LETTERS_REGEX, "")
         .to_s
         .humanize
@@ -55,6 +57,22 @@ module XapiMiddleware
         name: normalized_name,
         mbox: normalized_mbox,
         account: normalized_account
+      }
+    end
+
+    # Overrides the Hash class method to camelize object_type,
+    # according to the xAPI specification.
+    #
+    # See https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
+    #
+    # @return [Hash] The actor hash with the camel-case version of object_type.
+    #
+    def to_hash
+      {
+        objectType: @object_type,
+        name: @name,
+        mbox: @mbox,
+        account: @account
       }
     end
   end
