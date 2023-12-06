@@ -10,6 +10,8 @@ module XapiMiddleware
 
     attr_accessor :object, :actor, :result, :verb, :substatement
 
+    # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
+    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
     LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
     LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
 
@@ -46,10 +48,11 @@ module XapiMiddleware
       self.actor_name = @actor.name
       self.statement_json = prepare_json
 
-      if @object.object_type == "SubStatement"
+      # If the objectType is SubStatement
+      if @object.object_type == OBJECT_TYPES[3]
         begin
           create_substatement(@object)
-          self.object_type = "SubStatement"
+          self.object_type = OBJECT_TYPES[3]
           self.object_identifier = substatement.id
         rescue StatementError => err
           error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
@@ -59,9 +62,12 @@ module XapiMiddleware
       end
     end
 
+    # Creates a new substatement row.
+    #
+    # @param [XapiMiddleware::Object] object The substatement object.
     def create_substatement(object)
       self.substatement = self.class.create(
-        object_type: "StatementRef",
+        object_type: OBJECT_TYPES[4],
         actor: object.actor,
         verb: object.verb,
         object: object.object

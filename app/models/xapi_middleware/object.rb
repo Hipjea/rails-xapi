@@ -8,7 +8,7 @@ module XapiMiddleware
     # The Object defines the thing that was acted on.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
     # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
-    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
+    OBJECT_TYPES = Statement::OBJECT_TYPES.dup
 
     attr_accessor :object_type, :id, :definition
     attr_reader :verb, :object, :actor
