@@ -62,10 +62,9 @@ module XapiMiddleware
         }
       )
 
-      #p"*"*90
-      #p @pre_statement.valid?
-      #p JSON.parse(@statement.statement_json)["object"]
-      #p"*"*90
+      p"*"*90
+      p JSON.parse(@statement.statement_json)["object"]
+      p"*"*90
     end
 
     test "valid statement" do

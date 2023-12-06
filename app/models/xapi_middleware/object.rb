@@ -5,9 +5,12 @@ module XapiMiddleware
   class ObjectError < StandardError; end
 
   class Object
-    attr_accessor :object_type, :id, :definition
-
+    # The Object defines the thing that was acted on.
+    # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
+    # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
     OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
+
+    attr_accessor :object_type, :id, :definition
 
     # Initializes a new Object instance.
     #

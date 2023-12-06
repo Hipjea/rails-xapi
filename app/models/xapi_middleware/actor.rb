@@ -5,12 +5,12 @@ module XapiMiddleware
   class ActorError < StandardError; end
 
   class Actor
-    # The Actor defines who performed the action. The Actor of a Statement can be an Agent or a Group.
+    # The Actor defines who performed the action.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
+    # The Actor of a Statement can be an Agent or a Group.
+    OBJECT_TYPES = ["Agent", "Group"]
 
     attr_accessor :object_type, :name, :mbox, :account, :openid
-
-    OBJECT_TYPES = ["Agent", "Group"]
 
     # Initializes a new Actor instance.
     #
