@@ -17,7 +17,7 @@ module XapiMiddleware
 
       @response = result[:response]
       @success = result[:success] || false
-      @score = Score.new(raw: result[:score_raw], min: result[:score_min], max: result[:score_max])
+      @score = XapiMiddleware::Score.new(raw: result[:score_raw], min: result[:score_min], max: result[:score_max])
     end
 
     # Returns an array of keys present in the result hash.
@@ -94,21 +94,5 @@ module XapiMiddleware
           true
         end
       end
-  end
-
-  # Represents a score with raw, min, and max values.
-  class Score
-    attr_accessor :raw, :min, :max
-
-    # Initializes a new Score instance.
-    #
-    # @param raw [Integer] The raw score value.
-    # @param min [Integer] The minimum score value.
-    # @param max [Integer] The maximum score value.
-    def initialize(raw:, min:, max:)
-      @raw = raw
-      @min = min
-      @max = max
-    end
   end
 end

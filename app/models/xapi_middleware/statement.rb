@@ -121,14 +121,19 @@ end
 #
 # Table name: xapi_middleware_statements
 #
-#  id                :integer          not null, primary key
-#  actor_name        :string
-#  object_identifier :string
-#  object_type       :string
-#  statement_json    :text
-#  verb_display      :string
-#  verb_display_full :string
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  verb_id           :string
+#  id                     :integer          not null, primary key
+#  actor_account_homepage :string
+#  actor_account_name     :string
+#  actor_mbox             :string
+#  actor_name             :string
+#  actor_openid           :string
+#  actor_sha1sum          :string
+#  object_identifier      :string
+#  object_type            :string
+#  statement_json         :text
+#  verb_display           :string
+#  verb_display_full      :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  verb_id                :string
 #

@@ -13,6 +13,11 @@
 ActiveRecord::Schema[7.1].define(version: 2023_12_04_141223) do
   create_table "xapi_middleware_statements", force: :cascade do |t|
     t.string "actor_name"
+    t.string "actor_mbox"
+    t.string "actor_sha1sum"
+    t.string "actor_openid"
+    t.string "actor_account_homepage"
+    t.string "actor_account_name"
     t.string "verb_id"
     t.string "verb_display"
     t.string "verb_display_full"

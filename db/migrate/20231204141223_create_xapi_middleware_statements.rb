@@ -5,6 +5,21 @@ class CreateXapiMiddlewareStatements < ActiveRecord::Migration[7.1]
 
       # @!attribute actor_name
       #   @return [String] the name of the actor
+  
+      # @!attribute actor_mbox
+      #   @return [String] the mbox of the actor
+  
+      # @!attribute actor_mbox_sha1sum
+      #   @return [String] the sha1 encoded value of the actor's mbox
+  
+      # @!attribute actor_openid
+      #   @return [String] the OpeniId identifier of the actor
+  
+      # @!attribute actor_account_homepage
+      #   @return [String] the account home page of the actor
+  
+      # @!attribute actor_account_name
+      #   @return [String] the account name of the actor
 
       # @!attribute verb_id
       #   @return [String] the identifier of the verb
@@ -27,6 +42,11 @@ class CreateXapiMiddlewareStatements < ActiveRecord::Migration[7.1]
       # @!endgroup
 
       t.string :actor_name
+      t.string :actor_mbox, null: true
+      t.string :actor_sha1sum, null: true
+      t.string :actor_openid, null: true
+      t.string :actor_account_homepage, null: true
+      t.string :actor_account_name, null: true
       t.string :verb_id
       t.string :verb_display
       t.string :verb_display_full
