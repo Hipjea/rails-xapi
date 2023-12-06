@@ -15,14 +15,14 @@ module XapiMiddleware
 
     # Initializes a new Object instance.
     #
-    # @param [Hash] object The object hash containing id and name.
+    # @param [Hash] object The object hash containing id and definition.
     def initialize(object)
       validate_object(object)
       normalized_object = normalize_object(object)
 
       @object_type = normalized_object[:object_type]
       @id = object[:id].presence
-      @definition = object[:name].present? ? Definition.new(name: object[:name]) : nil
+      @definition = object[:definition].present? ? XapiMiddleware::ObjectDefinition.new(object[:definition]) : nil
       # In the case of a SubStatement
       @verb = normalized_object[:verb].presence
       @object = normalized_object[:object].presence
@@ -80,24 +80,6 @@ module XapiMiddleware
         object: @object,
         actor: @actor
       }.compact
-    end
-  end
-
-  class Definition
-    attr_accessor :name
-
-    # Initializes a new Definition instance.
-    #
-    # @param [String] name The name of the definition.
-    def initialize(name:)
-      @name = name
-    end
-
-    # Overrides the Hash class method.
-    #
-    # @return [Hash] The definition hash.
-    def to_hash
-      {name: @name}.compact
     end
   end
 end
