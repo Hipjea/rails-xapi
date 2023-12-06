@@ -5,6 +5,9 @@ module XapiMiddleware
   class StatementError < StandardError; end
 
   class Statement < ApplicationRecord
+    # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
+    # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
+
     attr_accessor :object, :actor, :result
 
     LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
@@ -13,11 +16,11 @@ module XapiMiddleware
     after_initialize :set_data
 
     validates :verb_id, presence: true
-    validate :validate_verb_id_format
     validates :object_type, presence: true
     validates :object_identifier, presence: true, unless: -> { object_type == "SubStatement" }
     validates :actor_name, presence: true
     validates :statement_json, presence: true
+    validate :validate_verb_id_format
 
     normalizes :actor_name, with: ->(actor_name) {
       actor_name.gsub(LATIN_LETTERS_REGEX, "")
