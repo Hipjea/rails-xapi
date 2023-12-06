@@ -10,9 +10,11 @@ module XapiMiddleware
     def initialize(definition)
       @name = {}
       @description = {}
+      @extensions = {}
 
       add_values_to_key(definition[:name], @name)
       add_values_to_key(definition[:description], @description)
+      add_values_to_key(definition[:extensions], @extensions)
     end
 
     # Adds values to the corresponding key, to allow multiple languages values.
@@ -33,7 +35,8 @@ module XapiMiddleware
     def to_hash
       {
         name: @name,
-        description: @description
+        description: @description,
+        extensions: @extensions
       }.compact
     end
   end
