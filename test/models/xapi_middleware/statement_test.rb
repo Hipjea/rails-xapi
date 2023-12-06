@@ -13,7 +13,7 @@ module XapiMiddleware
         },
         actor: {
           name: "Actor 1",
-          mbox: "mailto:actor1@localhost.com",
+          mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52",
           account: {
             name: "Actor#1"
           },
@@ -72,13 +72,13 @@ module XapiMiddleware
           score_max: 100
         }
       )
-
-      #pp JSON.parse(@statement.statement_json)
     end
 
     test "valid statement" do
       assert @statement.valid?, "Activity statement should be valid"
       assert @substatement_statement.valid?, "Substatement statement should be valid"
+
+      pp JSON.parse(@statement.statement_json)
     end
 
     test "invalid statement without verb_id" do

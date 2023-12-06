@@ -17,6 +17,7 @@ module XapiMiddleware
     # @param [String] object_type The type of the actor, either Agent or Group.
     # @param [String] name The name of the actor.
     # @param [String] mbox The mbox of the actor.
+    # @param [String] mbox_sha1sum The sha1 encoded mbox value of the actor.
     # @param [String] openid The openid URI of the actor.
     # @param [Hash] account The account hash of the actor.
     def initialize(actor)
@@ -24,10 +25,21 @@ module XapiMiddleware
       normalized_actor = normalize_actor(actor)
 
       @object_type = normalized_actor[:object_type]
-      @name = normalized_actor[:name]
-      @mbox = normalized_actor[:mbox] if normalized_actor[:mbox].present?
-      @openid = actor[:openid] if actor[:openid].present?
-      @account = Account.new(actor[:account]) if actor[:account].present?
+      @name = normalized_actor[:name] if normalized_actor[:name].present?
+
+      mbox_present = normalized_actor[:mbox].present?
+      mbox_sha1sum_present = actor[:mbox_sha1sum].present?
+      openid_present = actor[:openid].present?
+      account_present = actor[:account].present?
+
+      if mbox_present || mbox_sha1sum_present || openid_present || account_present
+        @mbox = normalized_actor[:mbox] if mbox_present
+        @mbox_sha1sum = normalized_actor[:mbox_sha1sum] if mbox_sha1sum_present
+        @openid = actor[:openid] if openid_present
+        @account = Account.new(actor[:account]) if account_present
+      else
+        raise ActorError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
+      end
     end
 
     # Validates the actor data.
@@ -37,6 +49,10 @@ module XapiMiddleware
       if actor[:mbox].present?
         mbox_valid = actor[:mbox].strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
         raise ActorError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor[:mbox]) unless mbox_valid
+      end
+
+      if actor[:mbox_sha1sum].present?
+        raise ActorError, I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(actor[:mbox_sha1sum])
       end
 
       if actor[:object_type].present?
@@ -80,7 +96,7 @@ module XapiMiddleware
         objectType: @object_type,
         name: @name,
         mbox: @mbox,
-        mbox_sha1sum: mbox_sha1sum,
+        mbox_sha1sum: @mbox_sha1sum,
         account: @account,
         openid: @openid
       }.compact
@@ -90,12 +106,12 @@ module XapiMiddleware
 
       # Produces the hex-encoded SHA1 hash of the actor mailto.
       #
-      # @return [String] The hex-encoded SHA1 hash of the actor mailto.
-      def mbox_sha1sum
-        return nil if @mbox.blank?
-
-        sha1 = Digest::SHA1.hexdigest(@mbox)
-        "sha1:#{sha1}"
+      # @param [String] mbox The mbox clear value to be encoded.
+      # @return [Boolean] True if the value is matching, false otherwise.
+      def is_sha1?(str)
+        # SHA-1 hash is a 40-character hexadecimal string
+        # consisting of numbers 0-9 and letters a-f
+        !!(str =~ /^sha1:[0-9a-f]{40}$/i)
       end
   end
 
