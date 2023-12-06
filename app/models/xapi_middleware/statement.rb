@@ -31,6 +31,7 @@ module XapiMiddleware
     }
 
     after_initialize :set_data
+    before_save :create_substatement, if: -> { @object.object_type == OBJECT_TYPES[3] }
 
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
@@ -47,33 +48,34 @@ module XapiMiddleware
       self.object_identifier = @object.id&.presence
       self.actor_name = @actor.name
       self.statement_json = prepare_json
-
-      # If the objectType is SubStatement
-      if @object.object_type == OBJECT_TYPES[3]
-        begin
-          create_substatement(@object)
-          self.object_type = OBJECT_TYPES[3]
-          self.object_identifier = substatement.id
-        rescue StatementError => err
-          error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
-          Rails.logger.error("#{error_msg} : #{err}")
-          raise StatementError, error_msg
-        end
-      end
     end
 
-    # Creates a new substatement row.
+    # Prepares a new substatement row.
     #
     # @param [XapiMiddleware::Object] object The substatement object.
-    def create_substatement(object)
-      self.substatement = self.class.create(
+    def prepare_substatement(object)
+      sub = self.class.new(
         object_type: OBJECT_TYPES[4],
         actor: object.actor,
         verb: object.verb,
         object: object.object
       )
 
-      substatement.save if substatement.valid?
+      return sub if sub.valid?
+
+      error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
+      Rails.logger.error("#{error_msg} : #{err}")
+      raise StatementError, error_msg
+    end
+
+    # Creates a substatement if the objectType is SubStatement.
+    def create_substatement
+      self.substatement = prepare_substatement(@object)
+      self.object_type = OBJECT_TYPES[3]
+      # Save the substatement
+      substatement.save
+      # Set the main statement object_identifier to the substatement id
+      self.object_identifier = substatement.id
     end
 
     # Outputs the xAPI statement in the logs.
