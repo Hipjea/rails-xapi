@@ -11,6 +11,7 @@ module XapiMiddleware
     OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
 
     attr_accessor :object_type, :id, :definition
+    attr_reader :verb, :object, :actor
 
     # Initializes a new Object instance.
     #

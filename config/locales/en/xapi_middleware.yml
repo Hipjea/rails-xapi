@@ -3,6 +3,7 @@ en:
     xapi_statement: "xAPI statement"
 
     errors:
+      couldnt_create_the_substatement: "Couldn’t create the substatement"
       invalid_actor_object_type: "invalid actor's object type : %{name}"
       invalid_object_object_type: "invalid object's object type : %{name}"
       invalid_object_substatement: "invalid object substatement"

@@ -72,7 +72,8 @@ module XapiMiddleware
       )
 
       p"*"*90
-      p JSON.parse(@statement.statement_json)["verb"]
+      pp JSON.parse(@statement.statement_json)
+      @statement.save
       p"*"*90
     end
 

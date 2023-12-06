@@ -8,12 +8,10 @@ module XapiMiddleware
     # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 
-    attr_accessor :object, :actor, :result, :verb
+    attr_accessor :object, :actor, :result, :verb, :substatement
 
     LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
     LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
-
-    after_initialize :set_data
 
     validates :verb_id, presence: true
     validates :verb_display, presence: true
@@ -30,6 +28,8 @@ module XapiMiddleware
         .gsub(/\b('?[#{LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
     }
 
+    after_initialize :set_data
+
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
     def set_data
@@ -45,6 +45,29 @@ module XapiMiddleware
       self.object_identifier = @object.id&.presence
       self.actor_name = @actor.name
       self.statement_json = prepare_json
+
+      if @object.object_type == "SubStatement"
+        begin
+          create_substatement(@object)
+          self.object_type = "SubStatement"
+          self.object_identifier = substatement.id
+        rescue StatementError => err
+          error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
+          Rails.logger.error("#{error_msg} : #{err}")
+          raise StatementError, error_msg
+        end
+      end
+    end
+
+    def create_substatement(object)
+      self.substatement = self.class.create(
+        object_type: "StatementRef",
+        actor: object.actor,
+        verb: object.verb,
+        object: object.object
+      )
+
+      substatement.save if substatement.valid?
     end
 
     # Outputs the xAPI statement in the logs.
