@@ -14,6 +14,8 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_04_141223) do
   create_table "xapi_middleware_statements", force: :cascade do |t|
     t.string "actor_name"
     t.string "verb_id"
+    t.string "verb_display"
+    t.string "verb_display_full"
     t.string "object_type"
     t.string "object_identifier"
     t.text "statement_json"

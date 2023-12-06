@@ -8,7 +8,7 @@ module XapiMiddleware
     # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 
-    attr_accessor :object, :actor, :result
+    attr_accessor :object, :actor, :result, :verb
 
     LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
     LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
@@ -16,6 +16,7 @@ module XapiMiddleware
     after_initialize :set_data
 
     validates :verb_id, presence: true
+    validates :verb_display, presence: true
     validates :object_type, presence: true
     validates :object_identifier, presence: true, unless: -> { object_type == "SubStatement" }
     validates :actor_name, presence: true
@@ -32,10 +33,14 @@ module XapiMiddleware
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
     def set_data
-      @verb = XapiMiddleware::Verb.new(verb_id)
+      @verb = XapiMiddleware::Verb.new(verb)
       @actor = XapiMiddleware::Actor.new(actor)
       @object = XapiMiddleware::Object.new(object)
       @result = XapiMiddleware::Result.new(result) if result.present?
+
+      self.verb_id = @verb.id
+      self.verb_display = @verb.generic_display
+      self.verb_display_full = @verb.display.to_json
       self.object_type = @object.object_type
       self.object_identifier = @object.id&.presence
       self.actor_name = @actor.name
@@ -71,7 +76,7 @@ module XapiMiddleware
       # @return [String] The JSON representation of the statement.
       def prepare_json
         {
-          verb: @verb,
+          verb: @verb.to_hash,
           object: @object.to_hash,
           actor: @actor.to_hash,
           result: @result
@@ -94,6 +99,8 @@ end
 #  object_identifier :string
 #  object_type       :string
 #  statement_json    :text
+#  verb_display      :string
+#  verb_display_full :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  verb_id           :string

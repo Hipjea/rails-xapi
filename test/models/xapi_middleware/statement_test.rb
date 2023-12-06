@@ -4,7 +4,9 @@ module XapiMiddleware
   class StatementTest < ActiveSupport::TestCase
     def setup
       @pre_statement = XapiMiddleware::Statement.new(
-        verb_id: "http://example.com/verb",
+        verb: {
+          id: "http://example.com/verb"
+        },
         object: {
           id: "http://example.com/object"
         },
@@ -26,7 +28,14 @@ module XapiMiddleware
       )
 
       @statement = XapiMiddleware::Statement.new(
-        verb_id: "http://example.com/verb",
+        verb: {
+          id: "http://example.com/verb",
+          display: {
+            "en-US": "voided",
+            fr: "test",
+            "gb": "proot"
+          }
+        },
         object: {
           object_type: "SubStatement",
           actor: {
@@ -63,7 +72,7 @@ module XapiMiddleware
       )
 
       p"*"*90
-      p JSON.parse(@statement.statement_json)["object"]
+      p JSON.parse(@statement.statement_json)["verb"]
       p"*"*90
     end
 
@@ -121,6 +130,8 @@ end
 #  object_identifier :string
 #  object_type       :string
 #  statement_json    :text
+#  verb_display      :string
+#  verb_display_full :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  verb_id           :string

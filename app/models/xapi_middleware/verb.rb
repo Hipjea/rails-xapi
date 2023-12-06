@@ -7,6 +7,7 @@ module XapiMiddleware
     # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
 
     attr_accessor :id, :display
+    attr_reader :generic_display
 
     # Constants representing a mapping of xAPI activity verbs.
     #
@@ -206,11 +207,42 @@ module XapiMiddleware
     # Initializes a new Verb instance.
     #
     # @param [string] verb_id The verb identifier. Must be a valid URL.
-    def initialize(verb_id)
-      @id = verb_id
+    def initialize(verb)
+      display = default_display(verb[:id])
+
+      @id = verb[:id]
+      @generic_display = display
       @display = {
-        "en-US": VERBS_LIST[verb_id]
+        "en-US": display
       }
+
+      # Add any other languages properties
+      if verb[:display].is_a?(Hash) && verb[:display].any?
+        verb[:display].each do |key, value|
+          @display[key.to_sym] = value
+        end
+      end
+    end
+
+    # Generate the display value for "en-US".
+    #
+    # @param [String] verb The verb id.
+    # @return [String] The generic display value.
+    def default_display(verb_id)
+      display = VERBS_LIST[verb_id]
+      return verb_id.split("/")[-1] if display.nil?
+
+      display
+    end
+
+    # Overrides the Hash class method.
+    #
+    # @return [Hash] The verb hash without the generic_display attribute.
+    def to_hash
+      {
+        id: @id,
+        display: @display
+      }.compact
     end
   end
 end
