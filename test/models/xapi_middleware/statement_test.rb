@@ -3,7 +3,8 @@ require "test_helper"
 module XapiMiddleware
   class StatementTest < ActiveSupport::TestCase
     def setup
-      @pre_statement = XapiMiddleware::Statement.new(
+      # Create a statement with an Activity object (by default)
+      @statement = XapiMiddleware::Statement.new(
         verb: {
           id: "http://example.com/verb"
         },
@@ -27,13 +28,14 @@ module XapiMiddleware
         }
       )
 
-      @statement = XapiMiddleware::Statement.new(
+      # Create a statement with a SubStatement object
+      @substatement_statement = XapiMiddleware::Statement.new(
         verb: {
           id: "http://example.com/verb",
           display: {
             "en-US": "voided",
-            fr: "test",
-            "gb": "proot"
+            fr: "vidé",
+            "gb": "voided"
           }
         },
         object: {
@@ -41,7 +43,7 @@ module XapiMiddleware
           actor: {
             objectType: "Agent",
             name: "Example Admin",
-            mbox: "mailto:admin@example.adlnet.gov"
+            mbox: "mailto:admin@example.com"
           },
           verb: {
             id: "http://adlnet.gov/expapi/verbs/voided",
@@ -71,14 +73,12 @@ module XapiMiddleware
         }
       )
 
-      p"*"*90
-      pp JSON.parse(@statement.statement_json)
-      @statement.save
-      p"*"*90
+      #pp JSON.parse(@statement.statement_json)
     end
 
     test "valid statement" do
-      assert @statement.valid?, "Statement should be valid"
+      assert @statement.valid?, "Activity statement should be valid"
+      assert @substatement_statement.valid?, "Substatement statement should be valid"
     end
 
     test "invalid statement without verb_id" do

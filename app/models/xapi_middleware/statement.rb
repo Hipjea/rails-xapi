@@ -16,7 +16,7 @@ module XapiMiddleware
     attr_accessor :object, :actor, :result, :verb, :substatement
 
     validates :verb_id, :verb_display, :object_type, :actor_name, :statement_json, presence: true
-    validates :object_identifier, presence: true, unless: -> { object_type == "SubStatement" }
+    validates :object_identifier, presence: true, unless: -> { object_type == OBJECT_TYPES[3] }
     validate :validate_verb_id_format
 
     normalizes :actor_name, with: ->(actor_name) {
@@ -27,7 +27,7 @@ module XapiMiddleware
     }
 
     after_initialize :set_data
-    before_save :create_substatement, if: -> { object_type == "SubStatement" }
+    before_save :create_substatement, if: -> { object_type == OBJECT_TYPES[3] }
 
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.

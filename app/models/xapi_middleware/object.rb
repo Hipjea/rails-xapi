@@ -8,7 +8,7 @@ module XapiMiddleware
     # The Object defines the thing that was acted on.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
     # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
-    OBJECT_TYPES = Statement::OBJECT_TYPES.dup
+    OBJECT_TYPES = Statement::OBJECT_TYPES.dup.freeze
 
     attr_accessor :object_type, :id, :definition
     attr_reader :verb, :object, :actor
@@ -23,7 +23,7 @@ module XapiMiddleware
       @object_type = normalized_object[:object_type]
       @id = object[:id].presence
       @definition = object[:name].present? ? Definition.new(name: object[:name]) : nil
-
+      # In the case of a SubStatement
       @verb = normalized_object[:verb].presence
       @object = normalized_object[:object].presence
       @actor = normalized_object[:actor].presence
