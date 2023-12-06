@@ -8,19 +8,15 @@ module XapiMiddleware
     # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 
-    attr_accessor :object, :actor, :result, :verb, :substatement
-
     # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
-    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
+    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"].freeze
     LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
     LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
 
-    validates :verb_id, presence: true
-    validates :verb_display, presence: true
-    validates :object_type, presence: true
+    attr_accessor :object, :actor, :result, :verb, :substatement
+
+    validates :verb_id, :verb_display, :object_type, :actor_name, :statement_json, presence: true
     validates :object_identifier, presence: true, unless: -> { object_type == "SubStatement" }
-    validates :actor_name, presence: true
-    validates :statement_json, presence: true
     validate :validate_verb_id_format
 
     normalizes :actor_name, with: ->(actor_name) {
@@ -31,7 +27,7 @@ module XapiMiddleware
     }
 
     after_initialize :set_data
-    before_save :create_substatement, if: -> { @object.object_type == OBJECT_TYPES[3] }
+    before_save :create_substatement, if: -> { object_type == "SubStatement" }
 
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
