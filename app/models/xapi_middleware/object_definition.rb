@@ -2,7 +2,7 @@
 
 module XapiMiddleware
   class ObjectDefinition
-    attr_accessor :name
+    attr_accessor :type, :name, :description, :extensions
 
     # Initializes a new ObjectDefinition instance.
     #

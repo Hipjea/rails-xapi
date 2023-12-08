@@ -35,6 +35,8 @@ module XapiMiddleware
     def validate_object(object)
       object_type = object[:object_type]
 
+      raise ObjectError, I18n.t("xapi_middleware.errors.missing_keys", keys: "id") if object[:id].blank?
+
       if object_type.present?
         object_type_valid = OBJECT_TYPES.include?(object_type)
         raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type) unless object_type_valid

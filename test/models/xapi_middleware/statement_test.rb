@@ -9,7 +9,7 @@ module XapiMiddleware
           id: "http://example.com/verb"
         },
         object: {
-          id: "http://example.com/object",
+          #id: "http://example.com/object",
           definition: {
             type: "http://adlnet.gov/expapi/activities/course",
           }
