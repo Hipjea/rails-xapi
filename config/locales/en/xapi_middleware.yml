@@ -13,5 +13,6 @@ en:
       malformed_mbox: "malformed mbox value : %{name}"
       malformed_mbox_sha1sum: "malformed mbox_sha1sum value"
       malformed_openid_uri: "malformed openid URI : %{uri}"
+      malformed_uri: "malformed URI : %{uri}"
       missing_keys: "missing keys %{keys}"
       missing_values_or_invalid_type: "missing values or invalid type %{values}"
