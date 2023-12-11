@@ -38,7 +38,7 @@ module XapiMiddleware
     # @param [Hash] definition The object definition data.
     # @return [Hash] The normalized object definition data.
     def normalize_definition(definition)
-      normalized_type = definition[:type].presence.strip
+      normalized_type = definition[:type].to_s.strip
 
       {type: normalized_type}
     end

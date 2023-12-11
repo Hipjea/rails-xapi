@@ -60,7 +60,7 @@ module XapiMiddleware
         required_keys = %i[response success score_raw score_min score_max]
         missing_keys = required_keys - result.keys
 
-        raise ResultError, I18n.t("xapi_middleware.errors.missing_keys", keys: missing_keys.join(", ")) unless missing_keys.empty?
+        raise ResultError, I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) unless missing_keys.empty?
       end
 
       # Validates the values of the result hash.

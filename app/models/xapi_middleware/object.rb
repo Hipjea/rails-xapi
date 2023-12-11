@@ -35,14 +35,15 @@ module XapiMiddleware
     def validate_object(object)
       object_type = object[:object_type]
 
-      raise ObjectError, I18n.t("xapi_middleware.errors.missing_keys", keys: "id") if object[:id].blank?
+      # Raise an error if the object has not ID, except for a SubStatement object.
+      raise ObjectError, I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !substatement?(object)
 
       if object_type.present?
         object_type_valid = OBJECT_TYPES.include?(object_type)
         raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type) unless object_type_valid
       end
 
-      if object_type.present? && object_type == "SubStatement"
+      if object_type.present? && substatement?(object)
         is_valid_substatement = object[:actor].present? && object[:object].present? && object[:verb].present?
         raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_substatement") unless is_valid_substatement
       end
@@ -57,6 +58,9 @@ module XapiMiddleware
       normalize_substatement_verb, normalize_substatement_object, normalize_substatement_actor = nil
 
       if normalized_object_type == "SubStatement"
+        # Validate the substatement object first.
+        validate_object(object[:object])
+        # Normalize the substatement data.
         normalize_substatement_verb = object[:verb]
         normalize_substatement_object = object[:object]
         normalize_substatement_actor = object[:actor]
@@ -83,5 +87,17 @@ module XapiMiddleware
         actor: @actor
       }.compact
     end
+
+    private
+
+      def substatement?(object)
+        is_substatement = object[:object_type] == "SubStatement"
+        # Raise an error if the SubStatement object has an ID.
+        raise ObjectError, I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
+
+        return true if is_substatement
+
+        false
+      end
   end
 end

@@ -14,5 +14,7 @@ en:
       malformed_mbox_sha1sum: "malformed mbox_sha1sum value"
       malformed_openid_uri: "malformed openid URI: %{uri}"
       malformed_uri: "malformed URI: %{uri}"
-      missing_keys: "missing keys: %{keys}"
+      missing_object_keys: "missing object keys: %{keys}"
+      missing_result_keys: "missing result keys: %{keys}"
       missing_values_or_invalid_type: "missing values or invalid type %{values}"
+      unexpected_substatement_object_keys: "unexpected substatement object keys: %{keys}"
