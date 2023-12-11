@@ -41,7 +41,7 @@ class CreateXapiMiddlewareStatements < ActiveRecord::Migration[7.1]
 
       # @!endgroup
 
-      t.string :actor_name
+      t.string :actor_name, null: true
       t.string :actor_mbox, null: true
       t.string :actor_sha1sum, null: true
       t.string :actor_openid, null: true

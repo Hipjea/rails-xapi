@@ -15,7 +15,7 @@ module XapiMiddleware
 
     attr_accessor :object, :actor, :result, :verb, :substatement
 
-    validates :verb_id, :verb_display, :object_type, :actor_name, :statement_json, presence: true
+    validates :verb_id, :verb_display, :object_type, :statement_json, presence: true
     validates :object_identifier, presence: true, unless: -> { object_type == OBJECT_TYPES[3] }
     validate :validate_verb_id_format
 
@@ -43,6 +43,11 @@ module XapiMiddleware
       self.object_type = @object.object_type
       self.object_identifier = @object.id&.presence
       self.actor_name = @actor.name
+      self.actor_mbox = @actor.mbox
+      self.actor_sha1sum = @actor.respond_to?(:mbox_sha1sum) ? @actor.mbox_sha1sum : nil
+      self.actor_openid = @actor.openid
+      self.actor_account_homepage = @actor.account&.home_page
+      self.actor_account_name = @actor.account&.name
       self.statement_json = prepare_json
     end
 

@@ -74,17 +74,21 @@ module XapiMiddleware
     # @return [Hash] The normalized actor data.
     def normalize_actor(actor)
       normalized_object_type = (actor[:object_type].presence || OBJECT_TYPES.first)
-      normalized_name = actor[:name].gsub(XapiMiddleware::Statement::LATIN_LETTERS_REGEX, "")
-        .to_s
-        .humanize
-        .gsub(/\b('?[#{XapiMiddleware::Statement::LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
+
+      if actor[:name].present?
+        normalized_name = actor[:name].gsub(XapiMiddleware::Statement::LATIN_LETTERS_REGEX, "")
+          .to_s
+          .humanize
+          .gsub(/\b('?[#{XapiMiddleware::Statement::LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
+      end
+
       normalized_mbox = actor[:mbox].strip.downcase if actor[:mbox].present?
 
       {
         object_type: normalized_object_type,
         name: normalized_name,
         mbox: normalized_mbox
-      }
+      }.compact
     end
 
     # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
