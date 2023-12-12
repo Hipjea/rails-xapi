@@ -35,17 +35,17 @@ module XapiMiddleware
     def validate_object(object)
       object_type = object[:object_type]
 
-      # Raise an error if the object has not ID, except for a SubStatement object.
-      raise ObjectError, I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !substatement?(object)
+      # Raise an error if the object has no ID, except for a SubStatement object.
+      raise ObjectError, I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !statementref_or_substatement?(object)
 
       if object_type.present?
         object_type_valid = OBJECT_TYPES.include?(object_type)
         raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type) unless object_type_valid
       end
 
-      if object_type.present? && substatement?(object)
+      if object_type.present? && statementref_or_substatement?(object)
         is_valid_substatement = object[:actor].present? && object[:object].present? && object[:verb].present?
-        raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_substatement") unless is_valid_substatement
+        raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_substatement") unless is_valid_substatement || statementref?(object)
       end
     end
 
@@ -90,12 +90,20 @@ module XapiMiddleware
 
     private
 
-      def substatement?(object)
+      def statementref?(object)
+        return true if object[:object_type] == "StatementRef"
+
+        false
+      end
+
+      def statementref_or_substatement?(object)
         is_substatement = object[:object_type] == "SubStatement"
+        is_statement_ref = statementref?(object)
+
         # Raise an error if the SubStatement object has an ID.
         raise ObjectError, I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
 
-        return true if is_substatement
+        return true if is_substatement || is_statement_ref
 
         false
       end
