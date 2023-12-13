@@ -22,7 +22,7 @@ module XapiMiddleware
       validate_object(object)
       normalized_object = normalize_object(object)
 
-      @object_type = normalized_object[:object_type]
+      @object_type = normalized_object[:objectType]
       @id = object[:id].presence
       @definition = object[:definition].present? ? XapiMiddleware::ObjectDefinition.new(object[:definition]) : nil
       # In the case of a SubStatement
@@ -35,7 +35,7 @@ module XapiMiddleware
     #
     # @param [Hash] object The object data.
     def validate_object(object)
-      object_type = object[:object_type]
+      object_type = object[:objectType]
 
       # Raise an error if the object has no ID, except for a SubStatement object.
       raise ObjectError, I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !statementref_or_substatement?(object)
@@ -56,7 +56,7 @@ module XapiMiddleware
     # @param [Hash] object The actor data.
     # @return [Hash] The normalized object data.
     def normalize_object(object)
-      normalized_object_type = (object[:object_type].presence || OBJECT_TYPES.first)
+      normalized_object_type = (object[:objectType].presence || OBJECT_TYPES.first)
       normalize_substatement_verb, normalize_substatement_object, normalize_substatement_actor = nil
 
       if normalized_object_type == "SubStatement"
@@ -69,7 +69,7 @@ module XapiMiddleware
       end
 
       {
-        object_type: normalized_object_type,
+        objectType: normalized_object_type,
         verb: normalize_substatement_verb,
         object: normalize_substatement_object,
         actor: normalize_substatement_actor
@@ -81,7 +81,7 @@ module XapiMiddleware
     # @return [Hash] The object hash.
     def to_hash
       {
-        object_type: @object_type,
+        objectType: @object_type,
         id: @id,
         definition: @definition,
         verb: @verb,
@@ -93,13 +93,13 @@ module XapiMiddleware
     private
 
       def statementref?(object)
-        return true if object[:object_type] == "StatementRef"
+        return true if object[:objectType] == "StatementRef"
 
         false
       end
 
       def statementref_or_substatement?(object)
-        is_substatement = object[:object_type] == "SubStatement"
+        is_substatement = object[:objectType] == "SubStatement"
         is_statement_ref = statementref?(object)
 
         # Raise an error if the SubStatement object has an ID.
