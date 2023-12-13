@@ -17,6 +17,8 @@ module XapiMiddleware
     #
     # @param [Hash] object The object hash containing id and definition.
     def initialize(object)
+      raise ObjectError, I18n.t("xapi_middleware.errors.missing_object", object: "object") if object.blank? || object.nil?
+
       validate_object(object)
       normalized_object = normalize_object(object)
 

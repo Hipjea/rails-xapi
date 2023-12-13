@@ -21,6 +21,8 @@ module XapiMiddleware
     # @param [String] openid The openid URI of the actor.
     # @param [Hash] account The account hash of the actor.
     def initialize(actor)
+      raise ActorError, I18n.t("xapi_middleware.errors.missing_object", object: "actor") if actor.blank? || actor.nil?
+
       validate_actor(actor)
       normalized_actor = normalize_actor(actor)
 

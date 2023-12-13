@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
+  # Representation class of an error raised by the Verb class.
+  class VerbError < StandardError; end
+
   class Verb
     # The Verb defines the action between an Actor and an Activity.
     # The systems reading the statements must use the verb IRI to infer meaning.
@@ -208,6 +211,8 @@ module XapiMiddleware
     #
     # @param [string] verb_id The verb identifier. Must be a valid URL.
     def initialize(verb)
+      raise VerbError, I18n.t("xapi_middleware.errors.missing_object", object: "verb") if verb.blank? || verb.nil?
+
       display = default_display(verb[:id])
 
       @id = verb[:id]
