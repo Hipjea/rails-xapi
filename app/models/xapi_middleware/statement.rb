@@ -89,36 +89,36 @@ module XapiMiddleware
 
     private
 
-      # Validates the verb_id URL.
-      #
-      # @return [StatementError] If the verb_id value is invalid.
-      def validate_verb_id_format
-        return if verb_id.blank?
+    # Validates the verb_id URL.
+    #
+    # @return [StatementError] If the verb_id value is invalid.
+    def validate_verb_id_format
+      return if verb_id.blank?
 
-        uri = URI.parse(verb_id)
-        is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+      uri = URI.parse(verb_id)
+      is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-        unless verb_id.present? && is_valid
-          raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url")
-        end
+      unless verb_id.present? && is_valid
+        raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url")
       end
+    end
 
-      # Output of the statement as JSON.
-      #
-      # @return [String] The JSON representation of the statement.
-      def prepare_json
-        {
-          verb: @verb.to_hash,
-          object: @object.to_hash,
-          actor: @actor.to_hash,
-          result: @result
-        }.to_json
-      end
+    # Output of the statement as JSON.
+    #
+    # @return [String] The JSON representation of the statement.
+    def prepare_json
+      {
+        verb: @verb.to_hash,
+        object: @object.to_hash,
+        actor: @actor.to_hash,
+        result: @result
+      }.to_json
+    end
 
-      # Outputs the xAPI statement in the logs.
-      def log_output
-        Rails.logger.info { "#{I18n.t("xapi_middleware.xapi_statement")} => #{JSON.pretty_generate(as_json)}" }
-      end
+    # Outputs the xAPI statement in the logs.
+    def log_output
+      Rails.logger.info { "#{I18n.t("xapi_middleware.xapi_statement")} => #{JSON.pretty_generate(as_json)}" }
+    end
   end
 end
 

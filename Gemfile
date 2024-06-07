@@ -19,5 +19,5 @@ group :development do
   gem "guard-rubocop"
   gem "rubocop"
   gem "rubocop-rails"
-  gem "standard", require: false
+  gem "standard"
 end

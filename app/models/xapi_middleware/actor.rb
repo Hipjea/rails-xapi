@@ -110,14 +110,14 @@ module XapiMiddleware
 
     private
 
-      # Produces the hex-encoded SHA1 hash of the actor mailto.
-      #
-      # @param [String] mbox The mbox clear value to be encoded.
-      # @return [Boolean] True if the value is matching, false otherwise.
-      def is_sha1?(str)
-        # SHA-1 hash is a 40-character hexadecimal string
-        # consisting of numbers 0-9 and letters a-f
-        !!(str =~ /^sha1:[0-9a-f]{40}$/i)
-      end
+    # Produces the hex-encoded SHA1 hash of the actor mailto.
+    #
+    # @param [String] mbox The mbox clear value to be encoded.
+    # @return [Boolean] True if the value is matching, false otherwise.
+    def is_sha1?(str)
+      # SHA-1 hash is a 40-character hexadecimal string
+      # consisting of numbers 0-9 and letters a-f
+      !!(str =~ /^sha1:[0-9a-f]{40}$/i)
+    end
   end
 end

@@ -92,22 +92,22 @@ module XapiMiddleware
 
     private
 
-      def statementref?(object)
-        return true if object[:objectType] == "StatementRef"
+    def statementref?(object)
+      return true if object[:objectType] == "StatementRef"
 
-        false
-      end
+      false
+    end
 
-      def statementref_or_substatement?(object)
-        is_substatement = object[:objectType] == "SubStatement"
-        is_statement_ref = statementref?(object)
+    def statementref_or_substatement?(object)
+      is_substatement = object[:objectType] == "SubStatement"
+      is_statement_ref = statementref?(object)
 
-        # Raise an error if the SubStatement object has an ID.
-        raise ObjectError, I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
+      # Raise an error if the SubStatement object has an ID.
+      raise ObjectError, I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
 
-        return true if is_substatement || is_statement_ref
+      return true if is_substatement || is_statement_ref
 
-        false
-      end
+      false
+    end
   end
 end
