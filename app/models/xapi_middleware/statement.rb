@@ -5,6 +5,8 @@ module XapiMiddleware
   class StatementError < StandardError; end
 
   class Statement < ApplicationRecord
+    require "json"
+
     # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 
@@ -32,9 +34,12 @@ module XapiMiddleware
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
     def set_data
-      @verb = XapiMiddleware::Verb.new(verb)
-      @actor = XapiMiddleware::Actor.new(actor)
-      @object = XapiMiddleware::Object.new(object)
+      # If the statement JSON is read from an existing record.
+      existing_statement = JSON.parse(self.statement_json, symbolize_names: true) if self.statement_json.present?
+
+      @verb = XapiMiddleware::Verb.new(verb || existing_statement[:verb])
+      @actor = XapiMiddleware::Actor.new(actor || existing_statement[:actor])
+      @object = XapiMiddleware::Object.new(object || existing_statement[:object])
       @result = XapiMiddleware::Result.new(result) if result.present?
 
       self.verb_id = @verb.id
