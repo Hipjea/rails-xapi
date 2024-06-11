@@ -11,7 +11,7 @@ module XapiMiddleware
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 
     # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
-    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"].freeze
+    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
     LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
     LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
 
@@ -34,7 +34,8 @@ module XapiMiddleware
     # Sets the data to construct the xAPI statement to be stored in the database.
     # The full statement is represented in JSON in statement_json.
     def set_data
-      # If the statement JSON is read from an existing record.
+      # If the statement JSON is read from an existing record,
+      # use statement_json data to initialize the statement.
       existing_statement = JSON.parse(self.statement_json, symbolize_names: true) if self.statement_json.present?
 
       @verb = XapiMiddleware::Verb.new(verb || existing_statement[:verb])
@@ -78,7 +79,6 @@ module XapiMiddleware
     def create_substatement
       self.substatement = prepare_substatement(@object)
       self.object_type = OBJECT_TYPES[3]
-      # Save the substatement
       substatement.save
       # Set the main statement object_identifier to the substatement id
       self.object_identifier = substatement.id
@@ -103,9 +103,7 @@ module XapiMiddleware
       uri = URI.parse(verb_id)
       is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-      unless verb_id.present? && is_valid
-        raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url")
-      end
+      raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url") unless verb_id.present? && is_valid
     end
 
     # Output of the statement as JSON.

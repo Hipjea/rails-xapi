@@ -101,27 +101,27 @@ module XapiMiddleware
 
     private
 
-      def assert_nothing_logged
-        assert_logs(:info, nil) do
-          yield
-        end
-      end
-
-      def assert_logs(level, message)
-        original_logger = Rails.logger
-        log_output = StringIO.new
-        Rails.logger = Logger.new(log_output)
-
+    def assert_nothing_logged
+      assert_logs(:info, nil) do
         yield
-
-        log_output.rewind
-        logs = log_output.read
-
-        assert_match(/#{level}: #{message}/, logs) if message
-        assert_empty logs unless message
-      ensure
-        Rails.logger = original_logger
       end
+    end
+
+    def assert_logs(level, message)
+      original_logger = Rails.logger
+      log_output = StringIO.new
+      Rails.logger = Logger.new(log_output)
+
+      yield
+
+      log_output.rewind
+      logs = log_output.read
+
+      assert_match(/#{level}: #{message}/, logs) if message
+      assert_empty logs unless message
+    ensure
+      Rails.logger = original_logger
+    end
   end
 end
 
