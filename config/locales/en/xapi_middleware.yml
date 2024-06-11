@@ -10,6 +10,7 @@ en:
       invalid_object_substatement: "invalid object substatement"
       invalid_verb_id_url: "verb_id is not a valid URL"
       malformed_account_home_page_url: "malformed account home_page URL: %{url}"
+      malformed_email: "malformed email value: %{name}"
       malformed_mbox: "malformed mbox value: %{name}"
       malformed_mbox_sha1sum: "malformed mbox_sha1sum value"
       malformed_openid_uri: "malformed openid URI: %{uri}"
