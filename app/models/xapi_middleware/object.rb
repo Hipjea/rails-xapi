@@ -13,8 +13,9 @@ class XapiMiddleware::Object
   #
   # @param [Hash] object The object hash containing id and definition.
   def initialize(object)
-    raise XapiMiddleware::Errors::XapiError,
-      I18n.t("xapi_middleware.errors.missing_object", name: "object") if object.blank? || object.nil?
+    if object.blank? || object.nil?
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "object")
+    end
 
     validate_object(object)
     normalized_object = normalize_object(object)
@@ -22,7 +23,7 @@ class XapiMiddleware::Object
     @object_type = normalized_object[:objectType]
     @id = object[:id].presence
     @definition = object[:definition].present? ? XapiMiddleware::ObjectDefinition.new(object[:definition]) : nil
-    # In the case of a SubStatement
+    # In the case of a SubStatement:
     @verb = normalized_object[:verb].presence
     @object = normalized_object[:object].presence
     @actor = normalized_object[:actor].presence
@@ -35,19 +36,24 @@ class XapiMiddleware::Object
     object_type = object[:objectType]
 
     # Raise an error if the object has no ID, except for a SubStatement object.
-    raise XapiMiddleware::Errors::XapiError,
-      I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !statementref_or_substatement?(object)
+    if object[:id].blank? && !statementref_or_substatement?(object)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id")
+    end
 
     if object_type.present?
       object_type_valid = OBJECT_TYPES.include?(object_type)
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type) unless object_type_valid
+
+      unless object_type_valid
+        raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type)
+      end
     end
 
     if object_type.present? && statementref_or_substatement?(object)
       is_valid_substatement = object[:actor].present? && object[:object].present? && object[:verb].present?
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.invalid_object_substatement") unless is_valid_substatement || statementref?(object)
+
+      unless is_valid_substatement || statementref?(object)
+        raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_object_substatement")
+      end
     end
   end
 
@@ -56,7 +62,7 @@ class XapiMiddleware::Object
   # @param [Hash] object The actor data.
   # @return [Hash] The normalized object data.
   def normalize_object(object)
-    normalized_object_type = (object[:objectType].presence || OBJECT_TYPES.first)
+    normalized_object_type = object[:objectType].presence || OBJECT_TYPES.first
     normalize_substatement_verb, normalize_substatement_object, normalize_substatement_actor = nil
 
     if normalized_object_type == "SubStatement"
@@ -103,8 +109,9 @@ class XapiMiddleware::Object
     is_statement_ref = statementref?(object)
 
     # Raise an error if the SubStatement object has an ID.
-    raise XapiMiddleware::Errors::XapiError,
-      I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
+    if object[:id].present? && is_substatement
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id")
+    end
 
     return true if is_substatement || is_statement_ref
 

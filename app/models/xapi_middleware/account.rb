@@ -2,6 +2,8 @@
 
 # Represents an account with home_page and name.
 class XapiMiddleware::Account
+  require "uri"
+
   attr_accessor :home_page, :name
 
   # Initializes a new Account instance.
@@ -24,8 +26,10 @@ class XapiMiddleware::Account
     uri = URI.parse(account[:homePage])
     is_valid_home_page = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-    raise XapiMiddleware::Errors::XapiError,
-      I18n.t("xapi_middleware.errors.malformed_account_home_page_url", url: account[:homePage]) unless is_valid_home_page
+    if !is_valid_home_page
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.malformed_account_home_page_url", url: account[:homePage])
+    end
   end
 
   # Overrides the Hash class method to camelize home_page, according to the xAPI specification.

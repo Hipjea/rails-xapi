@@ -4,6 +4,7 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 class XapiMiddleware::Statement < ApplicationRecord
   require "json"
+  require "uri"
 
   # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
   OBJECT_TYPES = XapiMiddleware::Object::OBJECT_TYPES.dup.freeze
@@ -29,7 +30,7 @@ class XapiMiddleware::Statement < ApplicationRecord
   #
   # @param [Hash] attributes The attributes required to initialize the statement.
   def initialize(attributes = {})
-    super(attributes)
+    super
 
     statement_json = attributes[:statement_json]
     existing_statement = JSON.parse(statement_json, symbolize_names: true) if statement_json.present?
