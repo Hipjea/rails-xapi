@@ -4,6 +4,7 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
 class XapiMiddleware::Actor
   require "uri"
+  include ActiveModel::Validations
 
   # The Actor of a Statement can be an Agent or a Group.
   OBJECT_TYPES = ["Agent", "Group"]
