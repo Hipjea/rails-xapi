@@ -20,4 +20,5 @@ en:
       missing_result_keys: "missing result keys: %{keys}"
       missing_values_or_invalid_type: "missing values or invalid type %{values}"
       unexpected_substatement_object_keys: "unexpected substatement object keys: %{keys}"
+      value_must_not_be_nil: "value must not be null for the key: %{name}"
       wrong_attribute_type: "wrong attribute type for %{name}: %{value}"

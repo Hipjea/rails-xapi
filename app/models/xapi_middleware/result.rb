@@ -3,6 +3,7 @@
 # Represents a result containing response, success, and score data.
 class XapiMiddleware::Result
   require "active_support/core_ext/numeric/time"
+  require "uri"
 
   attr_accessor :response, :success, :score
 
@@ -48,11 +49,9 @@ class XapiMiddleware::Result
   def validate_result(result)
     validate_result_structure(result)
     validate_result_values(result)
-
-    duration = result[:duration]
-    validate_duration(duration) if duration.present?
-
+    validate_duration(result[:duration])
     validate_completion(result[:completion])
+    validate_extensions(result[:extensions])
   end
 
   # Validates the structure of the result hash.
@@ -91,17 +90,36 @@ class XapiMiddleware::Result
   # @param [String] duration The duration string to validate.
   # @return [ActiveSupport::Duration::ISO8601Parser::ParsingError] If invalid string is provided.
   def validate_duration(duration)
-    ActiveSupport::Duration.parse(duration)
+    ActiveSupport::Duration.parse(duration) if duration.present?
   end
-  
 
+  # Validates the completion value.
+  #
+  # @param [String|Boolean] duration The duration string or boolean to validate.
+  # @return [XapiMiddleware::Errors::XapiError] If invalid completion is provided.
   def validate_completion(completion)
     return if completion.nil?
 
-    unless (completion.is_a?(String) && %w[true false].include?(completion)) ||
-           completion.is_a?(TrueClass) || completion.is_a?(FalseClass)
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "completion", value: completion)
+    valid_string = completion.is_a?(String) && %w[true false].include?(completion)
+    valid_boolean = completion.is_a?(TrueClass) || completion.is_a?(FalseClass)
+
+    unless valid_string || valid_boolean
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "completion", value: completion)
+    end
+  end
+
+  # Validates the extensions accordign to the specifications.
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#41-extensions
+  #
+  # @param [Object] duration The extensions object to validate.
+  # @return [XapiMiddleware::Errors::XapiError] If an invalid object structure is provided.
+  def validate_extensions(extensions)
+    return if extensions.nil?
+
+    extensions.each do |key, value|
+      uri = URI.parse(key.to_s)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_uri", uri: uri) unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.value_must_not_be_nil", name: key) if value.nil?
     end
   end
 

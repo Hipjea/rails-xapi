@@ -2,6 +2,8 @@
 
 # Represents an account with home_page and name.
 class XapiMiddleware::Account
+  require "uri"
+
   attr_accessor :home_page, :name
 
   # Initializes a new Account instance.
