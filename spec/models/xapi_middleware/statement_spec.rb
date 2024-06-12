@@ -30,8 +30,8 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
           score_max: 100,
           duration: "PT4H35M59.14S",
           extensions: {
-            "http://example.com/extension": "empty",
-            "http://example.com/extension": "also empty"
+            "http://example.com/extension/1": "empty",
+            "http://example.com/extension/2": "also empty"
           }
         }
       }

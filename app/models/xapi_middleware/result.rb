@@ -4,8 +4,7 @@
 class XapiMiddleware::Result
   require "active_support/core_ext/numeric/time"
   require "uri"
-
-  attr_accessor :response, :success, :score
+  include ActiveModel::Validations
 
   # Initializes a new Result instance.
   #
@@ -49,8 +48,9 @@ class XapiMiddleware::Result
   def validate_result(result)
     validate_result_structure(result)
     validate_result_values(result)
+    validate_boolean_value(result[:success], "success")
+    validate_boolean_value(result[:completion], "completion")
     validate_duration(result[:duration])
-    validate_completion(result[:completion])
     validate_extensions(result[:extensions])
   end
 
@@ -62,7 +62,7 @@ class XapiMiddleware::Result
     result_hash = result.is_a?(Hash) ? result : result.as_json
     raise XapiMiddleware::Errors::XapiError, "must be a hash or an object that responds to as_json" unless result_hash.is_a?(Hash)
 
-    required_keys = %i[response success score_raw score_min score_max]
+    required_keys = %i[]
     missing_keys = required_keys - result.keys
 
     raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) if missing_keys.any?
@@ -73,7 +73,7 @@ class XapiMiddleware::Result
   # @param [Hash] result The result hash to validate.
   # @raise [XapiMiddleware::Errors::XapiError] If the result values are missing.
   def validate_result_values(result)
-    required_keys = %i[response success score_raw score_min score_max]
+    required_keys = %i[]
     missing_values = required_keys.reject do |key|
       value = result[key]
       value.present? && valid_value_type?(key, value)
@@ -93,18 +93,19 @@ class XapiMiddleware::Result
     ActiveSupport::Duration.parse(duration) if duration.present?
   end
 
-  # Validates the completion value.
+  # Validates the a boolean value.
   #
-  # @param [String|Boolean] duration The duration string or boolean to validate.
-  # @return [XapiMiddleware::Errors::XapiError] If invalid completion is provided.
-  def validate_completion(completion)
-    return if completion.nil?
+  # @param [String|Boolean] attribute The string or boolean to validate.
+  # @param [String] name The attribute name.
+  # @return [XapiMiddleware::Errors::XapiError] If invalid attribute is provided.
+  def validate_boolean_value(attribute, name)
+    return if attribute.nil?
 
-    valid_string = completion.is_a?(String) && %w[true false].include?(completion)
-    valid_boolean = completion.is_a?(TrueClass) || completion.is_a?(FalseClass)
+    valid_string = attribute.is_a?(String) && %w[true false].include?(attribute)
+    valid_boolean = attribute.is_a?(TrueClass) || attribute.is_a?(FalseClass)
 
     unless valid_string || valid_boolean
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "completion", value: completion)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.wrong_attribute_type", name: name, value: attribute)
     end
   end
 
@@ -132,8 +133,6 @@ class XapiMiddleware::Result
     case key
     when :response
       value.is_a?(String)
-    when :success
-      [true, false].include?(value)
     when :score_raw, :score_min, :score_max
       value.is_a?(Integer)
     else

@@ -1,7 +1,6 @@
 en:
   xapi_middleware:
     xapi_statement: "xAPI statement"
-
     errors:
       actor_ifi_must_be_present: "At least one of mbox, mbox_sha1sum, openid, or account must be present"
       couldnt_create_the_substatement: "Couldn’t create the substatement"

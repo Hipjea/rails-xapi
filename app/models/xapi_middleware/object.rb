@@ -14,8 +14,7 @@ class XapiMiddleware::Object
   # @param [Hash] object The object hash containing id and definition.
   def initialize(object)
     if object.blank? || object.nil?
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.missing_object", name: "object")
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "object")
     end
 
     validate_object(object)
