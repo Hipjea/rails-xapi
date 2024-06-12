@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
+# The Verb defines the action between an Actor and an Activity.
+# The systems reading the statements must use the verb IRI to infer meaning.
+# See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
 class XapiMiddleware::Verb
-  # The Verb defines the action between an Actor and an Activity.
-  # The systems reading the statements must use the verb IRI to infer meaning.
-  # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
-
   attr_accessor :id, :display
   attr_reader :generic_display
 

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
+# The Object defines the thing that was acted on.
+# See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
+# The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
 class XapiMiddleware::Object
-  # The Object defines the thing that was acted on.
-  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
-  # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
   OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
 
   attr_accessor :object_type, :id, :definition

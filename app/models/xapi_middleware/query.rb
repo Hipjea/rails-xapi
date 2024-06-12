@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# The class responsible for query interface.
 class XapiMiddleware::Query
   # Query statements by actor's email
   #

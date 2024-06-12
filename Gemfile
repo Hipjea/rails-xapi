@@ -15,7 +15,11 @@ gem "sprockets-rails"
 
 group :development do
   gem "annotate"
+  gem "brakeman"
   gem "guard"
+  gem "guard-brakeman"
+  gem "guard-minitest"
+  gem "guard-reek"
   gem "guard-rubocop"
   gem "rubocop"
   gem "rubocop-rails"

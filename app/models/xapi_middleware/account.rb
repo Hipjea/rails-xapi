@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
+# Represents an account with home_page and name.
 class XapiMiddleware::Account
-  # This class represents an account with home_page and name.
-
   attr_accessor :home_page, :name
 
   # Initializes a new Account instance.

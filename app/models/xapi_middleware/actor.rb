@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+# The Actor defines who performed the action.
+# See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
 class XapiMiddleware::Actor
-  # The Actor defines who performed the action.
-  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
   # The Actor of a Statement can be an Agent or a Group.
   OBJECT_TYPES = ["Agent", "Group"]
 

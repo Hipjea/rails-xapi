@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
+# Represents a score with raw, min, and max values.
 class XapiMiddleware::Score
-  # This class represents a score with raw, min, and max values.
-
   attr_accessor :raw, :min, :max
 
   # Initializes a new Score instance.

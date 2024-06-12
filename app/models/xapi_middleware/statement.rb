@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
+# Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
+# See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
 class XapiMiddleware::Statement < ApplicationRecord
-  # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
-  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
-
   require "json"
 
   # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
@@ -30,9 +29,9 @@ class XapiMiddleware::Statement < ApplicationRecord
   # Sets the data to construct the xAPI statement to be stored in the database.
   # The full statement is represented in JSON in statement_json.
   def set_data
-    # If the statement JSON is read from an existing record,
-    # use statement_json data to initialize the statement.
-    existing_statement = JSON.parse(self.statement_json, symbolize_names: true) if self.statement_json.present?
+    # If the statement JSON is read from an existing record, use statement_json data to initialize the statement.
+    statement_json = self.statement_json
+    existing_statement = JSON.parse(statement_json, symbolize_names: true) if statement_json.present?
 
     @verb = XapiMiddleware::Verb.new(verb || existing_statement[:verb])
     @actor = XapiMiddleware::Actor.new(actor || existing_statement[:actor])
@@ -48,8 +47,9 @@ class XapiMiddleware::Statement < ApplicationRecord
     self.actor_mbox = @actor.mbox
     self.actor_sha1sum = @actor.respond_to?(:mbox_sha1sum) ? @actor.mbox_sha1sum : nil
     self.actor_openid = @actor.openid
-    self.actor_account_homepage = @actor.account&.home_page
-    self.actor_account_name = @actor.account&.name
+    actor_account = @actor.account
+    self.actor_account_homepage = actor_account&.home_page
+    self.actor_account_name = actor_account&.name
     self.statement_json = prepare_json
   end
 

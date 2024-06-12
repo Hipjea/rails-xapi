@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# The object optional definition.
+# See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#activity-definition
 class XapiMiddleware::ObjectDefinition
   attr_accessor :type, :name, :description, :extensions
 

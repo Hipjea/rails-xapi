@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
+# Represents a result containing response, success, and score data.
 class XapiMiddleware::Result
-  # This class represents a result containing response, success, and score data.
   attr_accessor :response, :success, :score
 
   # Initializes a new Result instance.
