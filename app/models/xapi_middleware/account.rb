@@ -18,14 +18,15 @@ module XapiMiddleware
     # Validates the account data.
     #
     # @param [Hash] account The actor account data.
-    # @raise [ActorError] If the account home_page value provided is malformed.
+    # @raise [XapiMiddleware::Errors::XapiError] If the account home_page value provided is malformed.
     def validates_account(account)
       return if account[:homePage].blank?
 
       uri = URI.parse(account[:homePage])
       is_valid_home_page = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-      raise ActorError, I18n.t("xapi_middleware.errors.malformed_account_home_page_url", url: account[:homePage]) unless is_valid_home_page
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.malformed_account_home_page_url", url: account[:homePage]) unless is_valid_home_page
     end
 
     # Overrides the Hash class method to camelize home_page, according to the xAPI specification.

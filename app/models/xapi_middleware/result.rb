@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  # Representation class of an error raised by the Result class.
-  class ResultError < StandardError; end
-
   # Represents a result containing response, success, and score data.
   class Result
     attr_accessor :response, :success, :score
@@ -11,7 +8,7 @@ module XapiMiddleware
     # Initializes a new Result instance.
     #
     # @param [Hash] result The result hash containing response, success, and score data.
-    # @raise [ResultError] If the result structure or values are invalid.
+    # @raise [XapiMiddleware::Errors::XapiError] If the result structure or values are invalid.
     def initialize(result)
       validate_result(result)
 
@@ -43,7 +40,7 @@ module XapiMiddleware
     # Validates the overall structure of the result.
     #
     # @param [Hash] result The result hash to validate.
-    # @return [ResultError] If the result structure is invalid.
+    # @return [XapiMiddleware::Errors::XapiError] If the result structure is invalid.
     def validate_result(result)
       validate_result_structure(result)
       validate_result_values(result)
@@ -52,21 +49,22 @@ module XapiMiddleware
     # Validates the structure of the result hash.
     #
     # @param [Hash] result The result hash to validate.
-    # @raise [ResultError] If the result structure or values are invalid.
+    # @raise [XapiMiddleware::Errors::XapiError] If the result structure or values are invalid.
     def validate_result_structure(result)
       result_hash = result.is_a?(Hash) ? result : result.as_json
-      raise ResultError, "must be a hash or an object that responds to as_json" unless result_hash.is_a?(Hash)
+      raise XapiMiddleware::Errors::XapiError, "must be a hash or an object that responds to as_json" unless result_hash.is_a?(Hash)
 
       required_keys = %i[response success score_raw score_min score_max]
       missing_keys = required_keys - result.keys
 
-      raise ResultError, I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) unless missing_keys.empty?
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) unless missing_keys.empty?
     end
 
     # Validates the values of the result hash.
     #
     # @param [Hash] result The result hash to validate.
-    # @raise [ResultError] If the result values are missing.
+    # @raise [XapiMiddleware::Errors::XapiError] If the result values are missing.
     def validate_result_values(result)
       required_keys = %i[response success score_raw score_min score_max]
       missing_values = required_keys.reject do |key|
@@ -74,7 +72,8 @@ module XapiMiddleware
         value.present? && valid_value_type?(key, value)
       end
 
-      raise ResultError, I18n.t("xapi_middleware.errors.missing_values_or_invalid_type", values: missing_values.join(", ")) unless missing_values.empty?
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.missing_values_or_invalid_type", values: missing_values.join(", ")) unless missing_values.empty?
     end
 
     # Checks if the value has the correct type.

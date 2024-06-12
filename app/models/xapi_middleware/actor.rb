@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  # Representation class of an error raised by the Actor class.
-  class ActorError < StandardError; end
-
   class Actor
     # The Actor defines who performed the action.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
@@ -21,7 +18,7 @@ module XapiMiddleware
     # @param [String] openid The openid URI of the actor.
     # @param [Hash] account The account hash of the actor.
     def initialize(actor)
-      raise ActorError, I18n.t("xapi_middleware.errors.missing_object", object: "actor") if actor.blank? || actor.nil?
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "actor") if actor.blank? || actor.nil?
 
       validate_actor(actor)
       normalized_actor = normalize_actor(actor)
@@ -40,7 +37,7 @@ module XapiMiddleware
         @openid = actor[:openid] if openid_present
         @account = XapiMiddleware::Account.new(actor[:account]) if account_present
       else
-        raise ActorError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
+        raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
       end
     end
 
@@ -50,23 +47,27 @@ module XapiMiddleware
     def validate_actor(actor)
       if actor[:mbox].present?
         mbox_valid = actor[:mbox].strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
-        raise ActorError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor[:mbox]) unless mbox_valid
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.malformed_mbox", name: actor[:mbox]) unless mbox_valid
       end
 
       if actor[:mbox_sha1sum].present?
-        raise ActorError, I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(actor[:mbox_sha1sum])
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(actor[:mbox_sha1sum])
       end
 
       if actor[:objectType].present?
         object_type_valid = OBJECT_TYPES.include?(actor[:objectType])
-        raise ActorError, I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:objectType]) unless object_type_valid
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:objectType]) unless object_type_valid
       end
 
       if actor[:openid].present?
         uri = URI.parse(actor[:openid])
         is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-        raise ActorError, I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor[:openid]) unless is_valid_openid_uri
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor[:openid]) unless is_valid_openid_uri
       end
     end
 

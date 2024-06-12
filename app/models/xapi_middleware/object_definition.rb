@@ -29,7 +29,8 @@ module XapiMiddleware
         uri = URI.parse(definition[:type].strip)
         is_valid_type = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-        raise StandardError, I18n.t("xapi_middleware.errors.malformed_uri", uri: definition[:type]) unless is_valid_type
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.malformed_uri", uri: definition[:type]) unless is_valid_type
       end
     end
 

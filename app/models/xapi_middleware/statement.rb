@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  # Representation class of an error raised by the Statement class.
-  class StatementError < StandardError; end
-
   class Statement < ApplicationRecord
     require "json"
 
@@ -72,7 +69,7 @@ module XapiMiddleware
 
       error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
       Rails.logger.error("#{error_msg} : #{err}")
-      raise StatementError, error_msg
+      raise XapiMiddleware::Errors::XapiError, error_msg
     end
 
     # Creates a substatement if the objectType is SubStatement.
@@ -96,14 +93,14 @@ module XapiMiddleware
 
     # Validates the verb_id URL.
     #
-    # @return [StatementError] If the verb_id value is invalid.
+    # @return [XapiMiddleware::Errors::XapiError] If the verb_id value is invalid.
     def validate_verb_id_format
       return if verb_id.blank?
 
       uri = URI.parse(verb_id)
       is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-      raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url") unless verb_id.present? && is_valid
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_verb_id_url") unless verb_id.present? && is_valid
     end
 
     # Output of the statement as JSON.

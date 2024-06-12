@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 module XapiMiddleware
-  # Representation class of an error raised by the Object class.
-  class ObjectError < StandardError; end
-
   class Object
     # The Object defines the thing that was acted on.
     # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
@@ -17,7 +14,8 @@ module XapiMiddleware
     #
     # @param [Hash] object The object hash containing id and definition.
     def initialize(object)
-      raise ObjectError, I18n.t("xapi_middleware.errors.missing_object", object: "object") if object.blank? || object.nil?
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.missing_object", name: "object") if object.blank? || object.nil?
 
       validate_object(object)
       normalized_object = normalize_object(object)
@@ -38,16 +36,19 @@ module XapiMiddleware
       object_type = object[:objectType]
 
       # Raise an error if the object has no ID, except for a SubStatement object.
-      raise ObjectError, I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !statementref_or_substatement?(object)
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id") if object[:id].blank? && !statementref_or_substatement?(object)
 
       if object_type.present?
         object_type_valid = OBJECT_TYPES.include?(object_type)
-        raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type) unless object_type_valid
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.invalid_object_object_type", name: object_type) unless object_type_valid
       end
 
       if object_type.present? && statementref_or_substatement?(object)
         is_valid_substatement = object[:actor].present? && object[:object].present? && object[:verb].present?
-        raise ObjectError, I18n.t("xapi_middleware.errors.invalid_object_substatement") unless is_valid_substatement || statementref?(object)
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.invalid_object_substatement") unless is_valid_substatement || statementref?(object)
       end
     end
 
@@ -103,7 +104,8 @@ module XapiMiddleware
       is_statement_ref = statementref?(object)
 
       # Raise an error if the SubStatement object has an ID.
-      raise ObjectError, I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.unexpected_substatement_object_keys", keys: "id") if object[:id].present? && is_substatement
 
       return true if is_substatement || is_statement_ref
 
