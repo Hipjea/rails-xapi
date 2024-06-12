@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# The class responsible for query interface.
+# This class manages the query interface.
 class XapiMiddleware::Query
   # Query statements by actor's email
   #
@@ -8,10 +8,11 @@ class XapiMiddleware::Query
   # @return [ActiveRecord::Relation] The statements associated with the actor
   # @raise [ArgumentError] If the email format is invalid
   def self.actor_by_email(actor_email)
-    raise ArgumentError, I18n.t("xapi_middleware.errors.malformed_email", name: actor_email) unless 
-      actor_email.match?(/\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
+    unless actor_email.match?(/\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
+      raise ArgumentError, I18n.t("xapi_middleware.errors.malformed_email", name: actor_email)
+    end
 
-    XapiMiddleware::Statement.where(actor_mbox: "mailto:#{actor_email.html_safe}")
+    XapiMiddleware::Statement.where(actor_mbox: "mailto:#{actor_email}")
   end
 
   # Query statements by actor's mbox
@@ -20,8 +21,9 @@ class XapiMiddleware::Query
   # @return [ActiveRecord::Relation] The statements associated with the actor
   # @raise [ArgumentError] If the mbox format is invalid
   def self.actor_by_mbox(actor_mbox)
-    raise ArgumentError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor_mbox) unless 
-      actor_mbox.match?(/\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
+    unless actor_mbox.match?(/\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
+      raise ArgumentError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor_mbox)
+    end
 
     XapiMiddleware::Statement.where(actor_mbox: actor_mbox)
   end

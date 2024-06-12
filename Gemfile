@@ -23,7 +23,7 @@ group :development do
   gem "rubocop"
   gem "rubocop-rails"
   gem "rubocop-rspec"
-  gem "standard"
+  gem "standard", ">= 1.35.1"
 end
 
 group :development, :test do

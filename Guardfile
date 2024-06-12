@@ -22,6 +22,11 @@ guard :brakeman, run_on_start: true do
   watch('Gemfile')
 end
 
+guard :rubocop do
+  watch(%r{.+\.rb$})
+  watch(%r{(?:.+/)?\.rubocop(?:_todo)?\.yml$}) { |m| File.dirname(m[0]) }
+end
+
 guard 'reek' do
   watch(%r{.+\.rb$})
   watch('.reek')
@@ -79,9 +84,4 @@ guard :rspec, cmd: "bundle exec rspec" do
   watch(%r{^spec/acceptance/steps/(.+)_steps\.rb$}) do |m|
     Dir[File.join("**/#{m[1]}.feature")][0] || "spec/acceptance"
   end
-end
-
-guard :rubocop do
-  watch(%r{.+\.rb$})
-  watch(%r{(?:.+/)?\.rubocop(?:_todo)?\.yml$}) { |m| File.dirname(m[0]) }
 end
