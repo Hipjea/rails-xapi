@@ -27,7 +27,8 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
           success: true,
           score_raw: 50,
           score_min: 0,
-          score_max: 100
+          score_max: 100,
+          duration: "PT4H35M59.14S"
         }
       }
 
@@ -72,7 +73,8 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
           success: true,
           score_raw: 50,
           score_min: 0,
-          score_max: 100
+          score_max: 100,
+          duration: "PT4H35M59.14S"
         }
       }
 

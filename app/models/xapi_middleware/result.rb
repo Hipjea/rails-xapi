@@ -2,18 +2,25 @@
 
 # Represents a result containing response, success, and score data.
 class XapiMiddleware::Result
+  require "active_support/core_ext/numeric/time"
+
   attr_accessor :response, :success, :score
 
   # Initializes a new Result instance.
   #
-  # @param [Hash] result The result hash containing response, success, and score data.
+  # @param [Hash] result The result hash containing score, success, completion, response, duration and extensions data.
   # @raise [XapiMiddleware::Errors::XapiError] If the result structure or values are invalid.
   def initialize(result)
+    duration = result[:duration]
     validate_result(result)
+    validate_duration(duration) if duration.present?
 
-    @response = result[:response]
-    @success = result[:success] || false
     @score = XapiMiddleware::Score.new(raw: result[:score_raw], min: result[:score_min], max: result[:score_max])
+    @success = result[:success] || false
+    @completion = result[:completion] || false
+    @response = result[:response]
+    @duration = duration
+    @extensions = result[:extensions]
   end
 
   # Returns an array of keys present in the result hash.
@@ -28,11 +35,11 @@ class XapiMiddleware::Result
   # @return [Hash] The result hash to be output.
   def result_hash
     {
-      response: @response,
-      success: @success,
       score_raw: @score&.raw,
       score_min: @score&.min,
-      score_max: @score&.max
+      score_max: @score&.max,
+      response: @response,
+      success: @success
     }.compact
   end
 
@@ -56,8 +63,7 @@ class XapiMiddleware::Result
     required_keys = %i[response success score_raw score_min score_max]
     missing_keys = required_keys - result.keys
 
-    raise XapiMiddleware::Errors::XapiError,
-      I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) unless missing_keys.empty?
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) if missing_keys.any?
   end
 
   # Validates the values of the result hash.
@@ -71,8 +77,18 @@ class XapiMiddleware::Result
       value.present? && valid_value_type?(key, value)
     end
 
-    raise XapiMiddleware::Errors::XapiError,
-      I18n.t("xapi_middleware.errors.missing_values_or_invalid_type", values: missing_values.join(", ")) unless missing_values.empty?
+    if missing_values.any?
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_values_or_invalid_type", values: missing_values.join(", "))
+    end
+  end
+
+  # Validates the duration accordign to the specifications.
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#46-iso-8601-durations
+  #
+  # @param [String] duration The duration string to validate.
+  # @return [ActiveSupport::Duration::ISO8601Parser::ParsingError] If invalid string is provided.
+  def validate_duration(duration)
+    ActiveSupport::Duration.parse(duration)
   end
 
   # Checks if the value has the correct type.

@@ -46,27 +46,30 @@ class XapiMiddleware::Actor
   def validate_actor(actor)
     if actor[:mbox].present?
       mbox_valid = actor[:mbox].strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.malformed_mbox", name: actor[:mbox]) unless mbox_valid
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor[:mbox]) unless mbox_valid
     end
 
     if actor[:mbox_sha1sum].present?
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(actor[:mbox_sha1sum])
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(actor[:mbox_sha1sum])
     end
 
     if actor[:objectType].present?
       object_type_valid = OBJECT_TYPES.include?(actor[:objectType])
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:objectType]) unless object_type_valid
+
+      unless object_type_valid
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:objectType])
+      end
     end
 
     if actor[:openid].present?
       uri = URI.parse(actor[:openid])
       is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor[:openid]) unless is_valid_openid_uri
+      unless is_valid_openid_uri
+        raise XapiMiddleware::Errors::XapiError,
+          I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor[:openid])
+      end
     end
   end
 
@@ -75,7 +78,7 @@ class XapiMiddleware::Actor
   # @param [Hash] actor The actor data.
   # @return [Hash] The normalized actor data.
   def normalize_actor(actor)
-    normalized_object_type = (actor[:objectType].presence || OBJECT_TYPES.first)
+    normalized_object_type = actor[:objectType].presence || OBJECT_TYPES.first
 
     if actor[:name].present?
       normalized_name = actor[:name].gsub(XapiMiddleware::Statement::LATIN_LETTERS_REGEX, "")

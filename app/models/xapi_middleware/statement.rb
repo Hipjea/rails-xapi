@@ -29,7 +29,7 @@ class XapiMiddleware::Statement < ApplicationRecord
   #
   # @param [Hash] attributes The attributes required to initialize the statement.
   def initialize(attributes = {})
-    super(attributes)
+    super
 
     statement_json = attributes[:statement_json]
     existing_statement = JSON.parse(statement_json, symbolize_names: true) if statement_json.present?

@@ -15,7 +15,7 @@ AllCops:
     - config.ru
     - Guardfile
     - spec/spec_helper.rb
-    - spec/**/*.rb
+    - spec/**/*
     - lib/tasks/auto_annotate_models.rake
     - lib/custom_debug.rb
   NewCops: enable
@@ -24,6 +24,7 @@ AllCops:
 require:
   - standard
   - rubocop-rails
+  - rubocop-rspec
 
 inherit_gem:
   standard: config/base.yml
@@ -76,9 +77,6 @@ Rails/HasAndBelongsToMany:
 
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
-
-Layout/IndentationConsistency:
-  EnforcedStyle: indented_internal_methods
 
 Style/ClassAndModuleChildren:
   EnforcedStyle: compact
