@@ -18,10 +18,15 @@ group :development do
   gem "brakeman"
   gem "guard"
   gem "guard-brakeman"
-  gem "guard-minitest"
   gem "guard-reek"
   gem "guard-rubocop"
   gem "rubocop"
   gem "rubocop-rails"
+  gem "rubocop-rspec"
   gem "standard"
+end
+
+group :development, :test do
+  gem "rspec-rails"
+  gem "guard-rspec", require: false
 end

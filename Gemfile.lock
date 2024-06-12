@@ -95,6 +95,7 @@ GEM
     connection_pool (2.4.1)
     crass (1.0.6)
     date (3.3.4)
+    diff-lcs (1.5.1)
     drb (2.2.0)
       ruby2_keywords
     dry-configurable (1.1.0)
@@ -143,12 +144,13 @@ GEM
       guard (>= 2.0.0)
       guard-compat (~> 1.0)
     guard-compat (1.2.1)
-    guard-minitest (2.4.6)
-      guard-compat (~> 1.2)
-      minitest (>= 3.0)
     guard-reek (1.2.0)
       guard-compat (~> 1.1)
       reek
+    guard-rspec (4.7.3)
+      guard (~> 2.1)
+      guard-compat (~> 1.1)
+      rspec (>= 2.99.0, < 4.0)
     guard-rubocop (1.5.0)
       guard (~> 2.0)
       rubocop (< 2.0)
@@ -261,6 +263,27 @@ GEM
     reline (0.4.1)
       io-console (~> 0.5)
     rexml (3.2.6)
+    rspec (3.13.0)
+      rspec-core (~> 3.13.0)
+      rspec-expectations (~> 3.13.0)
+      rspec-mocks (~> 3.13.0)
+    rspec-core (3.13.0)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (6.1.2)
+      actionpack (>= 6.1)
+      activesupport (>= 6.1)
+      railties (>= 6.1)
+      rspec-core (~> 3.13)
+      rspec-expectations (~> 3.13)
+      rspec-mocks (~> 3.13)
+      rspec-support (~> 3.13)
+    rspec-support (3.13.1)
     rubocop (1.57.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -282,6 +305,8 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.30.0, < 2.0)
+    rubocop-rspec (3.0.0)
+      rubocop (~> 1.40)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     shellany (0.0.1)
@@ -327,12 +352,14 @@ DEPENDENCIES
   brakeman
   guard
   guard-brakeman
-  guard-minitest
   guard-reek
+  guard-rspec
   guard-rubocop
   puma
+  rspec-rails
   rubocop
   rubocop-rails
+  rubocop-rspec
   sprockets-rails
   sqlite3
   standard
