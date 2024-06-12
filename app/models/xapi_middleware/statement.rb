@@ -23,20 +23,22 @@ class XapiMiddleware::Statement < ApplicationRecord
       .gsub(/\b('?[#{LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
   }
 
-  after_initialize :set_data
   before_save :create_substatement, if: -> { object_type == OBJECT_TYPES[3] }
 
-  # Sets the data to construct the xAPI statement to be stored in the database.
-  # The full statement is represented in JSON in statement_json.
-  def set_data
-    # If the statement JSON is read from an existing record, use statement_json data to initialize the statement.
-    statement_json = self.statement_json
+  # Initializes a new instance of XapiMiddleware::Statement.
+  #
+  # @param [Hash] attributes The attributes required to initialize the statement.
+  def initialize(attributes = {})
+    super(attributes)
+
+    statement_json = attributes[:statement_json]
     existing_statement = JSON.parse(statement_json, symbolize_names: true) if statement_json.present?
 
-    @verb = XapiMiddleware::Verb.new(verb || existing_statement[:verb])
-    @actor = XapiMiddleware::Actor.new(actor || existing_statement[:actor])
-    @object = XapiMiddleware::Object.new(object || existing_statement[:object])
-    @result = XapiMiddleware::Result.new(result) if result.present?
+    @verb = XapiMiddleware::Verb.new(attributes[:verb] || existing_statement[:verb])
+    @actor = XapiMiddleware::Actor.new(attributes[:actor] || existing_statement[:actor])
+    @object = XapiMiddleware::Object.new(attributes[:object] || existing_statement[:object])
+    results = attributes[:result]
+    @result = XapiMiddleware::Result.new(results) if results.present?
 
     self.verb_id = @verb.id
     self.verb_display = @verb.generic_display
