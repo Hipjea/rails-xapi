@@ -15,9 +15,18 @@ gem "sprockets-rails"
 
 group :development do
   gem "annotate"
+  gem "brakeman"
   gem "guard"
+  gem "guard-brakeman"
+  gem "guard-reek"
   gem "guard-rubocop"
   gem "rubocop"
   gem "rubocop-rails"
+  gem "rubocop-rspec"
   gem "standard"
+end
+
+group :development, :test do
+  gem "rspec-rails"
+  gem "guard-rspec", require: false
 end

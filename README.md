@@ -3,6 +3,7 @@
 xAPI statements creation plugin.
 
 ## Installation
+
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -27,5 +28,10 @@ Mount the engine in `config/routes.rb`:
 mount XapiMiddleware::Engine, at: "xapi_middleware"
 ```
 
+## Usage
+
+
+
 ## License
+
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

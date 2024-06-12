@@ -1,129 +1,122 @@
 # frozen_string_literal: true
 
-module XapiMiddleware
-  # Representation class of an error raised by the Statement class.
-  class StatementError < StandardError; end
+# Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
+# See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
+class XapiMiddleware::Statement < ApplicationRecord
+  require "json"
 
-  class Statement < ApplicationRecord
-    require "json"
+  # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
+  OBJECT_TYPES = XapiMiddleware::Object::OBJECT_TYPES.dup.freeze
+  LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
+  LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
 
-    # Statements are the evidence for any sort of experience or event which is to be tracked in xAPI.
-    # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#20-statements
+  attr_accessor :object, :actor, :result, :verb, :substatement
 
-    # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
-    OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"].freeze
-    LATIN_LETTERS = "a-zA-ZÀ-ÖØ-öø-ÿœ"
-    LATIN_LETTERS_REGEX = /[^#{LATIN_LETTERS}\s-]/i
+  validates :verb_id, :verb_display, :object_type, :statement_json, presence: true
+  validates :object_identifier, presence: true, unless: -> { object_type == OBJECT_TYPES[3] }
+  validate :validate_verb_id_format
 
-    attr_accessor :object, :actor, :result, :verb, :substatement
+  normalizes :actor_name, with: ->(actor_name) {
+    actor_name.gsub(LATIN_LETTERS_REGEX, "")
+      .to_s
+      .humanize
+      .gsub(/\b('?[#{LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
+  }
 
-    validates :verb_id, :verb_display, :object_type, :statement_json, presence: true
-    validates :object_identifier, presence: true, unless: -> { object_type == OBJECT_TYPES[3] }
-    validate :validate_verb_id_format
+  after_initialize :set_data
+  before_save :create_substatement, if: -> { object_type == OBJECT_TYPES[3] }
 
-    normalizes :actor_name, with: ->(actor_name) {
-      actor_name.gsub(LATIN_LETTERS_REGEX, "")
-        .to_s
-        .humanize
-        .gsub(/\b('?[#{LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
-    }
+  # Sets the data to construct the xAPI statement to be stored in the database.
+  # The full statement is represented in JSON in statement_json.
+  def set_data
+    # If the statement JSON is read from an existing record, use statement_json data to initialize the statement.
+    statement_json = self.statement_json
+    existing_statement = JSON.parse(statement_json, symbolize_names: true) if statement_json.present?
 
-    after_initialize :set_data
-    before_save :create_substatement, if: -> { object_type == OBJECT_TYPES[3] }
+    @verb = XapiMiddleware::Verb.new(verb || existing_statement[:verb])
+    @actor = XapiMiddleware::Actor.new(actor || existing_statement[:actor])
+    @object = XapiMiddleware::Object.new(object || existing_statement[:object])
+    @result = XapiMiddleware::Result.new(result) if result.present?
 
-    # Sets the data to construct the xAPI statement to be stored in the database.
-    # The full statement is represented in JSON in statement_json.
-    def set_data
-      # If the statement JSON is read from an existing record.
-      existing_statement = JSON.parse(self.statement_json, symbolize_names: true) if self.statement_json.present?
+    self.verb_id = @verb.id
+    self.verb_display = @verb.generic_display
+    self.verb_display_full = @verb.display.to_json
+    self.object_type = @object.object_type
+    self.object_identifier = @object.id&.presence
+    self.actor_name = @actor.name
+    self.actor_mbox = @actor.mbox
+    self.actor_sha1sum = @actor.respond_to?(:mbox_sha1sum) ? @actor.mbox_sha1sum : nil
+    self.actor_openid = @actor.openid
+    actor_account = @actor.account
+    self.actor_account_homepage = actor_account&.home_page
+    self.actor_account_name = actor_account&.name
+    self.statement_json = prepare_json
+  end
 
-      @verb = XapiMiddleware::Verb.new(verb || existing_statement[:verb])
-      @actor = XapiMiddleware::Actor.new(actor || existing_statement[:actor])
-      @object = XapiMiddleware::Object.new(object || existing_statement[:object])
-      @result = XapiMiddleware::Result.new(result) if result.present?
+  # Prepares a new substatement row.
+  #
+  # @param [XapiMiddleware::Object] object The substatement object.
+  def prepare_substatement(object)
+    sub = self.class.new(
+      object_type: OBJECT_TYPES[4],
+      actor: object.actor,
+      verb: object.verb,
+      object: object.object
+    )
 
-      self.verb_id = @verb.id
-      self.verb_display = @verb.generic_display
-      self.verb_display_full = @verb.display.to_json
-      self.object_type = @object.object_type
-      self.object_identifier = @object.id&.presence
-      self.actor_name = @actor.name
-      self.actor_mbox = @actor.mbox
-      self.actor_sha1sum = @actor.respond_to?(:mbox_sha1sum) ? @actor.mbox_sha1sum : nil
-      self.actor_openid = @actor.openid
-      self.actor_account_homepage = @actor.account&.home_page
-      self.actor_account_name = @actor.account&.name
-      self.statement_json = prepare_json
-    end
+    return sub if sub.valid?
 
-    # Prepares a new substatement row.
-    #
-    # @param [XapiMiddleware::Object] object The substatement object.
-    def prepare_substatement(object)
-      sub = self.class.new(
-        object_type: OBJECT_TYPES[4],
-        actor: object.actor,
-        verb: object.verb,
-        object: object.object
-      )
+    error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
+    Rails.logger.error("#{error_msg} : #{err}")
+    raise XapiMiddleware::Errors::XapiError, error_msg
+  end
 
-      return sub if sub.valid?
+  # Creates a substatement if the objectType is SubStatement.
+  def create_substatement
+    self.substatement = prepare_substatement(@object)
+    self.object_type = OBJECT_TYPES[3]
+    substatement.save
+    # Set the main statement object_identifier to the substatement id
+    self.object_identifier = substatement.id
+  end
 
-      error_msg = I18n.t("xapi_middleware.errors.couldnt_create_the_substatement")
-      Rails.logger.error("#{error_msg} : #{err}")
-      raise StatementError, error_msg
-    end
+  # Outputs the xAPI statement in the logs.
+  #
+  # @return [Statement]
+  def output
+    log_output if XapiMiddleware.configuration.output_xapi_logs
+    self
+  end
 
-    # Creates a substatement if the objectType is SubStatement.
-    def create_substatement
-      self.substatement = prepare_substatement(@object)
-      self.object_type = OBJECT_TYPES[3]
-      # Save the substatement
-      substatement.save
-      # Set the main statement object_identifier to the substatement id
-      self.object_identifier = substatement.id
-    end
+  private
 
-    # Outputs the xAPI statement in the logs.
-    #
-    # @return [Statement]
-    def output
-      log_output if XapiMiddleware.configuration.output_xapi_logs
-      self
-    end
+  # Validates the verb_id URL.
+  #
+  # @return [XapiMiddleware::Errors::XapiError] If the verb_id value is invalid.
+  def validate_verb_id_format
+    return if verb_id.blank?
 
-    private
+    uri = URI.parse(verb_id)
+    is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
-    # Validates the verb_id URL.
-    #
-    # @return [StatementError] If the verb_id value is invalid.
-    def validate_verb_id_format
-      return if verb_id.blank?
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_verb_id_url") unless verb_id.present? && is_valid
+  end
 
-      uri = URI.parse(verb_id)
-      is_valid = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+  # Output of the statement as JSON.
+  #
+  # @return [String] The JSON representation of the statement.
+  def prepare_json
+    {
+      verb: @verb.to_hash,
+      object: @object.to_hash,
+      actor: @actor.to_hash,
+      result: @result
+    }.to_json
+  end
 
-      unless verb_id.present? && is_valid
-        raise StatementError, I18n.t("xapi_middleware.errors.invalid_verb_id_url")
-      end
-    end
-
-    # Output of the statement as JSON.
-    #
-    # @return [String] The JSON representation of the statement.
-    def prepare_json
-      {
-        verb: @verb.to_hash,
-        object: @object.to_hash,
-        actor: @actor.to_hash,
-        result: @result
-      }.to_json
-    end
-
-    # Outputs the xAPI statement in the logs.
-    def log_output
-      Rails.logger.info { "#{I18n.t("xapi_middleware.xapi_statement")} => #{JSON.pretty_generate(as_json)}" }
-    end
+  # Outputs the xAPI statement in the logs.
+  def log_output
+    Rails.logger.info { "#{I18n.t("xapi_middleware.xapi_statement")} => #{JSON.pretty_generate(as_json)}" }
   end
 end
 
