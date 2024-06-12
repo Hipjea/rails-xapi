@@ -11,15 +11,13 @@ class XapiMiddleware::Result
   # @param [Hash] result The result hash containing score, success, completion, response, duration and extensions data.
   # @raise [XapiMiddleware::Errors::XapiError] If the result structure or values are invalid.
   def initialize(result)
-    duration = result[:duration]
     validate_result(result)
-    validate_duration(duration) if duration.present?
 
     @score = XapiMiddleware::Score.new(raw: result[:score_raw], min: result[:score_min], max: result[:score_max])
     @success = result[:success] || false
     @completion = result[:completion] || false
     @response = result[:response]
-    @duration = duration
+    @duration = result[:duration]
     @extensions = result[:extensions]
   end
 
@@ -50,6 +48,11 @@ class XapiMiddleware::Result
   def validate_result(result)
     validate_result_structure(result)
     validate_result_values(result)
+
+    duration = result[:duration]
+    validate_duration(duration) if duration.present?
+
+    validate_completion(result[:completion])
   end
 
   # Validates the structure of the result hash.
@@ -89,6 +92,17 @@ class XapiMiddleware::Result
   # @return [ActiveSupport::Duration::ISO8601Parser::ParsingError] If invalid string is provided.
   def validate_duration(duration)
     ActiveSupport::Duration.parse(duration)
+  end
+  
+
+  def validate_completion(completion)
+    return if completion.nil?
+
+    unless (completion.is_a?(String) && %w[true false].include?(completion)) ||
+           completion.is_a?(TrueClass) || completion.is_a?(FalseClass)
+      raise XapiMiddleware::Errors::XapiError,
+        I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "completion", value: completion)
+    end
   end
 
   # Checks if the value has the correct type.
