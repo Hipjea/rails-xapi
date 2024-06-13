@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    xapi_middleware (0.1.0)
+    xapi_middleware (0.1.1)
       rails (>= 7.1.2)
 
 GEM
