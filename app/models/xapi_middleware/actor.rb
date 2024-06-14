@@ -20,25 +20,19 @@ class XapiMiddleware::Actor
   # @param [String] openid The openid URI of the actor.
   # @param [Hash] account The account hash of the actor.
   def initialize(actor)
-    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "actor") if actor.blank? || actor.nil?
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "actor") if actor.blank?
 
-    validate_actor(actor)
+    self.class.validate_actor(actor)
     normalized_actor = normalize_actor(actor)
 
     @object_type = normalized_actor[:objectType]
     @name = normalized_actor[:name] if normalized_actor[:name].present?
+    @mbox = normalized_actor[:mbox] if normalized_actor[:mbox].present?
+    @mbox_sha1sum = normalized_actor[:mbox_sha1sum] if normalized_actor[:mbox_sha1sum].present?
+    @openid = normalized_actor[:openid] if normalized_actor[:openid].present?
+    @account = Account.new(normalized_actor[:account]) if normalized_actor[:account].present?
 
-    mbox_present = normalized_actor[:mbox].present?
-    mbox_sha1sum_present = actor[:mbox_sha1sum].present?
-    openid_present = actor[:openid].present?
-    account_present = actor[:account].present?
-
-    if mbox_present || mbox_sha1sum_present || openid_present || account_present
-      @mbox = normalized_actor[:mbox] if mbox_present
-      @mbox_sha1sum = normalized_actor[:mbox_sha1sum] if mbox_sha1sum_present
-      @openid = actor[:openid] if openid_present
-      @account = XapiMiddleware::Account.new(actor[:account]) if account_present
-    else
+    unless @mbox || @mbox_sha1sum || @openid || @account
       raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
     end
   end
@@ -46,34 +40,16 @@ class XapiMiddleware::Actor
   # Validates the actor data.
   #
   # @param [Hash] actor The actor data.
-  def validate_actor(actor)
-    if actor[:mbox].present?
-      mbox_valid = actor[:mbox].strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor[:mbox]) unless mbox_valid
-    end
+  def self.validate_actor(actor)
+    mbox = validate_mbox(actor[:mbox]) if actor[:mbox].present?
+    mbox_sha1sum = validate_mbox_sha1sum(actor[:mbox_sha1sum]) if actor[:mbox_sha1sum].present?
+    validate_object_type(actor[:objectType]) if actor[:objectType].present?
+    openid = validate_openid(actor[:openid]) if actor[:openid].present?
+    account = actor[:account] if actor[:account].present?
 
-    if actor[:mbox_sha1sum].present?
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(actor[:mbox_sha1sum])
-    end
+    return true if mbox || mbox_sha1sum || openid || account
 
-    if actor[:objectType].present?
-      object_type_valid = OBJECT_TYPES.include?(actor[:objectType])
-
-      unless object_type_valid
-        raise XapiMiddleware::Errors::XapiError,
-          I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor[:objectType])
-      end
-    end
-
-    if actor[:openid].present?
-      uri = URI.parse(actor[:openid])
-      is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-
-      unless is_valid_openid_uri
-        raise XapiMiddleware::Errors::XapiError,
-          I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor[:openid])
-      end
-    end
+    false
   end
 
   # Normalizes the actor data.
@@ -115,6 +91,34 @@ class XapiMiddleware::Actor
   end
 
   private
+
+  private_class_method def self.validate_mbox(mbox)
+    mbox_valid = mbox.strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox", name: mbox) unless mbox_valid
+
+    true
+  end
+
+  private_class_method def self.validate_mbox_sha1sum(mbox_sha1sum)
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(mbox_sha1sum)
+
+    true
+  end
+
+  private_class_method def self.validate_object_type(object_type)
+    object_type_valid = OBJECT_TYPES.include?(object_type)
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: object_type) unless object_type_valid
+
+    true
+  end
+
+  private_class_method def self.validate_openid(openid)
+    uri = URI.parse(openid)
+    is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: openid) unless is_valid_openid_uri
+
+    true
+  end
 
   # Produces the hex-encoded SHA1 hash of the actor mailto.
   #
