@@ -206,7 +206,7 @@ class XapiMiddleware::Verb
   #
   # @param [string] verb_id The verb identifier. Must be a valid URL.
   def initialize(verb)
-    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "verb") if verb.blank? || verb.nil?
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "verb") if verb.blank? || verb[:id].blank?
 
     display = default_display(verb[:id])
 
