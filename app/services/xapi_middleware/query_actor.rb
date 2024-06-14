@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# This class manages the query interface.
-class XapiMiddleware::Query
+# This class manages the actor's query interface.
+class XapiMiddleware::QueryActor < ApplicationService
   # Query statements by actor's email
   #
   # @param actor_email [String] The email address of the actor
@@ -64,11 +64,11 @@ class XapiMiddleware::Query
     identifier_key, identifier_value = actor_identifier.first
     start_date, end_date = generate_start_date_end_date(year, month)
     month_dates = (start_date..end_date).to_a
-    graph_data = XapiMiddleware::Statement.where(identifier_key => identifier_value, created_at: start_date..end_date)
+    graph_data = XapiMiddleware::Statement.where(identifier_key => identifier_value, created_at => start_date..end_date)
       .group("DATE(created_at)")
       .count
 
-    return generate_month_graph_data(month_dates, graph_data)
+    generate_month_graph_data(month_dates, graph_data)
   end
 
   # Takes a collection of records and generate a number of records created each day of the given month
@@ -82,21 +82,12 @@ class XapiMiddleware::Query
     month_dates = (start_date..end_date).to_a
     graph_data = resources.where(created_at: start_date..end_date).group("DATE(created_at)").count
 
-    return generate_month_graph_data(month_dates, graph_data)
+    generate_month_graph_data(month_dates, graph_data)
   end
 
   private
 
-  # Set the start_date to the first day of the given month and year,
-  # and the end_date to the last day of the givenn month.
-  def self.generate_start_date_end_date(year, month)
-    start_date = Date.new(year, month, 1)
-    end_date = start_date.end_of_month
-
-    return start_date, end_date
-  end
-
-  def self.generate_month_graph_data(month_dates, graph_data)
+  private_class_method def self.generate_month_graph_data(month_dates, graph_data)
     # Create a hash with default value 0 for each date of the current month
     complete_data = month_dates.index_with { 0 }
 
