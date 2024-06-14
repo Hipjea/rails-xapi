@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# This class manages the actor's query interface.
+# This class manages the query interface for actors.
 class XapiMiddleware::QueryActor < ApplicationService
   # Query statements by actor's email
   #

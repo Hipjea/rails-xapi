@@ -2,7 +2,7 @@
 
 class ApplicationService
   def self.call(*, &)
-    new(*args, &block).call
+    new(*, &).call
   end
 
   private
