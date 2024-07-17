@@ -10,17 +10,15 @@ class XapiMiddleware::ActivityDefinition < ApplicationRecord
     extensions_data.each do |iri, data|
       extension = find_or_initialize_extension(iri)
       extension.value = serialize_value(data)
-      extensions << extension unless extensions.include?(extension)
+      # Check if extension with iri already exists
+      extensions << extension unless extensions.exists?(iri: iri)
     end
   end
 
   private
 
   def find_or_initialize_extension(iri)
-    extension = extensions.detect { |ext| ext.iri == iri }
-    return extension if extension
-
-    XapiMiddleware::Extension.new(iri: iri)
+    extensions.find_by(iri: iri) || extensions.build(iri: iri)
   end
 
   def serialize_value(data)

@@ -17,10 +17,15 @@ class XapiMiddleware::StatementCreator < ApplicationService
       v.display = @data[:verb][:display]
     end
 
+    p "*" * 90
+    p @data[:object]
+    p "*" * 90
+
     # Find or create the object
     object = XapiMiddleware::Object.find_or_create_by(id: @data[:object][:id]) do |obj|
       obj.object_type = @data[:object][:object_type]
     end
+
     # Find or create the activity definition for the object
     definition = object.definition || object.create_definition
     # Update the activity definition attributes excluding extensions
