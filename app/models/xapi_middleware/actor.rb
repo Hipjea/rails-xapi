@@ -2,54 +2,27 @@
 
 # The Actor defines who performed the action.
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
-class XapiMiddleware::Actor
+class XapiMiddleware::Actor < ApplicationRecord
   require "uri"
-  include ActiveModel::Validations
 
-  # The Actor of a Statement can be an Agent or a Group.
+  belongs_to :account, class_name: "XapiMiddleware::Account", foreign_key: "xapi_middleware_account_id", optional: true
+  has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
+
+  validates :object_type, presence: true
+  validate :validate_actor_ifi_presence
+
   OBJECT_TYPES = ["Agent", "Group"]
 
-  attr_accessor :object_type, :name, :mbox, :account, :openid
-
-  # Initializes a new Actor instance.
-  #
-  # @param [String] object_type The type of the actor, either Agent or Group.
-  # @param [String] name The name of the actor.
-  # @param [String] mbox The mbox of the actor.
-  # @param [String] mbox_sha1sum The sha1 encoded mbox value of the actor.
-  # @param [String] openid The openid URI of the actor.
-  # @param [Hash] account The account hash of the actor.
-  def initialize(actor)
-    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "actor") if actor.blank?
-
-    self.class.validate_actor(actor)
-    normalized_actor = normalize_actor(actor)
-
-    @object_type = normalized_actor[:objectType]
-    @name = normalized_actor[:name] if normalized_actor[:name].present?
-    @mbox = normalized_actor[:mbox] if normalized_actor[:mbox].present?
-    @mbox_sha1sum = normalized_actor[:mbox_sha1sum] if normalized_actor[:mbox_sha1sum].present?
-    @openid = normalized_actor[:openid] if normalized_actor[:openid].present?
-    @account = Account.new(normalized_actor[:account]) if normalized_actor[:account].present?
-
-    unless @mbox || @mbox_sha1sum || @openid || @account
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
-    end
+  def objectType=(value)
+    self.object_type = value
   end
 
-  # Validates the actor data.
-  #
-  # @param [Hash] actor The actor data.
-  def self.validate_actor(actor)
-    mbox = validate_mbox(actor[:mbox]) if actor[:mbox].present?
-    mbox_sha1sum = validate_mbox_sha1sum(actor[:mbox_sha1sum]) if actor[:mbox_sha1sum].present?
-    validate_object_type(actor[:objectType]) if actor[:objectType].present?
-    openid = validate_openid(actor[:openid]) if actor[:openid].present?
-    account = actor[:account] if actor[:account].present?
+  private
 
-    return true if mbox || mbox_sha1sum || openid || account
-
-    false
+  def validate_actor_ifi_presence
+    unless mbox.present? || mbox_sha1sum.present? || openid.present? || account.present?
+      errors.add(:base, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present"))
+    end
   end
 
   # Normalizes the actor data.
@@ -130,3 +103,18 @@ class XapiMiddleware::Actor
     !!(str =~ /^sha1:[0-9a-f]{40}$/i)
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_actors
+#
+#  id           :integer          not null, primary key
+#  account      :string
+#  mbox         :string
+#  mbox_sha1sum :string
+#  name         :string
+#  object_type  :string
+#  openid       :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#
