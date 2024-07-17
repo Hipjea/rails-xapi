@@ -3,9 +3,14 @@
 # The Verb defines the action between an Actor and an Activity.
 # The systems reading the statements must use the verb IRI to infer meaning.
 # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
-class XapiMiddleware::Verb
-  attr_accessor :id, :display
-  attr_reader :generic_display
+class XapiMiddleware::Verb < ApplicationRecord
+  self.primary_key = "id"
+
+  has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
+
+  validates :id, presence: true, format: {with: /\A\w+:\/\/\S+\z/, message: I18n.t("xapi_middleware.errors.must_be_a_valid_iri")}
+
+  before_validation :set_display_from_verbs_list
 
   # Constants representing a mapping of xAPI activity verbs.
   #
@@ -202,46 +207,24 @@ class XapiMiddleware::Verb
     "https://brindlewaye.com/xAPITerms/verbs/walked/" => "walked"
   }
 
-  # Initializes a new Verb instance.
-  #
-  # @param [string] verb_id The verb identifier. Must be a valid URL.
-  def initialize(verb)
-    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_object", name: "verb") if verb.blank? || verb[:id].blank?
+  private
 
-    display = default_display(verb[:id])
-
-    @id = verb[:id]
-    @generic_display = display
-    @display = {
-      "en-US": display
-    }
-
-    # Add any other languages properties
-    if verb[:display].is_a?(Hash) && verb[:display].any?
-      verb[:display].each do |key, value|
-        @display[key.to_sym] = value
-      end
+  def set_display_from_verbs_list
+    if VERBS_LIST.key?(id)
+      verb_list_id = VERBS_LIST[id]
+      self.display = verb_list_id
+      self.display_full = verb_list_id if display_full.blank?
     end
   end
-
-  # Generate the display value for "en-US".
-  #
-  # @param [String] verb The verb id.
-  # @return [String] The generic display value.
-  def default_display(verb_id)
-    display = VERBS_LIST[verb_id]
-    return verb_id.split("/")[-1] if display.nil?
-
-    display
-  end
-
-  # Overrides the Hash class method.
-  #
-  # @return [Hash] The verb hash without the generic_display attribute.
-  def to_hash
-    {
-      id: @id,
-      display: @display
-    }.compact
-  end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_verbs
+#
+#  id           :integer          not null, primary key
+#  display      :string
+#  display_full :text
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#

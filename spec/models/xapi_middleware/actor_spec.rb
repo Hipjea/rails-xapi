@@ -30,3 +30,18 @@ describe XapiMiddleware::Actor do
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_actors
+#
+#  id           :integer          not null, primary key
+#  account      :string
+#  mbox         :string
+#  mbox_sha1sum :string
+#  name         :string
+#  object_type  :string
+#  openid       :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#

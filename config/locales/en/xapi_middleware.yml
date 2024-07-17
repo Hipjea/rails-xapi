@@ -18,6 +18,7 @@ en:
       missing_object_keys: "missing object keys: %{keys}"
       missing_result_keys: "missing result keys: %{keys}"
       missing_values_or_invalid_type: "missing values or invalid type %{values}"
+      must_be_a_valid_iri: "must be a valid IRI"
       exactly_one_actor_identifier_must_be_provided: "exactly one actor identifier must be provided"
       unexpected_substatement_object_keys: "unexpected substatement object keys: %{keys}"
       value_must_not_be_nil: "value must not be null for the key: %{name}"
