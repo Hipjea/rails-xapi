@@ -7,6 +7,7 @@ class XapiMiddleware::Statement < ApplicationRecord
   belongs_to :verb, class_name: "XapiMiddleware::Verb"
   belongs_to :object, class_name: "XapiMiddleware::Object"
   has_one :result, class_name: "XapiMiddleware::Result", dependent: :destroy
+  has_one :context, class_name: "XapiMiddleware::Context", dependent: :destroy
 end
 
 # == Schema Information
