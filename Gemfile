@@ -14,7 +14,6 @@ gem "sprockets-rails"
 # gem "debug", ">= 1.0.0"
 
 group :development do
-  gem "annotate"
   gem "brakeman"
   gem "guard"
   gem "guard-brakeman"
@@ -30,3 +29,5 @@ group :development, :test do
   gem "rspec-rails"
   gem "guard-rspec", require: false
 end
+
+gem "annotate"

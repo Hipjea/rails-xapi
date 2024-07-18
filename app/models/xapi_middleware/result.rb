@@ -1,86 +1,78 @@
 # frozen_string_literal: true
 
 # Represents a result containing response, success, and score data.
-class XapiMiddleware::Result
-  require "active_support/core_ext/numeric/time"
+class XapiMiddleware::Result < ApplicationRecord
+  require "active_support/duration"
   require "uri"
-  include ActiveModel::Validations
+  include Serializable
 
-  # Initializes a new Result instance.
+  belongs_to :statement, class_name: "XapiMiddleware::Statement", dependent: :destroy
+  has_many :extensions, as: :extendable, dependent: :destroy
+
+  attr_reader :duration_in_seconds
+
+  validates :success, inclusion: {in: [true, false]}
+  validates :completion, inclusion: {in: [true, false]}
+  validates :score_scaled, numericality: {greater_than_or_equal_to: -1, less_than_or_equal_to: 1}, allow_nil: true
+
+  before_validation :validate_duration
+
+  # Store the score object in the results table for convenience reasons.
   #
-  # @param [Hash] result The result hash containing score, success, completion, response, duration and extensions data.
-  # @raise [XapiMiddleware::Errors::XapiError] If the result structure or values are invalid.
-  def initialize(result)
-    validate_result(result)
+  # @param [Hash] value The result hash values.
+  def score=(value)
+    validate_score(value)
 
-    @score = XapiMiddleware::Score.new(raw: result[:score_raw], min: result[:score_min], max: result[:score_max])
-    @success = result[:success] || false
-    @completion = result[:completion] || false
-    @response = result[:response]
-    @duration = result[:duration]
-    @extensions = result[:extensions]
+    self.score_scaled = value[:scaled]
+    self.score_raw = value[:raw]
+    self.score_min = value[:min]
+    self.score_max = value[:max]
   end
 
-  # Returns an array of keys present in the result hash.
+  # Transform a duration in seconds into a ISO 8601 string.
+  # This is an optional attribute meant to bring more convenience for some systems.
   #
-  # @return [Array<Symbol>] The array of keys.
-  delegate :keys, to: :result_hash
+  # @param [String|Number] value The duration in seconds.
+  def duration_in_seconds=(value)
+    self.duration = ActiveSupport::Duration.build(value).iso8601 if value.present?
+  end
+
+  def extensions=(extensions_data)
+    extensions_data.each do |iri, data|
+      extension = extensions.build(iri: iri)
+      extension.value = serialized_value(data)
+      extensions << extension
+    end
+  end
 
   private
 
-  # Output of the result hash.
+  # Validations in regard to the score
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2451-score
   #
-  # @return [Hash] The result hash to be output.
-  def result_hash
-    {
-      score_raw: @score&.raw,
-      score_min: @score&.min,
-      score_max: @score&.max,
-      response: @response,
-      success: @success
-    }.compact
-  end
-
-  # Validates the overall structure of the result.
-  #
-  # @param [Hash] result The result hash to validate.
-  # @return [XapiMiddleware::Errors::XapiError] If the result structure is invalid.
-  def validate_result(result)
-    validate_result_structure(result)
-    validate_result_values(result)
-    validate_boolean_value(result[:success], "success")
-    validate_boolean_value(result[:completion], "completion")
-    validate_duration(result[:duration])
-    validate_extensions(result[:extensions])
-  end
-
-  # Validates the structure of the result hash.
-  #
-  # @param [Hash] result The result hash to validate.
-  # @raise [XapiMiddleware::Errors::XapiError] If the result structure or values are invalid.
-  def validate_result_structure(result)
-    result_hash = result.is_a?(Hash) ? result : result.as_json
-    raise XapiMiddleware::Errors::XapiError, "must be a hash or an object that responds to as_json" unless result_hash.is_a?(Hash)
-
-    required_keys = %i[]
-    missing_keys = required_keys - result.keys
-
-    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_result_keys", keys: missing_keys.join(", ")) if missing_keys.any?
-  end
-
-  # Validates the values of the result hash.
-  #
-  # @param [Hash] result The result hash to validate.
-  # @raise [XapiMiddleware::Errors::XapiError] If the result values are missing.
-  def validate_result_values(result)
-    required_keys = %i[]
-    missing_values = required_keys.reject do |key|
-      value = result[key]
-      value.present? && valid_value_type?(key, value)
+  # @param [Hash] value The result's score hash values.
+  def validate_score(value)
+    unless value[:scaled].presence.between?(-1, 1)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.scaled"))
     end
 
-    if missing_values.any?
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_values_or_invalid_type", values: missing_values.join(", "))
+    min_value = value[:min].to_i if value[:min].present?
+    max_value = value[:max].to_i if value[:max].present?
+
+    if value[:raw].present? && !value[:raw]&.between?(min_value || -Float::INFINITY, max_value || Float::INFINITY)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.raw"))
+    end
+
+    if max_value.present? && min_value && min_value >= max_value
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.min"))
+    end
+
+    if min_value.present? && max_value && max_value <= min_value
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.max"))
     end
   end
 
@@ -89,54 +81,27 @@ class XapiMiddleware::Result
   #
   # @param [String] duration The duration string to validate.
   # @return [ActiveSupport::Duration::ISO8601Parser::ParsingError] If invalid string is provided.
-  def validate_duration(duration)
+  def validate_duration
     ActiveSupport::Duration.parse(duration) if duration.present?
   end
-
-  # Validates the a boolean value.
-  #
-  # @param [String|Boolean] attribute The string or boolean to validate.
-  # @param [String] name The attribute name.
-  # @return [XapiMiddleware::Errors::XapiError] If invalid attribute is provided.
-  def validate_boolean_value(attribute, name)
-    return if attribute.nil?
-
-    valid_string = attribute.is_a?(String) && %w[true false].include?(attribute)
-    valid_boolean = attribute.is_a?(TrueClass) || attribute.is_a?(FalseClass)
-
-    unless valid_string || valid_boolean
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.wrong_attribute_type", name: name, value: attribute)
-    end
-  end
-
-  # Validates the extensions accordign to the specifications.
-  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#41-extensions
-  #
-  # @param [Object] duration The extensions object to validate.
-  # @return [XapiMiddleware::Errors::XapiError] If an invalid object structure is provided.
-  def validate_extensions(extensions)
-    return if extensions.nil?
-
-    extensions.each do |key, value|
-      uri = URI.parse(key.to_s)
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_uri", uri: uri) unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.value_must_not_be_nil", name: key) if value.nil?
-    end
-  end
-
-  # Checks if the value has the correct type.
-  #
-  # @param [Symbol] key The key of the value being checked.
-  # @param [Object] value The value to check.
-  # @return [Boolean] True if the value has the correct type, false otherwise.
-  def valid_value_type?(key, value)
-    case key
-    when :response
-      value.is_a?(String)
-    when :score_raw, :score_min, :score_max
-      value.is_a?(Integer)
-    else
-      true
-    end
-  end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_results
+#
+#  id           :integer          not null, primary key
+#  completion   :boolean          default(FALSE)
+#  duration     :string
+#  response     :text
+#  score_max    :integer
+#  score_min    :integer
+#  score_raw    :integer
+#  score_scaled :decimal(3, 2)
+#  success      :boolean          default(FALSE)
+#  statement_id :bigint           not null
+#
+# Indexes
+#
+#  index_xapi_middleware_results_on_statement_id  (statement_id)
+#
