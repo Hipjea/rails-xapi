@@ -10,22 +10,72 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_04_141223) do
-  create_table "xapi_middleware_statements", force: :cascade do |t|
-    t.string "actor_name"
-    t.string "actor_mbox"
-    t.string "actor_sha1sum"
-    t.string "actor_openid"
-    t.string "actor_account_homepage"
-    t.string "actor_account_name"
-    t.string "verb_id"
-    t.string "verb_display"
-    t.string "verb_display_full"
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_144233) do
+  create_table "xapi_middleware_accounts", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "home_page", null: false
+  end
+
+  create_table "xapi_middleware_activity_definitions", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.string "activity_type"
+    t.text "more_info"
+    t.string "object_id", null: false
+    t.index ["object_id"], name: "index_xapi_middleware_activity_definitions_on_object_id"
+  end
+
+  create_table "xapi_middleware_actors", force: :cascade do |t|
     t.string "object_type"
-    t.string "object_identifier"
-    t.text "statement_json"
+    t.string "name"
+    t.string "mbox"
+    t.string "mbox_sha1sum"
+    t.string "openid"
+    t.bigint "account_id", null: false
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_xapi_middleware_actors_on_account_id"
+  end
+
+  create_table "xapi_middleware_extensions", force: :cascade do |t|
+    t.string "iri", null: false
+    t.text "value", null: false
+    t.string "extendable_type"
+    t.integer "extendable_id"
+    t.index ["extendable_type", "extendable_id"], name: "index_xapi_middleware_extensions_on_extendable"
+  end
+
+  create_table "xapi_middleware_objects", id: :string, force: :cascade do |t|
+    t.string "object_type", null: false
+    t.index ["id"], name: "index_xapi_middleware_objects_on_id", unique: true
+  end
+
+  create_table "xapi_middleware_results", force: :cascade do |t|
+    t.decimal "score_scaled", precision: 3, scale: 2
+    t.integer "score_raw"
+    t.integer "score_min"
+    t.integer "score_max"
+    t.boolean "success", default: false
+    t.boolean "completion", default: false
+    t.text "response"
+    t.string "duration"
+    t.bigint "statement_id", null: false
+    t.index ["statement_id"], name: "index_xapi_middleware_results_on_statement_id"
+  end
+
+  create_table "xapi_middleware_statements", force: :cascade do |t|
+    t.string "actor_id", null: false
+    t.string "verb_id", null: false
+    t.string "object_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_xapi_middleware_statements_on_actor_id"
+    t.index ["object_id"], name: "index_xapi_middleware_statements_on_object_id"
+    t.index ["verb_id"], name: "index_xapi_middleware_statements_on_verb_id"
+  end
+
+  create_table "xapi_middleware_verbs", id: :string, force: :cascade do |t|
+    t.string "display"
+    t.text "display_full"
+    t.index ["id"], name: "index_xapi_middleware_verbs_on_id", unique: true
   end
 
 end

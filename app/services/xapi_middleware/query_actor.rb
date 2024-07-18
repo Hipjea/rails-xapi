@@ -12,7 +12,7 @@ class XapiMiddleware::QueryActor < ApplicationService
       raise ArgumentError, I18n.t("xapi_middleware.errors.malformed_email", name: actor_email)
     end
 
-    XapiMiddleware::Statement.where(actor_mbox: "mailto:#{actor_email}")
+    XapiMiddleware::Statement.includes([:actor, :verb, :object]).where(actor: {mbox: "mailto:#{actor_email}"})
   end
 
   # Query statements by actor's mbox
@@ -25,7 +25,7 @@ class XapiMiddleware::QueryActor < ApplicationService
       raise ArgumentError, I18n.t("xapi_middleware.errors.malformed_mbox", name: actor_mbox)
     end
 
-    XapiMiddleware::Statement.where(actor_mbox: actor_mbox)
+    XapiMiddleware::Statement.includes([:actor, :verb, :object]).where(actor: {mbox: actor_mbox})
   end
 
   # Query statements by actor's account homepage
@@ -33,7 +33,7 @@ class XapiMiddleware::QueryActor < ApplicationService
   # @param actor_account_homepage [String] The account home page URL of the actor
   # @return [ActiveRecord::Relation] The statements associated with the actor
   def self.actor_by_account_homepage(actor_account_homepage)
-    XapiMiddleware::Statement.where(actor_account_homepage: actor_account_homepage)
+    XapiMiddleware::Statement.includes([:actor, :verb, :object]).where(actor: {account: {home_page: actor_account_homepage}})
   end
 
   # Query statements by actor's openid
@@ -41,7 +41,7 @@ class XapiMiddleware::QueryActor < ApplicationService
   # @param actor_id [String] The openID of the actor
   # @return [ActiveRecord::Relation] The statements associated with the actor
   def self.actor_by_openid(actor_openid)
-    XapiMiddleware::Statement.where(actor_openid: actor_openid)
+    XapiMiddleware::Statement.includes([:actor, :verb, :object]).where(actor: {openid: actor_openid})
   end
 
   # Query statements by actor's mbox_sha1sum
@@ -49,7 +49,7 @@ class XapiMiddleware::QueryActor < ApplicationService
   # @param actor_id [String] The mbox_sha1sum of the actor
   # @return [ActiveRecord::Relation] The statements associated with the actor
   def self.actor_by_mbox_sha1sum(actor_mbox_sha1sum)
-    XapiMiddleware::Statement.where(actor_mbox_sha1sum: actor_mbox_sha1sum)
+    XapiMiddleware::Statement.includes([:actor, :verb, :object]).where(actor: {mbox_sha1sum: actor_mbox_sha1sum})
   end
 
   # Query statements by actor's identifier per month
@@ -65,7 +65,7 @@ class XapiMiddleware::QueryActor < ApplicationService
     start_date, end_date = generate_start_date_end_date(year, month)
     month_dates = (start_date..end_date).to_a
     graph_data = XapiMiddleware::Statement.where(identifier_key => identifier_value, created_at => start_date..end_date)
-      .group("DATE(created_at)")
+      .group("DATE(xapi_middleware_statements.created_at)")
       .count
 
     generate_month_graph_data(month_dates, graph_data)
@@ -80,7 +80,8 @@ class XapiMiddleware::QueryActor < ApplicationService
   def self.per_month(resources, year = Date.current.year, month = Date.current.month)
     start_date, end_date = generate_start_date_end_date(year, month)
     month_dates = (start_date..end_date).to_a
-    graph_data = resources.where(created_at: start_date..end_date).group("DATE(created_at)").count
+    graph_data = resources.where("xapi_middleware_statements.created_at": start_date..end_date)
+      .group("DATE(xapi_middleware_statements.created_at)").count
 
     generate_month_graph_data(month_dates, graph_data)
   end

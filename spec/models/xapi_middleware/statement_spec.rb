@@ -206,3 +206,20 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_statements
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime         not null
+#  actor_id   :string           not null
+#  object_id  :string           not null
+#  verb_id    :string           not null
+#
+# Indexes
+#
+#  index_xapi_middleware_statements_on_actor_id   (actor_id)
+#  index_xapi_middleware_statements_on_object_id  (object_id)
+#  index_xapi_middleware_statements_on_verb_id    (verb_id)
+#
