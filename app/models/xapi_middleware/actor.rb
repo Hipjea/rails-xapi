@@ -12,8 +12,7 @@ class XapiMiddleware::Actor < ApplicationRecord
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
   validates :object_type, presence: true
-  validate :validate_actor_ifi_presence
-  validate :validate_mbox, :validate_mbox_sha1sum, :validate_object_type, :validate_openid
+  validate :validate_actor_ifi_presence, :validate_mbox, :validate_mbox_sha1sum, :validate_object_type, :validate_openid
 
   before_validation :normalize_actor
 
@@ -22,12 +21,6 @@ class XapiMiddleware::Actor < ApplicationRecord
   end
 
   private
-
-  def validate_actor_ifi_presence
-    unless mbox.present? || mbox_sha1sum.present? || openid.present? || account.present?
-      errors.add(:base, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present"))
-    end
-  end
 
   # Normalizes the actor data.
   #
@@ -61,7 +54,11 @@ class XapiMiddleware::Actor < ApplicationRecord
     }.compact
   end
 
-  private
+  def validate_actor_ifi_presence
+    unless mbox.present? || mbox_sha1sum.present? || openid.present? || account.present?
+      errors.add(:base, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present"))
+    end
+  end
 
   def validate_mbox
     return if mbox.blank?
