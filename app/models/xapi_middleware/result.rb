@@ -13,7 +13,12 @@ class XapiMiddleware::Result < ApplicationRecord
   validates :completion, inclusion: {in: [true, false]}
   validates :score_scaled, numericality: {greater_than_or_equal_to: -1, less_than_or_equal_to: 1}, allow_nil: true
 
+  # Store the score object in the results table for convenience reasons.
+  #
+  # @param [Hash] value The result hash values.
   def score=(value)
+    validate_score(value)
+
     self.score_scaled = value[:scaled]
     self.score_raw = value[:raw]
     self.score_min = value[:min]
@@ -34,6 +39,31 @@ class XapiMiddleware::Result < ApplicationRecord
     return nil if time_in_seconds.blank?
 
     ActiveSupport::Duration.build(time_in_seconds).iso8601
+  end
+
+  def validate_score(value)
+    unless value[:scaled].presence.between?(-1, 1)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.scaled"))
+    end
+
+    min_value = value[:min].to_i if value[:min].present?
+    max_value = value[:max].to_i if value[:max].present?
+
+    if value[:raw].present? && !value[:raw]&.between?(min_value || -Float::INFINITY, max_value || Float::INFINITY)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.raw"))
+    end
+
+    if max_value.present? && min_value && min_value >= max_value
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.min"))
+    end
+
+    if min_value.present? && max_value && max_value <= min_value
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.max"))
+    end
   end
 end
 
