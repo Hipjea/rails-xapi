@@ -10,7 +10,17 @@ class XapiMiddleware::Object < ApplicationRecord
   has_one :definition, class_name: "XapiMiddleware::ActivityDefinition", dependent: :destroy
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
-  attribute :object_type, :string, default: -> { OBJECT_TYPES.first }
+  after_initialize :set_defaults
+
+  def objectType=(value)
+    self.object_type = value
+  end
+
+  private
+
+  def set_defaults
+    self.object_type ||= "Activity"
+  end
 end
 
 # == Schema Information

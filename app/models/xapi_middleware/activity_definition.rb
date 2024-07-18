@@ -4,22 +4,25 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#activity-definition
 class XapiMiddleware::ActivityDefinition < ApplicationRecord
   belongs_to :object, class_name: "XapiMiddleware::Object"
-  has_many :extensions, class_name: "XapiMiddleware::Extension", foreign_key: "definition_id", dependent: :destroy
+  has_many :extensions, as: :extendable, dependent: :destroy
+
+  def type=(value)
+    self.activity_type = value
+  end
+
+  def moreInfo=(value)
+    self.more_info = value
+  end
 
   def extensions=(extensions_data)
     extensions_data.each do |iri, data|
-      extension = find_or_initialize_extension(iri)
+      extension = extensions.build(iri: iri)
       extension.value = serialize_value(data)
-      # Check if extension with iri already exists
-      extensions << extension unless extensions.exists?(iri: iri)
+      extensions << extension
     end
   end
 
   private
-
-  def find_or_initialize_extension(iri)
-    extensions.find_by(iri: iri) || extensions.build(iri: iri)
-  end
 
   def serialize_value(data)
     if data.is_a?(Hash)

@@ -6,6 +6,7 @@ class XapiMiddleware::Statement < ApplicationRecord
   belongs_to :actor, class_name: "XapiMiddleware::Actor"
   belongs_to :verb, class_name: "XapiMiddleware::Verb"
   belongs_to :object, class_name: "XapiMiddleware::Object"
+  has_one :result, class_name: "XapiMiddleware::Result", dependent: :destroy
 end
 
 # == Schema Information
