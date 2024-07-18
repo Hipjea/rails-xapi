@@ -7,6 +7,7 @@ en:
       invalid_actor_object_type: "invalid actor's object type: %{name}"
       invalid_object_object_type: "invalid object's object type: %{name}"
       invalid_object_substatement: "invalid object substatement"
+      invalid_score_value: "invalid score value: %{value}"
       invalid_verb_id_url: "verb_id is not a valid URL"
       malformed_account_home_page_url: "malformed account home_page URL: %{url}"
       malformed_email: "malformed email value: %{name}"
@@ -23,3 +24,9 @@ en:
       unexpected_substatement_object_keys: "unexpected substatement object keys: %{keys}"
       value_must_not_be_nil: "value must not be null for the key: %{name}"
       wrong_attribute_type: "wrong attribute type for %{name}: %{value}"
+    validations:
+      score:
+        min: "min must be a decimal number less than max"
+        max: "max must be a decimal number greater than min"
+        raw: "raw must be a decimal between min and max inclusive"
+        scaled: "scaled must be a decimal number between -1 and 1, inclusive"
