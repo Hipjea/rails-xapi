@@ -9,6 +9,20 @@ class XapiMiddleware::StatementCreator < ApplicationService
   end
 
   def call
+    statement = prepare_statement
+    statement.save
+
+    {status: 200, statement: statement}
+  end
+
+  def call_async
+    statement = prepare_statement
+    XapiMiddleware::CreateStatementJob.perform_now(statement)
+  end
+
+  private
+
+  def prepare_statement
     actor = build_actor
 
     verb = XapiMiddleware::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
@@ -31,11 +45,8 @@ class XapiMiddleware::StatementCreator < ApplicationService
 
     raise XapiMiddleware::Errors::XapiError, statement.errors.full_messages.join(", ") unless statement.valid?
 
-    statement.save
-    {status: 200, statement: statement}
+    statement
   end
-
-  private
 
   # Ensure that an actor inverse functional identifier (IFI) is present.
   #

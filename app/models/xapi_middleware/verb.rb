@@ -4,8 +4,6 @@
 # The systems reading the statements must use the verb IRI to infer meaning.
 # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
 class XapiMiddleware::Verb < ApplicationRecord
-  self.primary_key = "id"
-
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
   validates :id, presence: true, format: {with: /\A\w+:\/\/\S+\z/, message: I18n.t("xapi_middleware.errors.must_be_a_valid_iri")}
