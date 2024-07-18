@@ -9,29 +9,25 @@ class XapiMiddleware::StatementCreator < ApplicationService
   end
 
   def call
-    # Build the actor
     actor = build_actor
 
-    # Find or create the verb
     verb = XapiMiddleware::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
       v.display = @data[:verb][:display]
     end
 
-    p "*" * 90
-    p @data[:object]
-    p "*" * 90
-
-    # Find or create the object
     object = XapiMiddleware::Object.find_or_create_by(id: @data[:object][:id]) do |obj|
       obj.object_type = @data[:object][:object_type]
     end
 
-    # Find or create the activity definition for the object
-    definition = object.definition || object.create_definition
-    # Update the activity definition attributes excluding extensions
-    definition.update(@data[:object][:definition])
+    if @data[:object][:definition].present?
+      definition = object.definition || object.create_definition
+      definition.update(@data[:object][:definition])
+    end
+
+    result = XapiMiddleware::Result.new(@data[:result]) if @data[:result].present?
+
     # Create the statement with the associated actor, verb, and object
-    statement = XapiMiddleware::Statement.new(actor: actor, verb: verb, object: object)
+    statement = XapiMiddleware::Statement.new(actor: actor, verb: verb, object: object, result: result)
 
     raise XapiMiddleware::Errors::XapiError, statement.errors.full_messages.join(", ") unless statement.valid?
 
