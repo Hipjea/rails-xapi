@@ -9,6 +9,8 @@ class XapiMiddleware::Account < ApplicationRecord
   def homePage=(value)
     self.home_page = value
   end
+
+  private
 end
 
 # == Schema Information

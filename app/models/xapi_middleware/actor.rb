@@ -4,14 +4,17 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor
 class XapiMiddleware::Actor < ApplicationRecord
   require "uri"
+  include Serializable
 
-  belongs_to :account, class_name: "XapiMiddleware::Account", foreign_key: "xapi_middleware_account_id", optional: true
+  OBJECT_TYPES = ["Agent", "Group"]
+
+  belongs_to :account, class_name: "XapiMiddleware::Account", optional: true
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
   validates :object_type, presence: true
   validate :validate_actor_ifi_presence
 
-  OBJECT_TYPES = ["Agent", "Group"]
+  before_validation :normalize_actor
 
   def objectType=(value)
     self.object_type = value
@@ -29,23 +32,17 @@ class XapiMiddleware::Actor < ApplicationRecord
   #
   # @param [Hash] actor The actor data.
   # @return [Hash] The normalized actor data.
-  def normalize_actor(actor)
-    normalized_object_type = actor[:objectType].presence || OBJECT_TYPES.first
+  def normalize_actor
+    self.object_type = object_type.presence || OBJECT_TYPES.first
 
-    if actor[:name].present?
-      normalized_name = actor[:name].gsub(XapiMiddleware::Statement::LATIN_LETTERS_REGEX, "")
+    if name.present?
+      self.name = name.gsub(Serializable::LATIN_LETTERS_REGEX, "")
         .to_s
         .humanize
-        .gsub(/\b('?[#{XapiMiddleware::Statement::LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
+        .gsub(/\b('?[#{Serializable::LATIN_LETTERS}])/) { Regexp.last_match(1).capitalize }
     end
 
-    normalized_mbox = actor[:mbox].strip.downcase if actor[:mbox].present?
-
-    {
-      object_type: normalized_object_type,
-      name: normalized_name,
-      mbox: normalized_mbox
-    }.compact
+    self.mbox = mbox.strip.downcase if mbox.present?
   end
 
   # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
@@ -108,16 +105,16 @@ end
 #
 # Table name: xapi_middleware_actors
 #
-#  id                         :integer          not null, primary key
-#  mbox                       :string
-#  mbox_sha1sum               :string
-#  name                       :string
-#  object_type                :string
-#  openid                     :string
-#  created_at                 :datetime         not null
-#  xapi_middleware_account_id :integer
+#  id           :integer          not null, primary key
+#  mbox         :string
+#  mbox_sha1sum :string
+#  name         :string
+#  object_type  :string
+#  openid       :string
+#  created_at   :datetime         not null
+#  account_id   :bigint           not null
 #
 # Indexes
 #
-#  index_xapi_middleware_actors_on_xapi_middleware_account_id  (xapi_middleware_account_id)
+#  index_xapi_middleware_actors_on_account_id  (account_id)
 #

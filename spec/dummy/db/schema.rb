@@ -31,9 +31,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144233) do
     t.string "mbox"
     t.string "mbox_sha1sum"
     t.string "openid"
-    t.integer "xapi_middleware_account_id"
+    t.bigint "account_id", null: false
     t.datetime "created_at", null: false
-    t.index ["xapi_middleware_account_id"], name: "index_xapi_middleware_actors_on_xapi_middleware_account_id"
+    t.index ["account_id"], name: "index_xapi_middleware_actors_on_account_id"
   end
 
   create_table "xapi_middleware_extensions", force: :cascade do |t|
