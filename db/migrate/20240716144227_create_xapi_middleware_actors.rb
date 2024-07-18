@@ -6,9 +6,11 @@ class CreateXapiMiddlewareActors < ActiveRecord::Migration[7.1]
       t.string :mbox, null: true
       t.string :mbox_sha1sum, null: true
       t.string :openid, null: true
-      t.references :xapi_middleware_account, index: true
+      t.bigint :account_id, null: false
       t.datetime :created_at, null: false
     end
+
+    add_index :xapi_middleware_actors, :account_id
   end
 
   def down
