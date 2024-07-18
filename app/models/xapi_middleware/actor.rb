@@ -13,6 +13,7 @@ class XapiMiddleware::Actor < ApplicationRecord
 
   validates :object_type, presence: true
   validate :validate_actor_ifi_presence
+  validate :validate_mbox, :validate_mbox_sha1sum, :validate_object_type, :validate_openid
 
   before_validation :normalize_actor
 
@@ -62,27 +63,33 @@ class XapiMiddleware::Actor < ApplicationRecord
 
   private
 
-  private_class_method def self.validate_mbox(mbox)
+  def validate_mbox
+    return if mbox.blank?
+
     mbox_valid = mbox.strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
     raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox", name: mbox) unless mbox_valid
 
     true
   end
 
-  private_class_method def self.validate_mbox_sha1sum(mbox_sha1sum)
+  def validate_mbox_sha1sum
+    return if mbox_sha1sum.blank?
+
     raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum") unless is_sha1?(mbox_sha1sum)
 
     true
   end
 
-  private_class_method def self.validate_object_type(object_type)
+  def validate_object_type
     object_type_valid = OBJECT_TYPES.include?(object_type)
     raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: object_type) unless object_type_valid
 
     true
   end
 
-  private_class_method def self.validate_openid(openid)
+  def validate_openid
+    return if openid.blank?
+
     uri = URI.parse(openid)
     is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
     raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: openid) unless is_valid_openid_uri
