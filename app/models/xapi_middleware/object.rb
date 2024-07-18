@@ -6,7 +6,6 @@
 class XapiMiddleware::Object < ApplicationRecord
   OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
 
-  # has_one :activity_definition, class_name: "XapiMiddleware::AcvitityDefinition", dependent: :destroy
   has_one :definition, class_name: "XapiMiddleware::ActivityDefinition", dependent: :destroy
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
