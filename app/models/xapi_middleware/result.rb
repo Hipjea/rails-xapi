@@ -9,9 +9,13 @@ class XapiMiddleware::Result < ApplicationRecord
   belongs_to :statement, class_name: "XapiMiddleware::Statement", dependent: :destroy
   has_many :extensions, as: :extendable, dependent: :destroy
 
+  attr_reader :duration_in_seconds
+
   validates :success, inclusion: {in: [true, false]}
   validates :completion, inclusion: {in: [true, false]}
   validates :score_scaled, numericality: {greater_than_or_equal_to: -1, less_than_or_equal_to: 1}, allow_nil: true
+
+  before_validation :validate_duration
 
   # Store the score object in the results table for convenience reasons.
   #
@@ -25,6 +29,14 @@ class XapiMiddleware::Result < ApplicationRecord
     self.score_max = value[:max]
   end
 
+  # Transform a duration in seconds into a ISO 8601 string.
+  # This is an optional attribute meant to bring more convenience for some systems.
+  #
+  # @param [String|Number] value The duration in seconds.
+  def duration_in_seconds=(value)
+    self.duration = ActiveSupport::Duration.build(value).iso8601 if value.present?
+  end
+
   def extensions=(extensions_data)
     extensions_data.each do |iri, data|
       extension = extensions.build(iri: iri)
@@ -35,12 +47,10 @@ class XapiMiddleware::Result < ApplicationRecord
 
   private
 
-  def set_duration(time_in_seconds)
-    return nil if time_in_seconds.blank?
-
-    ActiveSupport::Duration.build(time_in_seconds).iso8601
-  end
-
+  # Validations in regard to the score
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2451-score
+  #
+  # @param [Hash] value The result's score hash values.
   def validate_score(value)
     unless value[:scaled].presence.between?(-1, 1)
       raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
@@ -64,6 +74,15 @@ class XapiMiddleware::Result < ApplicationRecord
       raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
         value: I18n.t("xapi_middleware.validations.score.max"))
     end
+  end
+
+  # Validates the duration accordign to the specifications.
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#46-iso-8601-durations
+  #
+  # @param [String] duration The duration string to validate.
+  # @return [ActiveSupport::Duration::ISO8601Parser::ParsingError] If invalid string is provided.
+  def validate_duration
+    ActiveSupport::Duration.parse(duration) if duration.present?
   end
 end
 
