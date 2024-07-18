@@ -222,9 +222,11 @@ end
 #
 # Table name: xapi_middleware_verbs
 #
-#  id           :integer          not null, primary key
+#  id           :string           not null, primary key
 #  display      :string
 #  display_full :text
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#
+# Indexes
+#
+#  index_xapi_middleware_verbs_on_id  (id) UNIQUE
 #

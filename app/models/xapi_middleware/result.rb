@@ -36,3 +36,23 @@ class XapiMiddleware::Result < ApplicationRecord
     ActiveSupport::Duration.build(time_in_seconds).iso8601
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_results
+#
+#  id           :integer          not null, primary key
+#  completion   :boolean          default(FALSE)
+#  duration     :string
+#  response     :text
+#  score_max    :integer
+#  score_min    :integer
+#  score_raw    :integer
+#  score_scaled :decimal(3, 2)
+#  success      :boolean          default(FALSE)
+#  statement_id :bigint           not null
+#
+# Indexes
+#
+#  index_xapi_middleware_results_on_statement_id  (statement_id)
+#

@@ -14,3 +14,18 @@ class XapiMiddleware::Extension < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_extensions
+#
+#  id              :integer          not null, primary key
+#  extendable_type :string
+#  iri             :string           not null
+#  value           :text             not null
+#  extendable_id   :integer
+#
+# Indexes
+#
+#  index_xapi_middleware_extensions_on_extendable  (extendable_type,extendable_id)
+#

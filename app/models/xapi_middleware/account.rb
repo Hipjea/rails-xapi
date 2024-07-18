@@ -10,3 +10,12 @@ class XapiMiddleware::Account < ApplicationRecord
     self.home_page = value
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_accounts
+#
+#  id        :integer          not null, primary key
+#  home_page :string           not null
+#  name      :string           not null
+#

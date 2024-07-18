@@ -26,12 +26,10 @@ end
 #
 # Table name: xapi_middleware_objects
 #
-#  id          :integer          not null, primary key
-#  description :string
-#  extensions  :text
-#  more_info   :text
-#  name        :string
-#  type        :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id          :string           not null, primary key
+#  object_type :string           not null
+#
+# Indexes
+#
+#  index_xapi_middleware_objects_on_id  (id) UNIQUE
 #
