@@ -213,20 +213,13 @@ end
 #
 #  id         :integer          not null, primary key
 #  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  actor_id   :integer
-#  object_id  :integer
-#  verb_id    :integer
+#  actor_id   :string           not null
+#  object_id  :string           not null
+#  verb_id    :string           not null
 #
 # Indexes
 #
 #  index_xapi_middleware_statements_on_actor_id   (actor_id)
 #  index_xapi_middleware_statements_on_object_id  (object_id)
 #  index_xapi_middleware_statements_on_verb_id    (verb_id)
-#
-# Foreign Keys
-#
-#  actor_id   (actor_id => actors.id)
-#  object_id  (object_id => objects.id)
-#  verb_id    (verb_id => verbs.id)
 #

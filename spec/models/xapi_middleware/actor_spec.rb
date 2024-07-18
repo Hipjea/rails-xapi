@@ -35,13 +35,16 @@ end
 #
 # Table name: xapi_middleware_actors
 #
-#  id           :integer          not null, primary key
-#  account      :string
-#  mbox         :string
-#  mbox_sha1sum :string
-#  name         :string
-#  object_type  :string
-#  openid       :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id                         :integer          not null, primary key
+#  mbox                       :string
+#  mbox_sha1sum               :string
+#  name                       :string
+#  object_type                :string
+#  openid                     :string
+#  created_at                 :datetime         not null
+#  xapi_middleware_account_id :integer
+#
+# Indexes
+#
+#  index_xapi_middleware_actors_on_xapi_middleware_account_id  (xapi_middleware_account_id)
 #
