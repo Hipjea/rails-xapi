@@ -41,7 +41,7 @@ class XapiMiddleware::StatementCreator < ApplicationService
     result = XapiMiddleware::Result.new(@data[:result]) if @data[:result].present?
     context = XapiMiddleware::Context.new(@data[:context]) if @data[:context].present?
 
-    # Create the statement with the associated actor, verb, object, result
+    # Create the statement with the associated properties
     statement = XapiMiddleware::Statement.new(actor: actor, verb: verb, object: object, result: result, context: context)
     raise XapiMiddleware::Errors::XapiError, statement.errors.full_messages.join(", ") unless statement.valid?
 
