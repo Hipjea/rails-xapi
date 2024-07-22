@@ -20,6 +20,12 @@ class XapiMiddleware::Actor < ApplicationRecord
     self.object_type = value
   end
 
+  def self.by_iri_or_create(data)
+    find_or_create_by(mbox: data[:mbox], mbox_sha1sum: data[:mbox_sha1sum], openid: data[:openid]) do |a|
+      a.attributes = data
+    end
+  end
+
   private
 
   # Normalizes the actor data.

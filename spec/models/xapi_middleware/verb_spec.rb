@@ -21,3 +21,16 @@ describe XapiMiddleware::Verb do
     expect(verb.display).to_not be_nil
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_verbs
+#
+#  id           :string           not null, primary key
+#  display      :string
+#  display_full :text
+#
+# Indexes
+#
+#  index_xapi_middleware_verbs_on_id  (id) UNIQUE
+#
