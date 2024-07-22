@@ -24,19 +24,8 @@ class XapiMiddleware::StatementCreator < ApplicationService
 
   def prepare_statement
     actor = build_actor
-
-    verb = XapiMiddleware::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
-      v.display = @data[:verb][:display]
-    end
-
-    object = XapiMiddleware::Object.find_or_create_by(id: @data[:object][:id]) do |obj|
-      obj.object_type = @data[:object][:object_type]
-    end
-
-    if @data[:object][:definition].present?
-      definition = object.definition || object.create_definition
-      definition.update(@data[:object][:definition])
-    end
+    verb = build_verb
+    object = build_object
 
     result = XapiMiddleware::Result.new(@data[:result]) if @data[:result].present?
     context = XapiMiddleware::Context.new(@data[:context]) if @data[:context].present?
@@ -78,5 +67,33 @@ class XapiMiddleware::StatementCreator < ApplicationService
     raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present") unless actor.valid?
 
     actor
+  end
+
+  def build_verb
+    XapiMiddleware::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
+      v.display = @data[:verb][:display]
+    end
+  end
+
+  def build_object
+    object = XapiMiddleware::Object.find_or_initialize_by(id: @data[:object][:id])
+    object.object_type = @data[:object][:objectType].presence || "Activity"
+
+    if object.new_record?
+      if object.object_type == "SubStatement"
+        object.actor = @data[:object][:actor]
+        object.verb = @data[:object][:verb]
+        object.object = @data[:object][:object]
+      end
+    else
+      object.update(object_type: @data[:object][:objectType])
+    end
+
+    if @data[:object][:definition].present?
+      definition = object.definition || object.create_definition
+      definition.update(@data[:object][:definition])
+    end
+
+    object
   end
 end

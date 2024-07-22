@@ -28,14 +28,7 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
 
       # Create a statement with a SubStatement object
       @substatement_statement = {
-        verb: XapiMiddleware::Verb.new(
-          id: "http://example.com/verb",
-          display: {
-            "en-US": "voided",
-            fr: "vidé",
-            "gb": "voided"
-          }
-        ),
+        verb: @verb,
         object: XapiMiddleware::Object.new(
           objectType: "SubStatement",
           actor: {
@@ -50,8 +43,8 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
             }
           },
           object: {
-            objectType: "StatementRef",
-            id: "e05aa883-acaf-40ad-bf54-02c8ce485fb0"
+            objectType: "Activity",
+            id: "substatement-activity"
           }
         ),
         actor: @actor
@@ -65,7 +58,7 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
 
       # An invalid statement with a SubStatement object missing the actor
       @statement_invalid_object_substatement = {
-        verb: { id: "http://example.com/verb" },
+        verb: {id: "http://example.com/verb"},
         object: {
           objectType: "SubStatement",
           verb: {
@@ -81,7 +74,7 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
         },
         actor: {
           name: "Actor's name",
-          openid: "http://example.com/object/JohnnyAccount#1" 
+          openid: "http://example.com/object/JohnnyAccount#1"
         }
       }
 
@@ -106,7 +99,7 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
 
     it "should be valid" do
       default_statement = XapiMiddleware::Statement.new(@default_statement)
-      substatement_statement = XapiMiddleware::Statement.new(substatement_statement)
+      substatement_statement = XapiMiddleware::Statement.new(@substatement_statement)
 
       expect(default_statement).to be_valid
       expect(substatement_statement).to be_valid

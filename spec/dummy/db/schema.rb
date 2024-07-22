@@ -61,7 +61,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144234) do
 
   create_table "xapi_middleware_objects", id: :string, force: :cascade do |t|
     t.string "object_type", null: false
+    t.bigint "statement_id"
     t.index ["id"], name: "index_xapi_middleware_objects_on_id", unique: true
+    t.index ["statement_id"], name: "index_xapi_middleware_objects_on_statement_id"
   end
 
   create_table "xapi_middleware_results", force: :cascade do |t|
