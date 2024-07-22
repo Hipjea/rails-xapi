@@ -56,7 +56,7 @@ class XapiMiddleware::Actor < ApplicationRecord
 
   def validate_actor_ifi_presence
     unless mbox.present? || mbox_sha1sum.present? || openid.present? || account.present?
-      errors.add(:base, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present"))
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
     end
   end
 
@@ -116,7 +116,7 @@ end
 #  object_type  :string
 #  openid       :string
 #  created_at   :datetime         not null
-#  account_id   :bigint           not null
+#  account_id   :bigint
 #
 # Indexes
 #

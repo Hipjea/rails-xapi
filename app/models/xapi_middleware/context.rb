@@ -22,3 +22,25 @@ class XapiMiddleware::Context < ApplicationRecord
     self[:instructor_id] = i.id if i.present?
   end
 end
+
+# == Schema Information
+#
+# Table name: xapi_middleware_contexts
+#
+#  id            :integer          not null, primary key
+#  language      :string
+#  platform      :string
+#  registration  :string
+#  revision      :string
+#  statement_ref :bigint
+#  instructor_id :bigint
+#  statement_id  :bigint           not null
+#  team_id       :bigint
+#
+# Indexes
+#
+#  index_xapi_middleware_contexts_on_instructor_id  (instructor_id)
+#  index_xapi_middleware_contexts_on_statement_id   (statement_id)
+#  index_xapi_middleware_contexts_on_statement_ref  (statement_ref)
+#  index_xapi_middleware_contexts_on_team_id        (team_id)
+#
