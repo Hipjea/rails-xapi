@@ -28,9 +28,12 @@ Mount the engine in `config/routes.rb`:
 mount XapiMiddleware::Engine, at: "xapi_middleware"
 ```
 
-## Usage
+## Test
 
-
+```bash
+bundle exec rails db:schema:load RAILS_ENV=test
+rspec spec/
+```
 
 ## License
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_144233) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_144234) do
   create_table "xapi_middleware_accounts", force: :cascade do |t|
     t.string "name", null: false
     t.string "home_page", null: false
@@ -31,9 +31,24 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144233) do
     t.string "mbox"
     t.string "mbox_sha1sum"
     t.string "openid"
-    t.bigint "account_id", null: false
+    t.bigint "account_id"
     t.datetime "created_at", null: false
     t.index ["account_id"], name: "index_xapi_middleware_actors_on_account_id"
+  end
+
+  create_table "xapi_middleware_contexts", force: :cascade do |t|
+    t.string "registration"
+    t.bigint "instructor_id"
+    t.bigint "team_id"
+    t.string "revision"
+    t.string "platform"
+    t.string "language"
+    t.bigint "statement_ref"
+    t.bigint "statement_id", null: false
+    t.index ["instructor_id"], name: "index_xapi_middleware_contexts_on_instructor_id"
+    t.index ["statement_id"], name: "index_xapi_middleware_contexts_on_statement_id"
+    t.index ["statement_ref"], name: "index_xapi_middleware_contexts_on_statement_ref"
+    t.index ["team_id"], name: "index_xapi_middleware_contexts_on_team_id"
   end
 
   create_table "xapi_middleware_extensions", force: :cascade do |t|
@@ -66,6 +81,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144233) do
     t.string "actor_id", null: false
     t.string "verb_id", null: false
     t.string "object_id", null: false
+    t.datetime "timestamp"
     t.datetime "created_at", null: false
     t.index ["actor_id"], name: "index_xapi_middleware_statements_on_actor_id"
     t.index ["object_id"], name: "index_xapi_middleware_statements_on_object_id"

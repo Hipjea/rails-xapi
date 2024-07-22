@@ -15,6 +15,7 @@ end
 # Table name: xapi_middleware_statements
 #
 #  id         :integer          not null, primary key
+#  timestamp  :datetime
 #  created_at :datetime         not null
 #  actor_id   :string           not null
 #  object_id  :string           not null
