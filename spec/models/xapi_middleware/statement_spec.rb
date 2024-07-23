@@ -5,16 +5,22 @@ require "rails_helper"
 RSpec.describe XapiMiddleware::Statement, type: :model do
   describe "validations" do
     before :all do
+      XapiMiddleware::Statement.delete_all
+      XapiMiddleware::Actor.delete_all
+      XapiMiddleware::Verb.delete_all
+      XapiMiddleware::Object.delete_all
+
       @verb = XapiMiddleware::Verb.new(id: XapiMiddleware::Verb::VERBS_LIST.keys[0])
 
       @actor = XapiMiddleware::Actor.new(
         name: "Actor 1",
         mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52",
-        account: XapiMiddleware::Account.new(
-          name: "Actor#1",
-          homePage: "http://example.com/actor1"
-        ),
         openid: "http://example.com/object/Actor#1"
+      )
+
+      @account = XapiMiddleware::Account.new(
+        name: "Actor#1",
+        homePage: "http://example.com/actor1"
       )
 
       @object = XapiMiddleware::Object.new(id: "/object/1")
@@ -50,34 +56,6 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
         actor: @actor
       }
 
-      # An invalid statement missing object id.
-      @statement_missing_object_id = @default_statement.merge(object: {id: nil})
-
-      # An invalid statement having an invalid object type
-      @statement_invalid_object_object_type = @default_statement.merge(object: {id: "http://example.com/object", objectType: "Rogue"})
-
-      # An invalid statement with a SubStatement object missing the actor
-      @statement_invalid_object_substatement = {
-        verb: {id: "http://example.com/verb"},
-        object: {
-          objectType: "SubStatement",
-          verb: {
-            id: "http://adlnet.gov/expapi/verbs/voided",
-            display: {
-              "en-US": "voided"
-            }
-          },
-          object: {
-            objectType: "StatementRef",
-            id: "e05aa883-acaf-40ad-bf54-02c8ce485fb0"
-          }
-        },
-        actor: {
-          name: "Actor's name",
-          openid: "http://example.com/object/JohnnyAccount#1"
-        }
-      }
-
       # An invalid statement missing the actor inverse functional identifier (IFI)
       @statement_missing_actor_ifi = @default_statement.merge(actor: {mbox: nil, mbox_sha1sum: nil, account: {}, openid: nil})
 
@@ -104,29 +82,53 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
       expect(default_statement).to be_valid
       expect(substatement_statement).to be_valid
     end
-=begin
+
     it "should raise an error for a statement missing object id" do
-      expect { XapiMiddleware::Statement.new(@statement_missing_object_id) }.to raise_error do |error|
-        expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.missing_object_keys", keys: "id")
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: XapiMiddleware::Object.new(id: nil),
+        actor: @actor
+      )
+
+      expect { statement.save! }.to raise_error do |error|
+        expect(error).to be_a(ActiveRecord::RecordInvalid)
       end
     end
 
     it "should raise an error for a statement having an invalid object type" do
-      expect { XapiMiddleware::Statement.new(@statement_invalid_object_object_type) }.to raise_error do |error|
-        expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.invalid_object_object_type",
-          name: @statement_invalid_object_object_type[:object][:objectType])
+      invalid_object = XapiMiddleware::Object.new(id: "/object/1", objectType: "Rogue")
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: invalid_object,
+        actor: @actor
+      )
+
+      expect { statement.save! }.to raise_error do |error|
+        expect(error).to be_a(ActiveRecord::RecordInvalid)
       end
     end
 
     it "should raise an error for a statement with a SubStatement object missing the actor" do
-      expect { XapiMiddleware::Statement.new(@statement_invalid_object_substatement) }.to raise_error do |error|
+      # An invalid statement with a SubStatement object missing the actor
+      statement_invalid_object_substatement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: XapiMiddleware::Object.new(
+          objectType: "SubStatement",
+          verb: @verb,
+          object: XapiMiddleware::Object.new(
+            objectType: "StatementRef",
+            id: "e05aa883-acaf-40ad-bf54-02c8ce485fb0"
+          )
+        ),
+        actor: @actor
+      )
+
+      expect { statement_invalid_object_substatement.save! }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.invalid_object_substatement")
+        expect(error.message).to eq I18n.t("xapi_middleware.errors.missing_actor")
       end
     end
-
+=begin
     it "should raise an error for a statement missing the actor inverse functional identifier (IFI)" do
       expect { XapiMiddleware::Statement.new(@statement_missing_actor_ifi) }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)

@@ -24,6 +24,11 @@ describe XapiMiddleware::Object do
         id: "substatement-activity"
       }
     }
+
+    @invalid_object_object_type = {
+      id: "/object/1",
+      objectType: "Rogue"
+    }
   end
 
   it "should be valid" do
@@ -39,6 +44,33 @@ describe XapiMiddleware::Object do
     expect(object.object_type).to eq("SubStatement")
     expect(object.valid?).to be_truthy
     expect(object.statement).to_not be_nil
+  end
+
+  it "should not accept an invalid objectType" do
+    object = XapiMiddleware::Object.new(@invalid_object_object_type)
+
+    expect(object.valid?).to be_falsy
+  end
+
+  it "should not be valid with a missing substatement agent" do
+    object = XapiMiddleware::Object.new(
+      objectType: "SubStatement",
+      verb: {
+        id: "http://adlnet.gov/expapi/verbs/voided",
+        display: {
+          "en-US": "voided"
+        }
+      },
+      object: {
+        objectType: "Activity",
+        id: "substatement-activity"
+      }
+    )
+
+    expect { object.save! }.to raise_error do |error|
+      expect(error).to be_a(XapiMiddleware::Errors::XapiError)
+      expect(error.message).to eq I18n.t("xapi_middleware.errors.missing_actor")
+    end
   end
 end
 
