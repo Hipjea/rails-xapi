@@ -8,25 +8,48 @@ class XapiMiddleware::Actor < ApplicationRecord
 
   OBJECT_TYPES = ["Agent", "Group"]
 
-  belongs_to :account, class_name: "XapiMiddleware::Account", optional: true
+  attr_accessor :objectType
+
+  has_one :account, class_name: "XapiMiddleware::Account", dependent: :destroy
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
   validates :object_type, presence: true
   validate :validate_actor_ifi_presence, :validate_mbox, :validate_mbox_sha1sum, :validate_object_type, :validate_openid
 
+  after_initialize :set_defaults
   before_validation :normalize_actor
 
-  def objectType=(value)
-    self.object_type = value
+  # Build the Actor object from the given data and user email.
+  #
+  # @param [Hash] data The data used to build the actor object, including optional nested account data.
+  # @param [String] user_email The optional email address to be included in the `mbox` field of the data.
+  # @return [XapiMiddleware::Actor] The actor object initialized with the data.
+  def self.build_from_data(data, user_email = nil)
+    data = data.merge(mbox: "mailto:#{user_email}") if user_email.present?
+    data = handle_account_data(data)
+
+    conditions = data.slice(:mbox, :mbox_sha1sum, :openid).compact
+    where(conditions).first_or_initialize
   end
 
+  # Find an Actor by its identifiers or create a new one.
+  #
+  # @param [Hash] data The data to find or create the actor.
+  # @return [XapiMiddleware::Actor] The found or created actor object.
   def self.by_iri_or_create(data)
+    data = handle_account_data(data)
+
     find_or_create_by(mbox: data[:mbox], mbox_sha1sum: data[:mbox_sha1sum], openid: data[:openid]) do |a|
       a.attributes = data
     end
   end
 
   private
+
+  def set_defaults
+    # We need to match the camel case notation from JSON data.
+    self.object_type = objectType.presence || "Agent"
+  end
 
   # Normalizes the actor data.
   #
@@ -43,6 +66,23 @@ class XapiMiddleware::Actor < ApplicationRecord
     end
 
     self.mbox = mbox.strip.downcase if mbox.present?
+  end
+
+  # Find an Account by its identifier or create a new one and set the actor's data.
+  #
+  # @param [Hash] data The data to find or create the account.
+  # @return [Hash] The actor's data.
+  private_class_method def self.handle_account_data(data)
+    if (account_data = data[:account]).present?
+      account = XapiMiddleware::Account.find_or_create_by(home_page: account_data[:homePage]) do |a|
+        a.name = account_data[:name]
+      end
+
+      data[:account] = account
+      data[:name] ||= account_data[:name]
+    end
+
+    data
   end
 
   # Overrides the Hash class method to camelize object_type, according to the xAPI specification.

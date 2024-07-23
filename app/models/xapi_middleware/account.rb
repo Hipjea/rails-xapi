@@ -4,9 +4,10 @@
 class XapiMiddleware::Account < ApplicationRecord
   require "uri"
 
-  has_many :actors, class_name: "XapiMiddleware::Actor", dependent: :nullify
+  belongs_to :actor, class_name: "XapiMiddleware::Actor", dependent: :destroy
 
   def homePage=(value)
+    # We need to match the camel case notation from JSON data.
     self.home_page = value
   end
 
