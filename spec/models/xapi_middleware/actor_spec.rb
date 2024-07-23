@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe XapiMiddleware::Actor do
   before :all do
-    @base_actor = { name: "Actor 1" }
+    @base_actor = {name: "Actor 1"}
 
     @complete_actor = {
       name: "Actor 1",
@@ -24,7 +24,9 @@ describe XapiMiddleware::Actor do
   end
 
   it "should be missing the actor inverse functional identifier (IFI)" do
-    expect { XapiMiddleware::Actor.new(@base_actor) }.to raise_error do |error|
+    actor = XapiMiddleware::Actor.new(@base_actor)
+
+    expect { actor.save }.to raise_error do |error|
       expect(error).to be_a(XapiMiddleware::Errors::XapiError)
       expect(error.message).to eq I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
     end
@@ -42,7 +44,7 @@ end
 #  object_type  :string
 #  openid       :string
 #  created_at   :datetime         not null
-#  account_id   :bigint           not null
+#  account_id   :bigint
 #
 # Indexes
 #

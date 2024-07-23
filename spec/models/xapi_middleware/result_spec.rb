@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe XapiMiddleware::Result do
   before :all do
-    @base_result = { 
+    @base_result = {
       score_raw: 50,
       score_min: 0,
       score_max: 100

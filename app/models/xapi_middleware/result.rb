@@ -52,7 +52,7 @@ class XapiMiddleware::Result < ApplicationRecord
   #
   # @param [Hash] value The result's score hash values.
   def validate_score(value)
-    unless value[:scaled].presence.between?(-1, 1)
+    if value[:scaled].present? && !value[:scaled]&.between?(-1, 1)
       raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
         value: I18n.t("xapi_middleware.validations.score.scaled"))
     end
