@@ -3,7 +3,9 @@
 require "rails_helper"
 
 describe XapiMiddleware::Verb do
-  before :all do
+  before :each do
+    XapiMiddleware::Verb.delete_all
+
     @base_verb = {id: XapiMiddleware::Verb::VERBS_LIST.keys[0]}
   end
 

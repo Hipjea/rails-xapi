@@ -39,9 +39,13 @@ class XapiMiddleware::Actor < ApplicationRecord
   def self.by_iri_or_create(data)
     data = handle_account_data(data)
 
-    find_or_create_by(mbox: data[:mbox], mbox_sha1sum: data[:mbox_sha1sum], openid: data[:openid]) do |a|
+    actor = find_or_create_by(mbox: data[:mbox], mbox_sha1sum: data[:mbox_sha1sum], openid: data[:openid]) do |a|
       a.attributes = data
     end
+
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_actor") unless actor.valid?
+
+    actor
   end
 
   private

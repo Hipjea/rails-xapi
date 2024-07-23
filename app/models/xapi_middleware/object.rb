@@ -12,11 +12,26 @@ class XapiMiddleware::Object < ApplicationRecord
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
   belongs_to :statement, class_name: "XapiMiddleware::Statement", optional: true
 
+  validates :id, presence: true
+  validates :object_type, presence: true, inclusion: {in: OBJECT_TYPES}
   validates :statement, presence: true, if: -> { object_type == "SubStatement" }
+  validates :actor, presence: true, if: -> { object_type == "SubStatement" }
+  validates :object, presence: true, if: -> { object_type == "SubStatement" }
+  validates :verb, presence: true, if: -> { object_type == "SubStatement" }
 
-  after_initialize :set_defaults
-  before_validation :create_statement_for_substatement
+  before_validation :set_defaults, :create_statement_for_substatement
 
+  accepts_nested_attributes_for :definition
+
+  # Find an Object by its id or create a new one.
+  #
+  # @param [Hash] attributes The attributes of the requested object.
+  # @return [XapiMiddleware::Object] The found or created object.
+  def self.find_or_create(attributes)
+    find_by(id: attributes[:id]) || create(attributes)
+  end
+
+  # Update the Activity Definition if existing.
   def update_definition(definition_data)
     if definition_data.present?
       definition = self.definition || create_definition
@@ -62,11 +77,9 @@ class XapiMiddleware::Object < ApplicationRecord
     )
   end
 
-  def substatement_required?
-    object_type == "SubStatement" && statement.nil?
-  end
-
   def create_or_find_actor
+    raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.missing_actor") if actor.blank?
+
     XapiMiddleware::Actor.by_iri_or_create(actor)
   end
 

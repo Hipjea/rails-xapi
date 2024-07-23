@@ -29,7 +29,7 @@ class XapiMiddleware::StatementCreator < ApplicationService
       v.display = @data[:verb][:display]
     end
 
-    object = XapiMiddleware::Object.new(@data[:object])
+    object = XapiMiddleware::Object.find_or_create(@data[:object])
     object.update_definition(@data[:object][:definition])
 
     result = XapiMiddleware::Result.new(@data[:result]) if @data[:result].present?

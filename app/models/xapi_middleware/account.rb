@@ -10,8 +10,6 @@ class XapiMiddleware::Account < ApplicationRecord
     # We need to match the camel case notation from JSON data.
     self.home_page = value
   end
-
-  private
 end
 
 # == Schema Information

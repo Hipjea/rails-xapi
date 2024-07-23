@@ -8,6 +8,24 @@ class XapiMiddleware::Statement < ApplicationRecord
   belongs_to :object, class_name: "XapiMiddleware::Object"
   has_one :result, class_name: "XapiMiddleware::Result", dependent: :destroy
   has_one :context, class_name: "XapiMiddleware::Context", dependent: :destroy
+
+  validate :actor_valid
+  validate :verb_valid
+  validate :object_valid
+
+  private
+
+  def actor_valid
+    errors.add(:actor, "is invalid") if actor && !actor.valid?
+  end
+
+  def verb_valid
+    errors.add(:verb, "is invalid") if verb && !verb.valid?
+  end
+
+  def object_valid
+    errors.add(:object, "is invalid") if object && !object.valid?
+  end
 end
 
 # == Schema Information
