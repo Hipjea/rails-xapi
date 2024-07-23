@@ -4,6 +4,7 @@ class CreateXapiMiddlewareStatements < ActiveRecord::Migration[7.1]
       t.string :actor_id, null: false
       t.string :verb_id, null: false
       t.string :object_id, null: false
+      t.datetime :timestamp, null: true
       t.datetime :created_at, null: false
     end
 

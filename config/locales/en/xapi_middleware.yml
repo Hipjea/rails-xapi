@@ -4,6 +4,7 @@ en:
     errors:
       actor_ifi_must_be_present: "At least one of mbox, mbox_sha1sum, openid, or account must be present"
       couldnt_create_the_substatement: "Couldn’t create the substatement"
+      invalid_actor: "invalid actor"
       invalid_actor_object_type: "invalid actor's object type: %{name}"
       invalid_object_object_type: "invalid object's object type: %{name}"
       invalid_object_substatement: "invalid object substatement"
@@ -15,6 +16,7 @@ en:
       malformed_mbox_sha1sum: "malformed mbox_sha1sum value"
       malformed_openid_uri: "malformed openid URI: %{uri}"
       malformed_uri: "malformed URI: %{uri}"
+      missing_actor: "missing actor in the statemement"
       missing_object: "missing object in the statemement: %{name}"
       missing_object_keys: "missing object keys: %{keys}"
       missing_result_keys: "missing result keys: %{keys}"

@@ -52,6 +52,10 @@ class XapiMiddleware::QueryActor < ApplicationService
     XapiMiddleware::Statement.includes([:actor, :verb, :object]).where(actor: {mbox_sha1sum: actor_mbox_sha1sum})
   end
 
+  def self.statement(id)
+    XapiMiddleware::Statement.includes([:actor, :verb, :object]).find(id)
+  end
+
   # Query statements by actor's identifier per month
   #
   # @param actor_identifier [String] The mbox_sha1sum of the actor
@@ -59,16 +63,13 @@ class XapiMiddleware::QueryActor < ApplicationService
   # @param month [Integer] The month integer value
   # @return [ActiveRecord::Relation] The statements associated with the actor
   def self.user_statements_per_month(actor_identifier = {}, year = Date.current.year, month = Date.current.month)
-    raise ArgumentError, I18n.t("xapi_middleware.errors.exactly_one_actor_identifier_must_be_provided") if actor_identifier.keys.size != 1
+    raise ArgumentError, I18n.t("xapi_middleware.errors.exactly_one_actor_identifier_must_be_provided") if actor_identifier.first.empty?
 
     identifier_key, identifier_value = actor_identifier.first
     start_date, end_date = generate_start_date_end_date(year, month)
-    month_dates = (start_date..end_date).to_a
-    graph_data = XapiMiddleware::Statement.where(identifier_key => identifier_value, created_at => start_date..end_date)
-      .group("DATE(xapi_middleware_statements.created_at)")
-      .count
-
-    generate_month_graph_data(month_dates, graph_data)
+    XapiMiddleware::Statement.joins(:actor)
+      .where(actor: {identifier_key => identifier_value}, created_at: start_date..end_date)
+      .group(:id)
   end
 
   # Takes a collection of records and generate a number of records created each day of the given month
@@ -79,21 +80,23 @@ class XapiMiddleware::QueryActor < ApplicationService
   # @return [ActiveRecord::Relation] The statements associated with the actor
   def self.per_month(resources, year = Date.current.year, month = Date.current.month)
     start_date, end_date = generate_start_date_end_date(year, month)
-    month_dates = (start_date..end_date).to_a
-    graph_data = resources.where("xapi_middleware_statements.created_at": start_date..end_date)
-      .group("DATE(xapi_middleware_statements.created_at)").count
-
-    generate_month_graph_data(month_dates, graph_data)
+    resources.where("xapi_middleware_statements.created_at": start_date..end_date)
+      .group("DATE(xapi_middleware_statements.created_at)")
   end
 
-  private
+  def self.month_graph_data(data, year = Date.current.year, month = Date.current.month)
+    start_date, end_date = generate_start_date_end_date(year, month)
+    month_dates = (start_date..end_date).to_a
 
-  private_class_method def self.generate_month_graph_data(month_dates, graph_data)
     # Create a hash with default value 0 for each date of the current month
     complete_data = month_dates.index_with { 0 }
 
+    # Transform data to count occurrences for each date
+    data_by_date = data.group_by { |statement| statement.created_at.to_date }
+      .transform_values(&:count)
+
     # Merge the existing data with the complete data and format
-    complete_data.merge(graph_data).map do |date, count|
+    complete_data.merge(data_by_date).map do |date, count|
       {date: date.strftime("%Y-%m-%d"), value: count}
     end
   end

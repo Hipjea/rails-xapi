@@ -9,10 +9,13 @@ class XapiMiddleware::ActivityDefinition < ApplicationRecord
   has_many :extensions, as: :extendable, dependent: :destroy
 
   def type=(value)
+    # We store the `type` attribute into `activity_type` column to avoid
+    # reserved key-words issues.
     self.activity_type = value
   end
 
   def moreInfo=(value)
+    # We need to match the camel case notation from JSON data.
     self.more_info = value
   end
 
