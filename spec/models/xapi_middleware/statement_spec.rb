@@ -55,24 +55,6 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
         ),
         actor: @actor
       }
-
-      # An invalid statement missing the actor inverse functional identifier (IFI)
-      @statement_missing_actor_ifi = @default_statement.merge(actor: {mbox: nil, mbox_sha1sum: nil, account: {}, openid: nil})
-
-      # An invalid statement with a malformed actor mbox value
-      @statement_malformed_mbox_value = @default_statement.merge(actor: {mbox: "mailto:admin@example.c"})
-
-      # An invalid statement with a malformed actor mbox_sha1sum value
-      @statement_malformed_mbox_sha1sum_value = @default_statement.merge(actor: {mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46"})
-
-      # An invalid statement with an invalid actor object type
-      @statement_invalid_actor_object_type = @default_statement.merge(actor: {objectType: "Rogue"})
-
-      # An invalid statement with a malformed openID URI
-      @statement_malformed_openid = @default_statement.merge(actor: {openid: "htt://example/object/Actor#1"})
-
-      # An invalid statement with a malformed actor account homePage URL
-      @statement_malformed_home_page = @default_statement.merge(actor: {account: {homePage: "htt://example.com/homepage"}})
     end
 
     it "should be valid" do
@@ -109,7 +91,6 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
     end
 
     it "should raise an error for a statement with a SubStatement object missing the actor" do
-      # An invalid statement with a SubStatement object missing the actor
       statement_invalid_object_substatement = XapiMiddleware::Statement.new(
         verb: @verb,
         object: XapiMiddleware::Object.new(
@@ -128,53 +109,82 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
         expect(error.message).to eq I18n.t("xapi_middleware.errors.missing_actor")
       end
     end
-=begin
+
     it "should raise an error for a statement missing the actor inverse functional identifier (IFI)" do
-      expect { XapiMiddleware::Statement.new(@statement_missing_actor_ifi) }.to raise_error do |error|
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: @object,
+        actor: XapiMiddleware::Actor.new(mbox: nil, mbox_sha1sum: nil, account: nil, openid: nil)
+      )
+
+      expect { statement.save! }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)
         expect(error.message).to eq I18n.t("xapi_middleware.errors.actor_ifi_must_be_present")
       end
     end
 
     it "should raise an error for a statement with a malformed mbox value" do
-      expect { XapiMiddleware::Statement.new(@statement_malformed_mbox_value) }.to raise_error do |error|
+      mbox = "mailto:admin@example.c"
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: @object,
+        actor: XapiMiddleware::Actor.new(mbox: mbox)
+      )
+
+      expect { statement.save! }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_mbox", name: @statement_malformed_mbox_value[:actor][:mbox])
+        expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_mbox", name: mbox)
       end
     end
 
     it "should raise an error for a statement with an invalid mbox_sha1sum value" do
-      expect { XapiMiddleware::Statement.new(@statement_malformed_mbox_sha1sum_value) }.to raise_error do |error|
+      mbox_sha1sum = "sha1:d35132bd0bfc15ada6f5229002b5288d94a46"
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: @object,
+        actor: XapiMiddleware::Actor.new(mbox_sha1sum: mbox_sha1sum)
+      )
+
+      expect { statement.save! }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)
         expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_mbox_sha1sum")
       end
     end
 
     it "should raise an error for a statement with an invalid actor object type" do
-      expect { XapiMiddleware::Statement.new(@statement_invalid_actor_object_type) }.to raise_error do |error|
+      actor = XapiMiddleware::Actor.new(
+        name: "Actor 1",
+        openid: "http://example.com/object/Actor#1",
+        objectType: "Rogue"
+      )
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: @object,
+        actor: actor
+      )
+
+      expect { statement.save! }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.invalid_actor_object_type",
-          name: @statement_invalid_actor_object_type[:actor][:objectType])
+        expect(error.message).to eq I18n.t("xapi_middleware.errors.invalid_actor_object_type", name: actor.object_type)
       end
     end
 
     it "should raise an error for a statement with an actor having a malformed openID URI" do
-      expect { XapiMiddleware::Statement.new(@statement_malformed_openid) }.to raise_error do |error|
+      actor = XapiMiddleware::Actor.new(
+        name: "Actor 1",
+        openid: "htt://example/object/Actor#1"
+      )
+      statement = XapiMiddleware::Statement.new(
+        verb: @verb,
+        object: @object,
+        actor: actor
+      )
+
+      expect { statement.save! }.to raise_error do |error|
         expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_openid_uri",
-          uri: @statement_malformed_openid[:actor][:openid])
+        expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_openid_uri", uri: actor.openid)
       end
     end
-
-    it "should raise an error for a statement with an actor having a malformed account homePage URL" do
-      expect { XapiMiddleware::Statement.new(@statement_malformed_home_page) }.to raise_error do |error|
-        expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-        expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_account_home_page_url",
-          url: @statement_malformed_home_page[:actor][:account][:homePage])
-      end
-    end
-
-=end
   end
 end
 
