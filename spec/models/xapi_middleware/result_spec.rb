@@ -4,15 +4,19 @@ require "rails_helper"
 
 describe XapiMiddleware::Result do
   before :all do
-    @base_result = {
-      score_raw: 50,
-      score_min: 0,
-      score_max: 100
-    }
+    @verb = XapiMiddleware::Verb.new(id: XapiMiddleware::Verb::VERBS_LIST.keys[0])
+    @actor = XapiMiddleware::Actor.new(name: "Actor 1", openid: "http://example.com/object/Actor#1")
+    @object = XapiMiddleware::Object.new(id: "/object/1")
+    @default_statement = {verb: @verb, object: @object, actor: @actor}
   end
 
   it "should be valid" do
-    result = @base_result.merge(
+    result = XapiMiddleware::Result.new(
+      score: {
+        raw: 50,
+        min: 0,
+        max: 100
+      },
       response: "The actor 1 answered",
       success: true,
       completion: "false",
@@ -20,55 +24,39 @@ describe XapiMiddleware::Result do
       extensions: {
         "http://example.com/extension/1": "empty",
         "http://example.com/extension/2": "also empty"
-      }
+      },
+      statement: XapiMiddleware::Statement.new(@default_statement)
     )
-    result = XapiMiddleware::Result.new(result)
 
     expect(result.valid?).to be_truthy
   end
 
-  it "should not be valid with wrong extension URI" do
-    result = @base_result.merge(extensions: {"htt://example.com/ext": "empty"})
+  it "should not be valid with an incorrect score" do
+    result = {
+      score: {
+        raw: 1,
+        min: 2,
+        max: 10
+      },
+      statement: XapiMiddleware::Statement.new(@default_statement)
+    }
 
     expect { XapiMiddleware::Result.new(result) }.to raise_error do |error|
       expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-      expect(error.message).to eq I18n.t("xapi_middleware.errors.malformed_uri", uri: result[:extensions].keys[0])
-    end
-  end
-
-  it "should not be valid with an empty extension value" do
-    result = @base_result.merge(extensions: {"http://example.com/ext": nil})
-
-    expect { XapiMiddleware::Result.new(result) }.to raise_error do |error|
-      expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-      expect(error.message).to eq I18n.t("xapi_middleware.errors.value_must_not_be_nil", name: result[:extensions].keys[0])
+      expect(error.message).to eq I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.validations.score.raw"))
     end
   end
 
   it "should not be valid with an incorrect duration string" do
-    result = @base_result.merge(duration: "IncorrectDuration")
+    result = XapiMiddleware::Result.new(
+      duration: "IncorrectDuration",
+      statement: XapiMiddleware::Statement.new(@default_statement)
+    )
 
-    expect { XapiMiddleware::Result.new(result) }.to raise_error do |error|
+    expect { result.valid? }.to raise_error do |error|
       expect(error).to be_a(ActiveSupport::Duration::ISO8601Parser::ParsingError)
       expect(error.message).to eq 'Invalid ISO 8601 duration: "IncorrectDuration"'
-    end
-  end
-
-  it "should not be valid with an incorrect success value" do
-    result = @base_result.merge(success: "truthy")
-
-    expect { XapiMiddleware::Result.new(result) }.to raise_error do |error|
-      expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-      expect(error.message).to eq I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "success", value: result[:success])
-    end
-  end
-
-  it "should not be valid with an incorrect completion value" do
-    result = @base_result.merge(completion: "truthy")
-
-    expect { XapiMiddleware::Result.new(result) }.to raise_error do |error|
-      expect(error).to be_a(XapiMiddleware::Errors::XapiError)
-      expect(error.message).to eq I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "completion", value: result[:completion])
     end
   end
 end
