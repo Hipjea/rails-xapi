@@ -11,11 +11,10 @@ class XapiMiddleware::Result < ApplicationRecord
 
   attr_reader :duration_in_seconds
 
-  validates :success, inclusion: {in: [true, false]}
-  validates :completion, inclusion: {in: [true, false]}
   validates :score_scaled, numericality: {greater_than_or_equal_to: -1, less_than_or_equal_to: 1}, allow_nil: true
-
-  before_validation :validate_duration
+  validate :completion_attribute_must_be_boolean, if: -> { completion.present? }
+  validate :success_attribute_must_be_boolean, if: -> { success.present? }
+  validate :correct_duration, if: -> { duration.present? }
 
   # Store the score object in the results table for convenience reasons.
   #
@@ -81,8 +80,22 @@ class XapiMiddleware::Result < ApplicationRecord
   #
   # @param [String] duration The duration string to validate.
   # @return [ActiveSupport::Duration::ISO8601Parser::ParsingError] If invalid string is provided.
-  def validate_duration
+  def correct_duration
     ActiveSupport::Duration.parse(duration) if duration.present?
+  end
+
+  def completion_attribute_must_be_boolean
+    unless [true, false].include?(completion)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "completion", value: completion))
+    end
+  end
+
+  def success_attribute_must_be_boolean
+    unless [true, false].include?(success)
+      raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
+        value: I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "success", value: success))
+    end
   end
 end
 
