@@ -23,6 +23,16 @@ class XapiMiddleware::Object < ApplicationRecord
 
   accepts_nested_attributes_for :definition
 
+  def definition=(definition_hash)
+    if definition_hash.present?
+      # Build or create the associated object.
+      build_definition(definition_hash) if definition.nil?
+      definition.attributes = definition_hash
+    else
+      self.definition = nil
+    end
+  end
+
   # Find an Object by its id or create a new one.
   #
   # @param [Hash] attributes The attributes of the requested object.
