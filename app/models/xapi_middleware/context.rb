@@ -28,13 +28,15 @@ class XapiMiddleware::Context < ApplicationRecord
   end
 
   def instructor=(value)
+    actor_value = value[:actor]
+
     i = XapiMiddleware::Actor.find_or_create_by(
-      mbox: value[:mbox],
-      mbox_sha1sum: value[:mbox_sha1sum],
-      openid: value[:openid]
+      mbox: actor_value[:mbox],
+      mbox_sha1sum: actor_value[:mbox_sha1sum],
+      openid: actor_value[:openid]
     ) do |actor|
-      actor.name = value[:name] if value[:name].present?
-      actor.account = value[:account].to_json if value[:account].present?
+      actor.name = actor_value[:name] if actor_value[:name].present?
+      actor.account = XapiMiddleware::Account.new(actor_value[:account]) if actor_value[:account].present?
     end
 
     self[:instructor_id] = i.id if i.present?
