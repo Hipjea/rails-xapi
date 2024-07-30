@@ -29,7 +29,7 @@ class XapiMiddleware::Actor < ApplicationRecord
     data = handle_account_data(data)
 
     conditions = data.slice(:mbox, :mbox_sha1sum, :openid).compact
-    where(conditions).first_or_initialize
+    find_by(conditions) || create(data)
   end
 
   # Find an Actor by its identifiers or create a new one.
