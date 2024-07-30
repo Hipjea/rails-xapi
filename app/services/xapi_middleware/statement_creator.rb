@@ -23,7 +23,7 @@ class XapiMiddleware::StatementCreator < ApplicationService
   private
 
   def prepare_statement
-    actor = XapiMiddleware::Actor.build_from_data(@data[:actor], @user & [:email])
+    actor = XapiMiddleware::Actor.build_from_data(@data[:actor], @user[:email])
 
     verb = XapiMiddleware::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
       v.display = @data[:verb][:display]
