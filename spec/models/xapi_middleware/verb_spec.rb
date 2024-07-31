@@ -30,7 +30,6 @@ end
 #
 #  id           :string           not null, primary key
 #  display      :string
-#  display_full :text
 #
 # Indexes
 #
