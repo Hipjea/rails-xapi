@@ -27,16 +27,19 @@ class XapiMiddleware::Context < ApplicationRecord
     end
   end
 
+  # Set the instructor value and create the actor if provided.
   def instructor=(value)
     actor_row = find_or_create_actor_with_account(value)
     self[:instructor_id] = actor_row.id if actor_row&.id.present?
   end
 
+  # Set the team value and create the actor if provided.
   def team=(value)
     actor_row = find_or_create_actor_with_account(value)
     self[:team_id] = actor_row.id if actor_row&.id.present?
   end
 
+  # Set the statement_ref value if provided.
   def statement=(value)
     id = value[:id]
     return if id.nil? || value[:objectType] != "StatementRef"
