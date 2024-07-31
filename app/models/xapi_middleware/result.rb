@@ -16,6 +16,8 @@ class XapiMiddleware::Result < ApplicationRecord
   validate :success_attribute_must_be_boolean, if: -> { success.present? }
   validate :correct_duration, if: -> { duration.present? }
 
+  before_validation :calculate_scaled
+
   # Store the score object in the results table for convenience reasons.
   #
   # @param [Hash] value The result hash values.
@@ -96,6 +98,13 @@ class XapiMiddleware::Result < ApplicationRecord
       raise XapiMiddleware::Errors::XapiError, I18n.t("xapi_middleware.errors.invalid_score_value",
         value: I18n.t("xapi_middleware.errors.wrong_attribute_type", name: "success", value: success))
     end
+  end
+
+  # Automatically set a score_scaled if not provided.
+  def calculate_scaled
+    return if score_scaled.present? || score_max.blank? || score_raw.blank?
+
+    self.score_scaled = (score_raw.to_f / score_max.to_f)
   end
 end
 
