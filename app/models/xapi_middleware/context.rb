@@ -27,19 +27,25 @@ class XapiMiddleware::Context < ApplicationRecord
     end
   end
 
+  # Set the instructor value and create the actor if provided.
   def instructor=(value)
-    actor_value = value[:actor]
+    actor_row = find_or_create_actor_with_account(value)
+    self[:instructor_id] = actor_row.id if actor_row&.id.present?
+  end
 
-    i = XapiMiddleware::Actor.find_or_create_by(
-      mbox: actor_value[:mbox],
-      mbox_sha1sum: actor_value[:mbox_sha1sum],
-      openid: actor_value[:openid]
-    ) do |actor|
-      actor.name = actor_value[:name] if actor_value[:name].present?
-      actor.account = XapiMiddleware::Account.new(actor_value[:account]) if actor_value[:account].present?
-    end
+  # Set the team value and create the actor if provided.
+  def team=(value)
+    actor_row = find_or_create_actor_with_account(value)
+    self[:team_id] = actor_row.id if actor_row&.id.present?
+  end
 
-    self[:instructor_id] = i.id if i.present?
+  # Set the statement_ref value if provided.
+  def statement=(value)
+    id = value[:id]
+    return if id.nil? || value[:objectType] != "StatementRef"
+
+    statement_row = XapiMiddleware::Statement.find_by(id: id)
+    self[:statement_ref] = statement_row.id if statement_row&.id.present?
   end
 
   def extensions=(extensions_data)
@@ -47,6 +53,26 @@ class XapiMiddleware::Context < ApplicationRecord
       extension = extensions.build(iri: iri)
       extension.value = serialized_value(data)
       extensions << extension
+    end
+  end
+
+  private
+
+  def find_or_create_actor_with_account(value)
+    home_page = value.dig(:account, :homePage)
+    existing_account = XapiMiddleware::Account.find_by(home_page: home_page) if home_page.present?
+
+    # Set the params to search an existing row.
+    actor_params = {
+      mbox: value[:mbox],
+      mbox_sha1sum: value[:mbox_sha1sum],
+      openid: value[:openid]
+    }
+    actor_params[:account] = existing_account if existing_account.present?
+
+    XapiMiddleware::Actor.find_or_create_by(actor_params) do |actor|
+      actor.name = value[:name] if value[:name].present?
+      actor.account = XapiMiddleware::Account.new(value[:account]) if value[:account].present?
     end
   end
 end
