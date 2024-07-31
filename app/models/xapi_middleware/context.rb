@@ -29,12 +29,20 @@ class XapiMiddleware::Context < ApplicationRecord
 
   def instructor=(value)
     actor_row = find_or_create_actor_with_account(value)
-    self[:instructor_id] = actor_row.id if actor_row.present?
+    self[:instructor_id] = actor_row.id if actor_row&.id.present?
   end
 
   def team=(value)
     actor_row = find_or_create_actor_with_account(value)
-    self[:team_id] = actor_row.id if actor_row.present?
+    self[:team_id] = actor_row.id if actor_row&.id.present?
+  end
+
+  def statement=(value)
+    id = value.dig(:id)
+    return if id.nil?
+
+    statement_row = XapiMiddleware::Statement.find_by(id: id)
+    self[:statement_ref] = statement_row.id if statement_row&.id.present?
   end
 
   def extensions=(extensions_data)
