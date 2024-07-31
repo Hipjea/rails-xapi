@@ -38,8 +38,8 @@ class XapiMiddleware::Context < ApplicationRecord
   end
 
   def statement=(value)
-    id = value.dig(:id)
-    return if id.nil?
+    id = value[:id]
+    return if id.nil? || value[:objectType] != "StatementRef"
 
     statement_row = XapiMiddleware::Statement.find_by(id: id)
     self[:statement_ref] = statement_row.id if statement_row&.id.present?
