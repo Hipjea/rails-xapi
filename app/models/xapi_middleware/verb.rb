@@ -208,10 +208,13 @@ class XapiMiddleware::Verb < ApplicationRecord
   private
 
   def set_display_from_verbs_list
+    return if display.present?
+
     if VERBS_LIST.key?(id)
       verb_list_id = VERBS_LIST[id]
-      self.display = verb_list_id
-      self.display_full = verb_list_id if display_full.blank?
+      self.display = {
+        "en-US": verb_list_id
+      }.to_json
     end
   end
 end
@@ -222,7 +225,6 @@ end
 #
 #  id           :string           not null, primary key
 #  display      :string
-#  display_full :text
 #
 # Indexes
 #
