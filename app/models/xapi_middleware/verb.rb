@@ -227,8 +227,8 @@ end
 #
 # Table name: xapi_middleware_verbs
 #
-#  id           :string           not null, primary key
-#  display      :string
+#  id      :string           not null, primary key
+#  display :string
 #
 # Indexes
 #

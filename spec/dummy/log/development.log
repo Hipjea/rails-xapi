@@ -283,3 +283,97 @@ Migrating to CreateXapiMiddlewareContexts (20240716144234)
   [1m[36mTRANSACTION (0.3ms)[0m  [1m[36mcommit transaction[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Migrating to CreateXapiMiddlewareContextActivities (20240716144235)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_context_activities" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "activity_type" varchar NOT NULL, "context_id" bigint NOT NULL, "object_id" varchar NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_context_activities_on_context_id" ON "xapi_middleware_context_activities" ("context_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_context_activities_on_object_id" ON "xapi_middleware_context_activities" ("object_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144235') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.8ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.1ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'development', '2024-08-01 09:39:37.018144', '2024-08-01 09:39:37.018147') RETURNING "key"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Migrating to CreateXapiMiddlewareActors (20240716144226)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_actors" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "object_type" varchar, "name" varchar, "mbox" varchar, "mbox_sha1sum" varchar, "openid" varchar, "created_at" datetime(6) NOT NULL)[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144226') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareAccounts (20240716144227)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_accounts" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "home_page" varchar NOT NULL, "actor_id" bigint NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_accounts_on_actor_id" ON "xapi_middleware_accounts" ("actor_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144227') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareVerbs (20240716144228)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_verbs" ("id" varchar NOT NULL PRIMARY KEY, "display" varchar)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_xapi_middleware_verbs_on_id" ON "xapi_middleware_verbs" ("id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144228') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareObjects (20240716144229)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_objects" ("id" varchar NOT NULL PRIMARY KEY, "object_type" varchar NOT NULL, "statement_id" bigint)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_xapi_middleware_objects_on_id" ON "xapi_middleware_objects" ("id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_objects_on_statement_id" ON "xapi_middleware_objects" ("statement_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144229') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareActivityDefinitions (20240716144230)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_activity_definitions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar, "description" text, "activity_type" varchar, "more_info" text, "object_id" varchar NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_activity_definitions_on_object_id" ON "xapi_middleware_activity_definitions" ("object_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144230') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareExtensions (20240716144231)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_extensions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "iri" varchar NOT NULL, "value" text NOT NULL, "extendable_type" varchar, "extendable_id" integer)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_extensions_on_extendable" ON "xapi_middleware_extensions" ("extendable_type", "extendable_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144231') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareStatements (20240716144232)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_statements" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "actor_id" varchar NOT NULL, "verb_id" varchar NOT NULL, "object_id" varchar NOT NULL, "timestamp" datetime(6), "created_at" datetime(6) NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_statements_on_actor_id" ON "xapi_middleware_statements" ("actor_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_statements_on_verb_id" ON "xapi_middleware_statements" ("verb_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_statements_on_object_id" ON "xapi_middleware_statements" ("object_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144232') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareResults (20240716144233)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_results" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "score_scaled" decimal(3,2), "score_raw" integer, "score_min" integer, "score_max" integer, "success" boolean DEFAULT 0, "completion" boolean DEFAULT 0, "response" text, "duration" varchar, "statement_id" bigint NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_results_on_statement_id" ON "xapi_middleware_results" ("statement_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144233') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareContexts (20240716144234)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_contexts" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "registration" varchar, "instructor_id" bigint, "team_id" bigint, "revision" varchar, "platform" varchar, "language" varchar, "statement_ref" bigint, "statement_id" bigint NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_contexts_on_instructor_id" ON "xapi_middleware_contexts" ("instructor_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_contexts_on_team_id" ON "xapi_middleware_contexts" ("team_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_contexts_on_statement_ref" ON "xapi_middleware_contexts" ("statement_ref")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_contexts_on_statement_id" ON "xapi_middleware_contexts" ("statement_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144234') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateXapiMiddlewareContextActivities (20240716144235)
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE TABLE "xapi_middleware_context_activities" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "activity_type" varchar NOT NULL, "context_id" bigint NOT NULL, "object_id" varchar NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_context_activities_on_context_id" ON "xapi_middleware_context_activities" ("context_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_xapi_middleware_context_activities_on_object_id" ON "xapi_middleware_context_activities" ("object_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20240716144235') RETURNING "version"[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
