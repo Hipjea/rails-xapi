@@ -166,9 +166,4 @@ end
 #  object_type  :string
 #  openid       :string
 #  created_at   :datetime         not null
-#  account_id   :bigint
-#
-# Indexes
-#
-#  index_xapi_middleware_actors_on_account_id  (account_id)
 #

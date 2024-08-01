@@ -10,10 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_144234) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_144235) do
   create_table "xapi_middleware_accounts", force: :cascade do |t|
     t.string "name", null: false
     t.string "home_page", null: false
+    t.bigint "actor_id", null: false
+    t.index ["actor_id"], name: "index_xapi_middleware_accounts_on_actor_id"
   end
 
   create_table "xapi_middleware_activity_definitions", force: :cascade do |t|
@@ -31,9 +33,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144234) do
     t.string "mbox"
     t.string "mbox_sha1sum"
     t.string "openid"
-    t.bigint "account_id"
     t.datetime "created_at", null: false
-    t.index ["account_id"], name: "index_xapi_middleware_actors_on_account_id"
+  end
+
+  create_table "xapi_middleware_context_activities", force: :cascade do |t|
+    t.string "activity_type", null: false
+    t.bigint "context_id", null: false
+    t.string "object_id", null: false
+    t.index ["context_id"], name: "index_xapi_middleware_context_activities_on_context_id"
+    t.index ["object_id"], name: "index_xapi_middleware_context_activities_on_object_id"
   end
 
   create_table "xapi_middleware_contexts", force: :cascade do |t|
@@ -92,7 +100,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144234) do
 
   create_table "xapi_middleware_verbs", id: :string, force: :cascade do |t|
     t.string "display"
-    t.text "display_full"
     t.index ["id"], name: "index_xapi_middleware_verbs_on_id", unique: true
   end
 
