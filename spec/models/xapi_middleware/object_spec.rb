@@ -16,7 +16,7 @@ describe XapiMiddleware::Object do
       verb: {
         id: "http://adlnet.gov/expapi/verbs/voided",
         display: {
-          "en-US": "voided"
+          "en-US" => "voided"
         }
       },
       object: {
@@ -58,7 +58,7 @@ describe XapiMiddleware::Object do
       verb: {
         id: "http://adlnet.gov/expapi/verbs/voided",
         display: {
-          "en-US": "voided"
+          "en-US" => "voided"
         }
       },
       object: {

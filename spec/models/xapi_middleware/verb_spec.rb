@@ -10,7 +10,11 @@ describe XapiMiddleware::Verb do
   end
 
   it "should be valid" do
-    verb_data = @base_verb.merge(display: "example")
+    verb_data = @base_verb.merge(
+      display: {
+        "en-US" => "Example"
+      }
+    )
     verb = XapiMiddleware::Verb.new(verb_data)
 
     expect(verb.valid?).to be_truthy
@@ -28,8 +32,8 @@ end
 #
 # Table name: xapi_middleware_verbs
 #
-#  id           :string           not null, primary key
-#  display      :string
+#  id      :string           not null, primary key
+#  display :string
 #
 # Indexes
 #

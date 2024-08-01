@@ -45,7 +45,7 @@ RSpec.describe XapiMiddleware::Statement, type: :model do
           verb: {
             id: "http://adlnet.gov/expapi/verbs/voided",
             display: {
-              "en-US": "voided"
+              "en-US" => "voided"
             }
           },
           object: {
