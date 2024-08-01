@@ -34,6 +34,8 @@ mount XapiMiddleware::Engine, at: "xapi_middleware"
 
 ## Usage
 
+### Statement creation
+
 Create a service class or controller method within your main application that handles data preparation and invokes `XapiMiddleware::StatementCreator`:
 
 ```ruby
@@ -82,6 +84,13 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
 })
 ```
 
+### Data query
+
+```ruby
+def logs_per_month(year = Date.current.year, month = Date.current.month)
+  XapiMiddleware::QueryActor.user_statements_per_month({mbox: "mailto:#{email}"}, year, month)
+end
+```
 
 ## Test
 
