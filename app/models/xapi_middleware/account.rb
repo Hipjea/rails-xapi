@@ -19,4 +19,9 @@ end
 #  id        :integer          not null, primary key
 #  home_page :string           not null
 #  name      :string           not null
+#  actor_id  :bigint           not null
+#
+# Indexes
+#
+#  index_xapi_middleware_accounts_on_actor_id  (actor_id)
 #
