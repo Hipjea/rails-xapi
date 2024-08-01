@@ -3,6 +3,8 @@
 module LanguageMap
   extend ActiveSupport::Concern
 
+  LANGUAGE_MAP_REGEX = /\A[a-z]{2}(-[A-Z]{2})?\z/
+
   def language_map_validation
     if defined?(display) && display.present?
       validate_language_map(display)
@@ -21,8 +23,7 @@ module LanguageMap
     # Validate language map keys to match keys that are either:
     # - A 2-letter lowercase language code (e.g.: "en")
     # - A 2-letter lowercase language code followed by a hyphen and a 2-letter uppercase region code (e.g.: "en-US")
-    language_map_regex = /\A[a-z]{2}(-[A-Z]{2})?\z/
-    invalid_keys = data_hash.keys.reject { |key| key.match?(language_map_regex) }
+    invalid_keys = data_hash.keys.reject { |key| key.match?(LANGUAGE_MAP_REGEX) }
 
     if invalid_keys.any?
       raise XapiMiddleware::Errors::XapiError,
