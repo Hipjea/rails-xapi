@@ -4,12 +4,14 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#activity-definition
 class XapiMiddleware::ActivityDefinition < ApplicationRecord
   include Serializable
+  include LanguageMap
   include XapiMiddleware::ApplicationHelper
 
   belongs_to :object, class_name: "XapiMiddleware::Object"
   has_many :extensions, as: :extendable, dependent: :destroy
 
-  validate :description_keys_validation
+  before_validation :set_description
+  validate :language_map_validation
 
   def type=(value)
     # We store the `type` attribute into `activity_type` column to avoid
@@ -32,21 +34,12 @@ class XapiMiddleware::ActivityDefinition < ApplicationRecord
 
   private
 
-  def description_keys_validation
+  def set_description
     return if description.nil?
 
-    encoded_description = description
-    encoded_description = parse_hash_string(description) if !encoded_description.is_a?(Hash)
-
-    language_map_regex = /\A[a-z]{2}-[A-Z]{2}\z/
-    invalid_keys = encoded_description.keys.reject { |key| key.match?(language_map_regex) }
-
-    if invalid_keys.any?
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.definition_description_invalid_keys", values: invalid_keys.join(", "))
-    end
-
-    self.description = encoded_description.to_json
+    # We need to parse the data as JSON to store it.
+    parsed_description = JSON.parse(description.gsub("=>", ":"))
+    self.description = parsed_description.to_json
   end
 end
 
