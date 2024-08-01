@@ -4,11 +4,14 @@
 # The systems reading the statements must use the verb IRI to infer meaning.
 # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
 class XapiMiddleware::Verb < ApplicationRecord
+  include LanguageMap
+
   has_many :statements, class_name: "XapiMiddleware::Statement", dependent: :nullify
 
-  validates :id, presence: true, format: {with: /\A\w+:\/\/\S+\z/, message: I18n.t("xapi_middleware.errors.must_be_a_valid_iri")}
+  before_validation :set_display
 
-  before_validation :set_display_from_verbs_list
+  validates :id, presence: true, format: {with: /\A\w+:\/\/\S+\z/, message: I18n.t("xapi_middleware.errors.must_be_a_valid_iri")}
+  validate :language_map_validation
 
   # Constants representing a mapping of xAPI activity verbs.
   #
@@ -207,10 +210,11 @@ class XapiMiddleware::Verb < ApplicationRecord
 
   private
 
-  def set_display_from_verbs_list
-    return if display.present?
-
-    if VERBS_LIST.key?(id)
+  def set_display
+    if display.present?
+      # We need to parse the data as JSON to store it.
+      self.display = JSON.parse(display.gsub("=>", ":")).to_json
+    elsif VERBS_LIST.key?(id)
       verb_list_id = VERBS_LIST[id]
       self.display = {
         "en-US": verb_list_id
