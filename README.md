@@ -2,6 +2,9 @@
 
 xAPI statements creation plugin.
 
+> [!IMPORTANT]
+> This is an ongoing development. The documentation will be provided as it becomes available.
+
 ## Installation
 
 Add this line to your application's Gemfile:
