@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-# Specify your gem's dependencies in xapi_middleware.gemspec.
+# Specify your gem's dependencies in rails-xapi.gemspec.
 gemspec
 
 gem "puma"

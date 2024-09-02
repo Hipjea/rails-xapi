@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  mount XapiMiddleware::Engine => "/xapi_middleware"
+  mount RailsXapi::Engine => "/rails-xapi"
 end
