@@ -1,4 +1,4 @@
-# xAPI Middleware
+# Rails xAPI
 
 xAPI statements creation plugin.
 
@@ -11,7 +11,7 @@ xAPI statements creation plugin.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "xapi_middleware", git: "https://github.com/fondation-unit/xapi_middleware"
+gem "rails-xapi", git: "https://github.com/Hipjea/rails-xapi"
 ```
 
 And then execute:
@@ -23,20 +23,20 @@ $ bundle
 Create the migration files:
 
 ```bash
-$ bin/rails xapi_middleware:install:migrations
+$ bin/rails rails-xapi:install:migrations
 ```
 
 Mount the engine in `config/routes.rb`:
 
 ```ruby
-mount XapiMiddleware::Engine, at: "xapi_middleware"
+mount RailsXapi::Engine, at: "rails-xapi"
 ```
 
 ## Usage
 
 ### Statement creation
 
-Create a service class or controller method within your main application that handles data preparation and invokes `XapiMiddleware::StatementCreator`:
+Create a service class or controller method within your main application that handles data preparation and invokes `RailsXapi::StatementCreator`:
 
 ```ruby
 # frozen_string_literal: true
@@ -58,7 +58,7 @@ class XapiStatementCreator
       )
     )
 
-    statement_creator = XapiMiddleware::StatementCreator.new(data, user)
+    statement_creator = RailsXapi::StatementCreator.new(data, user)
     statement_creator.call_async
   end
 end
@@ -88,7 +88,7 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
 
 ```ruby
 def logs_per_month(year = Date.current.year, month = Date.current.month)
-  XapiMiddleware::QueryActor.user_statements_per_month({mbox: "mailto:#{email}"}, year, month)
+  RailsXapi::QueryActor.user_statements_per_month({mbox: "mailto:#{email}"}, year, month)
 end
 ```
 
