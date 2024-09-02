@@ -12,7 +12,7 @@ describe RailsXapi::Actor do
       account: {
         name: "Actor#1"
       },
-      openid: "http://example.com/object/Actor#1" 
+      openid: "http://example.com/object/Actor#1"
     }
   end
 
@@ -20,7 +20,11 @@ describe RailsXapi::Actor do
     actor = @base_actor.merge(mbox: "mailto:actor@localhost.com")
     actor = RailsXapi::Actor.new(actor)
 
+    actor_account = RailsXapi::Account.new(@complete_actor[:account])
+    complete_actor = RailsXapi::Actor.new(@complete_actor.merge(account: actor_account))
+
     expect(actor.valid?).to be_truthy
+    expect(complete_actor.valid?).to be_truthy
   end
 
   it "should be missing the actor inverse functional identifier (IFI)" do
