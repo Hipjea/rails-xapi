@@ -1,2 +1,2 @@
-XapiMiddleware::Engine.routes.draw do
+RailsXapi::Engine.routes.draw do
 end

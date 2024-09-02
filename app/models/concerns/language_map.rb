@@ -26,8 +26,8 @@ module LanguageMap
     invalid_keys = data_hash.keys.reject { |key| key.match?(LANGUAGE_MAP_REGEX) }
 
     if invalid_keys.any?
-      raise XapiMiddleware::Errors::XapiError,
-        I18n.t("xapi_middleware.errors.definition_description_invalid_keys", values: invalid_keys.join(", "))
+      raise RailsXapi::Errors::XapiError,
+        I18n.t("rails_xapi.errors.definition_description_invalid_keys", values: invalid_keys.join(", "))
     end
   end
 end
