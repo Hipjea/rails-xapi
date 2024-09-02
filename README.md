@@ -23,7 +23,7 @@ $ bundle
 Create the migration files:
 
 ```bash
-$ bin/rails rails-xapi:install:migrations
+$ bin/rails rails_xapi:install:migrations
 ```
 
 Mount the engine in `config/routes.rb`:
