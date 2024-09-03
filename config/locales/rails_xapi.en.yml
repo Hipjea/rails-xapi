@@ -23,6 +23,7 @@ en:
       missing_object_keys: "missing object keys: %{keys}"
       missing_result_keys: "missing result keys: %{keys}"
       missing_values_or_invalid_type: "missing values or invalid type %{values}"
+      missing_verb_display: "missing verb display"
       must_be_a_valid_iri: "must be a valid IRI"
       exactly_one_actor_identifier_must_be_provided: "exactly one actor identifier must be provided"
       unexpected_substatement_object_keys: "unexpected substatement object keys: %{keys}"
@@ -33,4 +34,4 @@ en:
         min: "min must be a decimal number less than max"
         max: "max must be a decimal number greater than min"
         raw: "raw must be a decimal between min and max inclusive"
-        scaled: "scaled must be a decimal number between -1 and 1, inclusive"
+        scaled: "scaled must be a decimal number between -1 and 1 inclusive"

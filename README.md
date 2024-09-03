@@ -23,7 +23,7 @@ $ bundle
 Create the migration files:
 
 ```bash
-$ bin/rails rails-xapi:install:migrations
+$ bin/rails rails_xapi:install:migrations
 ```
 
 Mount the engine in `config/routes.rb`:
@@ -31,6 +31,7 @@ Mount the engine in `config/routes.rb`:
 ```ruby
 mount RailsXapi::Engine, at: "rails-xapi"
 ```
+
 
 ## Usage
 
@@ -84,6 +85,7 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
 })
 ```
 
+
 ### Data query
 
 ```ruby
@@ -92,11 +94,12 @@ def logs_per_month(year = Date.current.year, month = Date.current.month)
 end
 ```
 
+
 ## Test
 
 ```bash
 bundle exec rails db:schema:load RAILS_ENV=test
-rspec spec/
+bundle exec rspec spec/
 ```
 
 
