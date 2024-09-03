@@ -99,7 +99,7 @@ end
 
 ```bash
 bundle exec rails db:schema:load RAILS_ENV=test
-rspec spec/
+bundle exec rspec spec/
 ```
 
 
