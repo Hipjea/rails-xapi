@@ -55,9 +55,7 @@ class RailsXapi::Context < ApplicationRecord
     end
 
     extensions_data.each do |iri, data|
-      extension = extensions.build(iri: iri)
-      extension.value = serialized_value(data)
-      extensions << extension
+      extensions.build(iri: iri, value: serialized_value(data))
     end
   end
 
