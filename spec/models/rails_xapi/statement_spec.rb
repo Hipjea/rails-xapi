@@ -185,6 +185,48 @@ RSpec.describe RailsXapi::Statement, type: :model do
         expect(error.message).to eq I18n.t("rails_xapi.errors.malformed_openid_uri", uri: actor.openid)
       end
     end
+
+    it "should be a valid statement with a context" do
+      context = RailsXapi::Context.new(
+        contextActivities: {
+          parent: [
+            {
+              id: "http://www.example.com/meetings/series/267",
+              objectType: "Activity"
+            }
+          ],
+          category: [
+            {
+              id: "http://www.example.com/meetings/categories/teammeeting",
+              objectType: "Activity",
+              definition: {
+                name: {
+                  en: "team meeting"
+                },
+                description: {
+                  "en" => "A category of meeting used for regular team meetings."
+                },
+                type: "http://example.com/expapi/activities/meetingcategory"
+              }
+            }
+          ],
+          other: [
+            {
+              id: "http://www.example.com/meetings/occurances/34257",
+              objectType: "Activity"
+            },
+            {
+              id: "http://www.example.com/meetings/occurances/3425567",
+              objectType: "Activity"
+            }
+          ]
+        }
+      )
+
+      statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+
+      expect(statement.valid?).to be_truthy
+    end
   end
 end
 

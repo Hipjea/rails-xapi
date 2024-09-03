@@ -28,8 +28,6 @@ class RailsXapi::Object < ApplicationRecord
       # Build or create the associated object.
       build_definition(definition_hash) if definition.nil?
       definition.attributes = definition_hash
-    else
-      self.definition = nil
     end
   end
 

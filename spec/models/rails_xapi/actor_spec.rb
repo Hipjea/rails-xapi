@@ -10,7 +10,8 @@ describe RailsXapi::Actor do
       name: "Actor 1",
       mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52",
       account: {
-        name: "Actor#1"
+        name: "Actor#1",
+        homePage: "http://example.com/actor/1"
       },
       openid: "http://example.com/object/Actor#1"
     }
@@ -34,6 +35,18 @@ describe RailsXapi::Actor do
       expect(error).to be_a(RailsXapi::Errors::XapiError)
       expect(error.message).to eq I18n.t("rails_xapi.errors.actor_ifi_must_be_present")
     end
+  end
+
+  it "should build an actor from data" do
+    actor = RailsXapi::Actor.build_from_data(@complete_actor, "actor@example.com")
+
+    expect(actor.valid?).to be_truthy
+  end
+
+  it "should create the correct hash of the actor's data" do
+    actor = RailsXapi::Actor.build_from_data(@complete_actor, "actor@example.com")
+
+    expect(actor.to_hash[:objectType]).to eq("Agent")
   end
 end
 
