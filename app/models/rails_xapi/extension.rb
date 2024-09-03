@@ -5,12 +5,11 @@
 class RailsXapi::Extension < ApplicationRecord
   belongs_to :extendable, polymorphic: true
 
-  def data=(attributes)
-    if attributes.is_a?(Hash) && attributes.keys.length == 1
-      self.iri = attributes.keys.first.to_s
-      self.value = attributes.values.first.to_s
-    else
-      raise ArgumentError, "Invalid data format for Extension"
+  after_initialize :validate_data
+
+  def validate_data
+    unless attributes.is_a?(Hash)
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
     end
   end
 end

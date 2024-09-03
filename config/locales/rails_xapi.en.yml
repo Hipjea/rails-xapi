@@ -2,8 +2,9 @@ en:
   rails_xapi:
     xapi_statement: "xAPI statement"
     errors:
-      actor_ifi_must_be_present: "At least one of mbox, mbox_sha1sum, openid, or account must be present"
-      couldnt_create_the_substatement: "Couldn’t create the substatement"
+      actor_ifi_must_be_present: "at least one of mbox, mbox_sha1sum, openid, or account must be present"
+      attribute_must_be_a_hash: "attribute %{name} must be a hash"
+      couldnt_create_the_substatement: "couldn’t create the substatement"
       definition_description_invalid_keys: "invalid keys in definition description: %{values}"
       definition_description_must_be_language_map: "definition description must be a language map"
       invalid_actor: "invalid actor"
@@ -31,7 +32,6 @@ en:
       wrong_attribute_type: "wrong attribute type for %{name}: %{value}"
     validations:
       score:
-        min: "min must be a decimal number less than max"
-        max: "max must be a decimal number greater than min"
+        min: "min must be a decimal number lower than max"
         raw: "raw must be a decimal between min and max inclusive"
         scaled: "scaled must be a decimal number between -1 and 1 inclusive"

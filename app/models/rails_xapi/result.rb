@@ -39,9 +39,12 @@ class RailsXapi::Result < ApplicationRecord
   end
 
   def extensions=(extensions_data)
+    unless extensions_data.is_a?(Hash)
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+    end
+
     extensions_data.each do |iri, data|
-      extension = extensions.build(iri: iri)
-      extension.value = serialized_value(data)
+      extension = extensions.build(iri: iri, value: serialized_value(data))
       extensions << extension
     end
   end
@@ -69,11 +72,6 @@ class RailsXapi::Result < ApplicationRecord
     if max_value.present? && min_value && min_value >= max_value
       raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
         value: I18n.t("rails_xapi.validations.score.min"))
-    end
-
-    if min_value.present? && max_value && max_value <= min_value
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.max"))
     end
   end
 
