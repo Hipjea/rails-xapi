@@ -10,3 +10,4 @@
 /spec/dummy/tmp/
 
 .DS_Store
+coverage
