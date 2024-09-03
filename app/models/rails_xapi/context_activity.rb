@@ -7,12 +7,6 @@ class RailsXapi::ContextActivity < ApplicationRecord
   belongs_to :object, class_name: "RailsXapi::Object"
 
   validates :activity_type, presence: true, inclusion: {in: ["parent", "grouping", "category", "other"]}
-
-  def type=(value)
-    # We store the `type` attribute into `activity_type` column to avoid
-    # reserved key-words issues.
-    self.activity_type = value
-  end
 end
 
 # == Schema Information

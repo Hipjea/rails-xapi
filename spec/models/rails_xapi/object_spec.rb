@@ -79,11 +79,51 @@ describe RailsXapi::Object do
         name: "object definition",
         description: {"en" => "Object definition"},
         type: "Activity",
+        extensions: {
+          "http://example.com/profiles/meetings/activitydefinitionextensions/room": {
+            "name": "Kilby",
+            "id": "http://example.com/rooms/342"
+          }
+        },
         moreInfo: "http://example.com/more_infos"
       }
     ))
 
     expect(object.valid?).to be_truthy
+  end
+
+  it "should update an object definition" do
+    object = RailsXapi::Object.new(@base_object.merge(
+      definition: {
+        name: "object definition",
+        description: {"en" => "Object definition"},
+        type: "Activity"
+      }
+    ))
+
+    object.save!
+    object.update_definition({
+      name: "object updated definition",
+      description: {"en" => "Object updated definition"},
+      type: "Activity"
+    })
+
+    expect(object.valid?).to be_truthy
+    expect(object.definition.name).to eq("object updated definition")
+  end
+
+  it "should raise an error with incorrect extensions" do
+    object = @base_object.merge(
+      definition: {
+        name: "object definition",
+        extensions: "http://example.com/profiles/meetings/activitydefinitionextensions/room",
+      }
+    )
+
+    expect { RailsXapi::Object.new(object) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+    end
   end
 end
 

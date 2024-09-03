@@ -25,10 +25,18 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   end
 
   def extensions=(extensions_data)
-    extensions_data.each do |iri, data|
-      extension = extensions.build(iri: iri)
-      extension.value = serialized_value(data)
-      extensions << extension
+    unless extensions_data.is_a?(Hash)
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+    end
+
+    # Find any existing extension for the given activity definition.
+    exts = extensions.where(extendable_type: self.class, extendable_id: id)
+    # If none, build and save the extension
+    if exts.blank? && extensions.blank?
+      extensions_data.each do |iri, data|
+        p data
+        extensions.build(iri: iri, value: serialized_value(data))
+      end
     end
   end
 
