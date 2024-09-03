@@ -32,6 +32,7 @@ Mount the engine in `config/routes.rb`:
 mount RailsXapi::Engine, at: "rails-xapi"
 ```
 
+
 ## Usage
 
 ### Statement creation
@@ -84,6 +85,7 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
 })
 ```
 
+
 ### Data query
 
 ```ruby
@@ -91,6 +93,7 @@ def logs_per_month(year = Date.current.year, month = Date.current.month)
   RailsXapi::QueryActor.user_statements_per_month({mbox: "mailto:#{email}"}, year, month)
 end
 ```
+
 
 ## Test
 

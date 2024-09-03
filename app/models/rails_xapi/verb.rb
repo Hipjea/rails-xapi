@@ -208,6 +208,14 @@ class RailsXapi::Verb < ApplicationRecord
     "https://brindlewaye.com/xAPITerms/verbs/walked/" => "walked"
   }
 
+  def to_locale
+    loc = I18n.default_locale&.to_s || "en"
+    parsed = JSON.parse(display)
+    fallback = parsed&.first&.[](-1) || ""
+
+    parsed[loc] || fallback
+  end
+
   private
 
   def set_display
@@ -219,6 +227,8 @@ class RailsXapi::Verb < ApplicationRecord
       self.display = {
         "en-US": verb_list_id
       }.to_json
+    else
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.missing_verb_display")
     end
   end
 end
