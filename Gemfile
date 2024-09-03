@@ -6,8 +6,6 @@ gemspec
 
 gem "puma"
 
-gem "sqlite3", "~> 1.3", ">= 1.3.11"
-
 gem "sprockets-rails"
 
 # Start debugger with binding.b [https://github.com/ruby/debug]
@@ -28,6 +26,11 @@ end
 group :development, :test do
   gem "rspec-rails"
   gem "guard-rspec", require: false
+end
+
+group :test do
+  gem "sqlite3", "~> 1.3", ">= 1.3.11"
+  gem "simplecov", require: false
 end
 
 gem "annotate"

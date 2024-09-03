@@ -19,6 +19,7 @@ class RailsXapi::Context < ApplicationRecord
         object = RailsXapi::Object.find_or_create(activity) do
           object.activity_definition = activity[:definition] if activity[:definition].present?
         end
+
         object.update(activity)
         # Create the ContextActivity object.
         context_activity = RailsXapi::ContextActivity.new(activity_type: activity_type.to_s, object: object)
