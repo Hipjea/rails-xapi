@@ -50,10 +50,12 @@ class RailsXapi::Context < ApplicationRecord
   end
 
   def extensions=(extensions_data)
+    unless extensions_data.is_a?(Hash)
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+    end
+
     extensions_data.each do |iri, data|
-      extension = extensions.build(iri: iri)
-      extension.value = serialized_value(data)
-      extensions << extension
+      extensions.build(iri: iri, value: serialized_value(data))
     end
   end
 

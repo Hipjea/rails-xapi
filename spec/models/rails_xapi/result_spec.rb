@@ -59,6 +59,76 @@ describe RailsXapi::Result do
       expect(error.message).to eq 'Invalid ISO 8601 duration: "IncorrectDuration"'
     end
   end
+
+  it "should not be valid with an incorrect scaled value" do
+    result = {
+      score: {
+        raw: 1,
+        min: 2,
+        max: 10,
+        scaled: -1.1
+      },
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
+        value: I18n.t("rails_xapi.validations.score.scaled"))
+    end
+  end
+
+  it "should not be valid with a min value greater than max" do
+    result = {
+      score: {
+        min: 10,
+        max: 2
+      },
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
+        value: I18n.t("rails_xapi.validations.score.min"))
+    end
+  end
+
+  it "should have a boolean completion value" do
+    completion_val = "yes"
+    result = {
+      completion: false,
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    result_object = RailsXapi::Result.new(result)
+    result_object.completion = completion_val
+    result_object.save!
+
+    expect(result_object.completion).to eq(true)
+  end
+
+  it "should set the duration in iso8601 from seconds" do
+    result = RailsXapi::Result.new(
+      duration_in_seconds: 120,
+      statement: RailsXapi::Statement.new(@default_statement)
+    )
+
+    expect(result.valid?).to be_truthy
+    expect(result.duration).to eq("PT2M")
+  end
+
+  it "should not be a valid extension" do
+    result = {
+      extensions: "http://example.com/extension/1",
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+    end
+  end
 end
 
 # == Schema Information
