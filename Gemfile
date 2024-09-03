@@ -31,6 +31,7 @@ group :development, :test do
 end
 
 group :test do
+  gem "pg", "~> 1.5", ">= 1.5.4"
   gem "simplecov", require: false
 end
 
