@@ -2,7 +2,7 @@
 
 xAPI statements creation plugin.
 
-[![Actions Status](https://github.com/Hipjea/rails-xapi/workflows/ci/badge.svg)](https://github.com/Hipjea/rails-xapi/actions)
+[![Actions Status](https://github.com/Hipjea/rails-xapi/actions/workflows/ci.yml/badge.svg)](https://github.com/Hipjea/rails-xapi/actions/workflows/ci.yml/)
 
 > [!IMPORTANT]
 > This is an ongoing development. The documentation will be provided as it becomes available.
