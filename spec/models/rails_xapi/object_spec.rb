@@ -72,6 +72,19 @@ describe RailsXapi::Object do
       expect(error.message).to eq I18n.t("rails_xapi.errors.missing_actor")
     end
   end
+
+  it "should create an object with a definition" do
+    object = RailsXapi::Object.new(@base_object.merge(
+      definition: {
+        name: "object definition",
+        description: {"en" => "Object definition"},
+        type: "Activity",
+        moreInfo: "http://example.com/more_infos"
+      }
+    ))
+
+    expect(object.valid?).to be_truthy
+  end
 end
 
 # == Schema Information

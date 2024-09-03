@@ -48,6 +48,21 @@ class RailsXapi::Actor < ApplicationRecord
     actor
   end
 
+  # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
+  #
+  # @return [Hash] The actor hash with the camel-case version of object_type.
+  def to_hash
+    {
+      objectType: object_type,
+      name: name,
+      mbox: mbox,
+      mbox_sha1sum: mbox_sha1sum,
+      account: account,
+      openid: openid
+    }.compact
+  end
+
   private
 
   def set_defaults
@@ -87,21 +102,6 @@ class RailsXapi::Actor < ApplicationRecord
     end
 
     data
-  end
-
-  # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
-  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
-  #
-  # @return [Hash] The actor hash with the camel-case version of object_type.
-  def to_hash
-    {
-      objectType: @object_type,
-      name: @name,
-      mbox: @mbox,
-      mbox_sha1sum: @mbox_sha1sum,
-      account: @account,
-      openid: @openid
-    }.compact
   end
 
   def validate_actor_ifi_presence
