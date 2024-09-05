@@ -1,4 +1,4 @@
-# spec/models/result_spec.rb
+# spec/helpers/rails_xapi/application_helper_spec.rb
 
 require "rails_helper"
 
