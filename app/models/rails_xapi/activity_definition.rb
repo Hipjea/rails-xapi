@@ -34,7 +34,6 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     # If none, build and save the extension
     if exts.blank? && extensions.blank?
       extensions_data.each do |iri, data|
-        p data
         extensions.build(iri: iri, value: serialized_value(data))
       end
     end

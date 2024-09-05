@@ -38,6 +38,11 @@ class RailsXapi::Result < ApplicationRecord
     self.duration = ActiveSupport::Duration.build(value).iso8601 if value.present?
   end
 
+  # Output the duration ISO 8601 in minutes.
+  def duration_to_minutes
+    sprintf("%.2f", ActiveSupport::Duration.parse(duration)&.in_minutes)
+  end
+
   def extensions=(extensions_data)
     unless extensions_data.is_a?(Hash)
       raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
