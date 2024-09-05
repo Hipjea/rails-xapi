@@ -67,7 +67,7 @@ class RailsXapi::Actor < ApplicationRecord
 
   def set_defaults
     # We need to match the camel case notation from JSON data.
-    self.object_type = objectType.presence || "Agent"
+    self.object_type = objectType.presence || object_type.presence || OBJECT_TYPES.first
   end
 
   # Normalizes the actor data.
