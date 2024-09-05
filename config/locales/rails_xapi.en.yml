@@ -1,6 +1,5 @@
 en:
   rails_xapi:
-    xapi_statement: "xAPI statement"
     errors:
       actor_ifi_must_be_present: "at least one of mbox, mbox_sha1sum, openid, or account must be present"
       attribute_must_be_a_hash: "attribute %{name} must be a hash"
@@ -35,3 +34,4 @@ en:
         min: "min must be a decimal number lower than max"
         raw: "raw must be a decimal between min and max inclusive"
         scaled: "scaled must be a decimal number between -1 and 1 inclusive"
+    xapi_statement: "xAPI statement"
