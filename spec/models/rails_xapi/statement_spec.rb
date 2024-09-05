@@ -1,8 +1,10 @@
-# spec/models/statement_spec.rb
+# spec/models/rails_xapi/statement_spec.rb
 
 require "rails_helper"
 
 RSpec.describe RailsXapi::Statement, type: :model do
+  include_context "statement"
+
   describe "validations" do
     before :all do
       RailsXapi::Statement.delete_all
@@ -10,27 +12,10 @@ RSpec.describe RailsXapi::Statement, type: :model do
       RailsXapi::Verb.delete_all
       RailsXapi::Object.delete_all
 
-      @verb = RailsXapi::Verb.new(id: RailsXapi::Verb::VERBS_LIST.keys[0])
-
-      @actor = RailsXapi::Actor.new(
-        name: "Actor 1",
-        mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52",
-        openid: "http://example.com/object/Actor#1"
-      )
-
       @account = RailsXapi::Account.new(
         name: "Actor#1",
         homePage: "http://example.com/actor1"
       )
-
-      @object = RailsXapi::Object.new(id: "/object/1")
-
-      # Create a statement with an Activity object (by default)
-      @default_statement = {
-        verb: @verb,
-        object: @object,
-        actor: @actor
-      }
 
       # Create a statement with a SubStatement object
       @substatement_statement = {

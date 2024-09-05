@@ -36,7 +36,7 @@ class RailsXapi::Context < ApplicationRecord
 
   # Set the team value and create the actor if provided.
   def team=(value)
-    actor_row = find_or_create_actor_with_account(value)
+    actor_row = find_or_create_actor_with_account(value, "Group")
     self[:team_id] = actor_row.id if actor_row&.id.present?
   end
 
@@ -61,7 +61,7 @@ class RailsXapi::Context < ApplicationRecord
 
   private
 
-  def find_or_create_actor_with_account(value)
+  def find_or_create_actor_with_account(value, object_type = nil)
     home_page = value.dig(:account, :homePage)
     existing_account = RailsXapi::Account.find_by(home_page: home_page) if home_page.present?
 
@@ -75,6 +75,7 @@ class RailsXapi::Context < ApplicationRecord
 
     RailsXapi::Actor.find_or_create_by(actor_params) do |actor|
       actor.name = value[:name] if value[:name].present?
+      actor.object_type = object_type if object_type.present?
       actor.account = RailsXapi::Account.new(value[:account]) if value[:account].present?
     end
   end

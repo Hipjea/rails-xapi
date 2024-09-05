@@ -1,4 +1,4 @@
-# spec/models/result_spec.rb
+# spec/models/rails_xapi/verb_spec.rb
 
 require "rails_helper"
 
