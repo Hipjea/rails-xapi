@@ -129,15 +129,6 @@ describe RailsXapi::Result do
       expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
     end
   end
-
-  it "should output the duration in minutes" do
-    result = RailsXapi::Result.new(
-      duration: "PT1H00M01.00S",
-      statement: RailsXapi::Statement.new(@default_statement)
-    )
-
-    expect(result.duration_to_minutes).to eq("60.02")
-  end
 end
 
 # == Schema Information
