@@ -13,5 +13,15 @@ module RailsXapi
       result = hash.select { |key, _value| key.include?(locale.to_s) }
       result.values.first.to_s || hash.first.value.to_s
     end
+
+    # Output the result score as a percentage.
+    def result_success_rate(result)
+      return nil if result.score_raw.blank? || result.score_max.blank?
+
+      raw = result.score_raw.to_f
+      max = result.score_max.to_f
+
+      (raw / max * 100).to_i
+    end
   end
 end
