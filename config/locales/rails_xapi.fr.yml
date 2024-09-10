@@ -37,10 +37,13 @@ fr:
     xapi_statement: "déclaration xAPI"
   xapi:
     activity: "activité"
+    "activity definition": "définition d'activité"
     actor: "acteur"
     agent: "agent"
     context: "contexte"
     group: "groupe"
+    object: "objet"
+    result: "résultat"
     statement: "déclaration"
     substatement: "sous-déclaration"
     verb: "verbe"
