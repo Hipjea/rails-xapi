@@ -24,7 +24,7 @@ class RailsXapi::StatementCreator < ApplicationService
 
   def prepare_statement
     # Send the user infos from the call if passed to it.
-    user_email = @user & [:email] || nil
+    user_email = @user.nil? ? nil : @user.presence[:email]
     actor = RailsXapi::Actor.build_from_data(@data[:actor], user_email)
 
     verb = RailsXapi::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
