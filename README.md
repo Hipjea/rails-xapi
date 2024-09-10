@@ -42,27 +42,27 @@ mount RailsXapi::Engine, at: "rails-xapi"
 Create a service class or controller method within your main application that handles data preparation and invokes `RailsXapi::StatementCreator`:
 
 ```ruby
-# frozen_string_literal: true
-
 class XapiStatementCreator
-  extend UserHelper
-
-  def self.create_statement(request:, user:, data:)
+  def self.create_statement(data:, request: nil, user: nil, async: false)
     data = data.merge(actor: {objectType: "Agent"}) if data[:actor].blank?
 
     # We can set the actor's data to be able to omit it in the statements declarations.
     # This is an example. Adapt depending on your needs:
-    data = data.merge(
-      actor: data[:actor].merge(
-        account: {
-          homePage: "#{data[:base_url] || request.base_url}/users/#{user&.id}",
-          name: user_fullname(user)
-        }
+    if request.present? && user.present?
+      data = data.merge(
+        actor: data[:actor].merge(
+          account: {
+            homePage: "#{data[:base_url] || request.base_url}/users/#{user&.id}",
+            name: "#{user.firstname} #{user.lastname}"
+          }
+        )
       )
-    )
+    end
 
     statement_creator = RailsXapi::StatementCreator.new(data, user)
-    statement_creator.call_async
+    return statement_creator.call_async if async
+
+    statement_creator.call
   end
 end
 ```
