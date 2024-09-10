@@ -10,7 +10,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   belongs_to :object, class_name: "RailsXapi::Object"
   has_many :extensions, as: :extendable, dependent: :destroy
 
-  before_validation :set_description
+  before_validation :set_name, :set_description
   validate :language_map_validation
 
   def type=(value)
@@ -41,10 +41,17 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
 
   private
 
+  def set_name
+    return if name.nil?
+
+    # We need to parse the data as JSON to store it.
+    parsed_name = JSON.parse(name.gsub("=>", ":"))
+    self.name = parsed_name.to_json
+  end
+
   def set_description
     return if description.nil?
 
-    # We need to parse the data as JSON to store it.
     parsed_description = JSON.parse(description.gsub("=>", ":"))
     self.description = parsed_description.to_json
   end
