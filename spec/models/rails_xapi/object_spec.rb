@@ -76,7 +76,7 @@ describe RailsXapi::Object do
   it "should create an object with a definition" do
     object = RailsXapi::Object.new(@base_object.merge(
       definition: {
-        name: "object definition",
+        name: {"en-US" => "object definition"},
         description: {"en" => "Object definition"},
         type: "Activity",
         extensions: {
@@ -95,7 +95,7 @@ describe RailsXapi::Object do
   it "should update an object definition" do
     object = RailsXapi::Object.new(@base_object.merge(
       definition: {
-        name: "object definition",
+        name: {"en-US" => "object definition"},
         description: {"en" => "Object definition"},
         type: "Activity"
       }
@@ -103,19 +103,19 @@ describe RailsXapi::Object do
 
     object.save!
     object.update_definition({
-      name: "object updated definition",
+      name: {"en" => "object updated definition"},
       description: {"en" => "Object updated definition"},
       type: "Activity"
     })
 
     expect(object.valid?).to be_truthy
-    expect(object.definition.name).to eq("object updated definition")
+    expect(object.definition.name).to eq("{\"en\":\"object updated definition\"}")
   end
 
   it "should raise an error with incorrect extensions" do
     object = @base_object.merge(
       definition: {
-        name: "object definition",
+        name: {"en-US" => "object definition"},
         extensions: "http://example.com/profiles/meetings/activitydefinitionextensions/room",
       }
     )
