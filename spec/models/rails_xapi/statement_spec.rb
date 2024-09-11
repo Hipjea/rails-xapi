@@ -186,7 +186,7 @@ RSpec.describe RailsXapi::Statement, type: :model do
               objectType: "Activity",
               definition: {
                 name: {
-                  en: "team meeting"
+                  "en" => "team meeting"
                 },
                 description: {
                   "en" => "A category of meeting used for regular team meetings."
