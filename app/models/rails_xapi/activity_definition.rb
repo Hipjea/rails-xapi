@@ -45,15 +45,21 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     return if name.nil?
 
     # We need to parse the data as JSON to store it.
-    parsed_name = JSON.parse(name.gsub("=>", ":"))
-    self.name = parsed_name.to_json
+    json_name = valid_json(name.gsub("=>", ":"))
+    self.name = json_name.to_json if json_name
   end
 
   def set_description
     return if description.nil?
 
-    parsed_description = JSON.parse(description.gsub("=>", ":"))
-    self.description = parsed_description.to_json
+    json_description = valid_json(description.gsub("=>", ":"))
+    self.description = json_description.to_json if json_description
+  end
+
+  def valid_json(json)
+    JSON.parse(json)
+  rescue
+    false
   end
 end
 
