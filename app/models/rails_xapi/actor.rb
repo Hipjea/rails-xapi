@@ -162,6 +162,9 @@ class RailsXapi::Actor < ApplicationRecord
 
   # Create members in the case of a "Group" objectType.
   def create_members
+    # We should end the function here when we create a group without members (ex: a team in the context object).
+    return if member.blank?
+
     raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.failed_to_create_group_members") if id.blank?
 
     member.each do |m|
