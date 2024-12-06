@@ -12,6 +12,12 @@ class RailsXapi::Extension < ApplicationRecord
       raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
     end
   end
+
+  def parsed_value
+    JSON.parse(value.gsub("=>", ":"))
+  rescue
+    value
+  end
 end
 
 # == Schema Information

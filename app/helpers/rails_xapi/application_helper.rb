@@ -8,10 +8,12 @@ module RailsXapi
     end
 
     # Output the value of a JSON row in a specific locale.
-    def json_value_for_locale(json, locale = I18n.locale)
-      hash = JSON.parse(json)
+    def json_value_for_locale(json_str, locale = I18n.locale)
+      hash = JSON.parse(json_str)
       result = hash.select { |key, _value| key.include?(locale.to_s) }
       result.values.first.to_s || hash.first.value.to_s
+    rescue
+      json_str
     end
 
     # Output the result score as a percentage.

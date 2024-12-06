@@ -8,7 +8,7 @@ class RailsXapi::Actor < ApplicationRecord
 
   OBJECT_TYPES = ["Agent", "Group"]
 
-  attr_accessor :objectType
+  attr_accessor :objectType, :member
 
   has_one :account, class_name: "RailsXapi::Account", dependent: :destroy
   has_many :statements, class_name: "RailsXapi::Statement", dependent: :nullify
@@ -18,13 +18,14 @@ class RailsXapi::Actor < ApplicationRecord
 
   after_initialize :set_defaults
   before_validation :normalize_actor
+  after_commit :create_members, if: :is_group?
 
   # Build the Actor object from the given data and user email.
   #
   # @param [Hash] data The data used to build the actor object, including optional nested account data.
   # @param [String] user_email The optional email address to be included in the `mbox` field of the data.
   # @return [RailsXapi::Actor] The actor object initialized with the data.
-  def self.build_from_data(data, user_email = nil)
+  def self.build_actor_from_data(data, user_email = nil)
     data = data.merge(mbox: "mailto:#{user_email}") if user_email.present?
     data = handle_account_data(data)
 
@@ -68,6 +69,11 @@ class RailsXapi::Actor < ApplicationRecord
   def set_defaults
     # We need to match the camel case notation from JSON data.
     self.object_type = objectType.presence || object_type.presence || OBJECT_TYPES.first
+    self.member = member.presence || nil
+  end
+
+  def is_group?
+    object_type === "Group"
   end
 
   # Normalizes the actor data.
@@ -149,9 +155,24 @@ class RailsXapi::Actor < ApplicationRecord
   # @param [String] mbox The mbox clear value to be encoded.
   # @return [Boolean] True if the value is matching, false otherwise.
   def is_sha1?(str)
-    # SHA-1 hash is a 40-character hexadecimal string
-    # consisting of numbers 0-9 and letters a-f
-    !!(str =~ /^sha1:[0-9a-f]{40}$/i)
+    # SHA-1 hash is a 40-character hexadecimal string consisting of numbers 0-9 and letters a-f.
+    # We also handle the case with an optional "sha1" prefix.
+    !!(str =~ /^(sha1:)?[0-9a-f]{40}$/i)
+  end
+
+  # Create members in the case of a "Group" objectType.
+  def create_members
+    # We should end the function here when we create a group without members (ex: a team in the context object).
+    return if member.blank?
+
+    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.failed_to_create_group_members") if id.blank?
+
+    member.each do |m|
+      new_actor = RailsXapi::Actor.by_iri_or_create(m)
+      RailsXapi::GroupMember.create(group_id: id, actor_id: new_actor.id)
+    rescue => _
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.failed_to_create_member", member: m)
+    end
   end
 end
 

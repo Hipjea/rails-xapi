@@ -30,6 +30,15 @@ class RailsXapi::Result < ApplicationRecord
     self.score_max = value[:max]
   end
 
+  def score
+    {
+      scaled: score_scaled,
+      raw: score_raw,
+      min: score_min,
+      max: score_max
+    }.compact
+  end
+
   # Transform a duration in seconds into a ISO 8601 string.
   # This is an optional attribute meant to bring more convenience for some systems.
   #
