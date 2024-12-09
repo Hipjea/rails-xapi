@@ -23,10 +23,8 @@ class RailsXapi::Actor < ApplicationRecord
   # Build the Actor object from the given data and user email.
   #
   # @param [Hash] data The data used to build the actor object, including optional nested account data.
-  # @param [String] user_email The optional email address to be included in the `mbox` field of the data.
   # @return [RailsXapi::Actor] The actor object initialized with the data.
-  def self.build_actor_from_data(data, user_email = nil)
-    data = data.merge(mbox: "mailto:#{user_email}") if user_email.present?
+  def self.build_actor_from_data(data)
     data = handle_account_data(data)
 
     conditions = data.slice(:mbox, :mbox_sha1sum, :openid).compact
