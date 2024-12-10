@@ -38,14 +38,9 @@ describe RailsXapi::Actor do
   end
 
   it "should build an actor from data" do
-    actor = RailsXapi::Actor.build_actor_from_data(@complete_actor, "actor@example.com")
+    actor = RailsXapi::Actor.build_actor_from_data(@complete_actor)
 
     expect(actor.valid?).to be_truthy
-  end
-
-  it "should create the correct hash of the actor's data" do
-    actor = RailsXapi::Actor.build_actor_from_data(@complete_actor, "actor@example.com")
-
     expect(actor.to_hash[:objectType]).to eq("Agent")
   end
 end
