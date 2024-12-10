@@ -3,9 +3,9 @@
 class RailsXapi::StatementCreator < ApplicationService
   attr_reader :data, :user
 
-  def initialize(data, user = {})
+  def initialize(data, actor = {})
     @data = data
-    @user = user
+    @actor = actor
   end
 
   def call
@@ -23,9 +23,7 @@ class RailsXapi::StatementCreator < ApplicationService
   private
 
   def prepare_statement
-    # Send the user infos from the call if passed to it.
-    user_email = @user.nil? ? nil : @user.presence[:email]
-    actor = RailsXapi::Actor.build_actor_from_data(@data[:actor], user_email)
+    actor = RailsXapi::Actor.build_actor_from_data(@actor || @data[:actor])
 
     verb = RailsXapi::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
       v.display = @data[:verb][:display]
