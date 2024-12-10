@@ -44,22 +44,20 @@ Create a service class or controller method within your main application that ha
 ```ruby
 class XapiStatementCreator
   def self.create_statement(data:, request: nil, user: nil, async: false)
-    data = data.merge(actor: {objectType: "Agent"}) if data[:actor].blank?
-
-    # We can set the actor's data to be able to omit it in the statements declarations.
-    # This is an example. Adapt depending on your needs:
     if request.present? && user.present?
-      data = data.merge(
-        actor: data[:actor].merge(
-          account: {
-            homePage: "#{data[:base_url] || request.base_url}/users/#{user&.id}",
-            name: "#{user.firstname} #{user.lastname}"
-          }
-        )
-      )
+      user_name = "#{user.firstname} #{user.lastname}"
+      actor = {
+        objectType: "Agent",
+        name: user_name,
+        mbox: "mailto:#{user.email}",
+        account: {
+          homePage: "#{data[:base_url] || request.base_url}/users/#{user&.id}",
+          name: user_name
+        }
+      }
     end
 
-    statement_creator = RailsXapi::StatementCreator.new(data, user)
+    statement_creator = RailsXapi::StatementCreator.new(data, actor)
     return statement_creator.call_async if async
 
     statement_creator.call
@@ -71,6 +69,7 @@ You can then use the class within your controllers, for e.g.:
 
 ```ruby
 XapiStatementCreator.create_statement(request: request, user: current_user, data: {
+  # We can omit the actor struct if we pass the current_user to create_statement.
   verb: {
     id: "https://brindlewaye.com/xAPITerms/verbs/loggedin/"
   },
