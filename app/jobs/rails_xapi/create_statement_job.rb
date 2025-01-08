@@ -5,5 +5,7 @@ class RailsXapi::CreateStatementJob < ApplicationJob
 
   def perform(statement)
     statement.save if statement.present?
+
+    {status: 200, statement: statement}
   end
 end
