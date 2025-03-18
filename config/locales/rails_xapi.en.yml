@@ -3,6 +3,7 @@ en:
     errors:
       actor_ifi_must_be_present: "at least one of mbox, mbox_sha1sum, openid, or account must be present"
       attribute_must_be_a_hash: "attribute %{name} must be a hash"
+      attribute_must_be_a_valid_language_map: "attribute %{name} must be a language map"
       couldnt_create_the_substatement: "couldn’t create the substatement"
       definition_description_invalid_keys: "invalid keys in definition description: %{values}"
       definition_description_must_be_language_map: "definition description must be a language map"
