@@ -42,24 +42,24 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   private
 
   def set_name
-    return if name.nil?
+    return if name.blank?
 
     # We need to parse the data as JSON to store it.
-    json_name = valid_json(name.gsub("=>", ":"))
+    json_name = valid_json(name.gsub("=>", ":"), "name")
     self.name = json_name.to_json if json_name
   end
 
   def set_description
-    return if description.nil?
+    return if description.blank?
 
-    json_description = valid_json(description.gsub("=>", ":"))
+    json_description = valid_json(description.gsub("=>", ":"), "description")
     self.description = json_description.to_json if json_description
   end
 
-  def valid_json(json)
-    JSON.parse(json)
-  rescue
-    false
+  def valid_json(hash, attr)
+    JSON.parse(hash)
+  rescue JSON::ParserError
+    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_valid_language_map", name: attr)
   end
 end
 
