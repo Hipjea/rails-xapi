@@ -28,5 +28,13 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
       expect(status).to eq(200)
       expect(statement.is_a?(RailsXapi::Statement)).to be_truthy
     end
+
+    it "calls the statement creator service asynchronously" do
+      statement_creator = RailsXapi::StatementCreator.new(@statement, @actor)
+
+      expect { statement_creator.call_async }.to change {
+        RailsXapi::Statement.count
+      }.by(1)
+    end
   end
 end
