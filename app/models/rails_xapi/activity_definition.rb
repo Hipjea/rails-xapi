@@ -31,7 +31,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
 
     # Find any existing extension for the given activity definition.
     exts = extensions.where(extendable_type: self.class, extendable_id: id)
-    # If none, build and save the extension
+    # If none, build and save the extension.
     if exts.blank? && extensions.blank?
       extensions_data.each do |iri, data|
         extensions.build(iri: iri, value: serialized_value(data))
@@ -41,25 +41,25 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
 
   private
 
-  def set_name
-    return if name.blank?
+  def set_json_attribute(attribute)
+    value = send(attribute)
+    return if value.blank?
 
-    # We need to parse the data as JSON to store it.
-    json_name = valid_json(name.gsub("=>", ":"), "name")
-    self.name = json_name.to_json if json_name
+    begin
+      value = JSON.parse(value.to_s.gsub("=>", ":"))
+    rescue JSON::ParserError => _
+      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_valid_language_map", name: attribute)
+    end
+
+    self[attribute] = value.to_json
+  end
+
+  def set_name
+    set_json_attribute(:name)
   end
 
   def set_description
-    return if description.blank?
-
-    json_description = valid_json(description.gsub("=>", ":"), "description")
-    self.description = json_description.to_json if json_description
-  end
-
-  def valid_json(hash, attr)
-    JSON.parse(hash)
-  rescue JSON::ParserError
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_valid_language_map", name: attr)
+    set_json_attribute(:description)
   end
 end
 

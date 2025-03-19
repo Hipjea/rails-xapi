@@ -10,6 +10,7 @@ fr:
       failed_to_create_member: "échec de création d'un membre : #{member}"
       invalid_actor: "acteur invalide"
       invalid_actor_object_type: "type d'objet de l'acteur incorrect : %{name}"
+      invalid_json: "JSON non valide"
       invalid_object_object_type: "type d'objet de l'objet incorrect : %{name}"
       invalid_object_substatement: "sous-déclaration d'objet incorrecte"
       invalid_score_value: "valeur de score incorrecte : %{value}"
