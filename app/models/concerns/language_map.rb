@@ -17,7 +17,13 @@ module LanguageMap
 
   private
 
+  def is_valid_json?(content)
+    !!JSON.parse(content)
+  end
+
   def validate_language_map(data)
+    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_json") if !is_valid_json?(data)
+
     data_hash = JSON.parse(data)
 
     # Validate language map keys to match keys that are either:
