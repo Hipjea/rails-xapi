@@ -13,6 +13,7 @@ describe RailsXapi::Result do
   it "should be valid" do
     result = RailsXapi::Result.new(
       score: {
+        score_scaled: 0.5,
         raw: 50,
         min: 0,
         max: 100

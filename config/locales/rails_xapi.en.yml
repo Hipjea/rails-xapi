@@ -10,6 +10,7 @@ en:
       failed_to_create_member: "failed to create member: #{member}"
       invalid_actor: "invalid actor"
       invalid_actor_object_type: "invalid actor's object type: %{name}"
+      invalid_json: "invalid JSON"
       invalid_object_object_type: "invalid object's object type: %{name}"
       invalid_object_substatement: "invalid object substatement"
       invalid_score_value: "invalid score value: %{value}"
