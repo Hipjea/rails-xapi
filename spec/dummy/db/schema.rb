@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_144235) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_144236) do
   create_table "rails_xapi_accounts", force: :cascade do |t|
     t.string "name", null: false
     t.string "home_page", null: false
@@ -65,6 +65,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144235) do
     t.string "extendable_type"
     t.integer "extendable_id"
     t.index ["extendable_type", "extendable_id"], name: "index_rails_xapi_extensions_on_extendable"
+  end
+
+  create_table "rails_xapi_group_members", force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.bigint "actor_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_rails_xapi_group_members_on_actor_id"
+    t.index ["group_id"], name: "index_rails_xapi_group_members_on_group_id"
   end
 
   create_table "rails_xapi_objects", id: :string, force: :cascade do |t|

@@ -57,3 +57,19 @@ describe RailsXapi::Object do
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: rails_xapi_activity_definitions
+#
+#  id            :integer          not null, primary key
+#  activity_type :string
+#  description   :text
+#  more_info     :text
+#  name          :string
+#  object_id     :string           not null
+#
+# Indexes
+#
+#  index_rails_xapi_activity_definitions_on_object_id  (object_id)
+#
