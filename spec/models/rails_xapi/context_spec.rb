@@ -43,3 +43,25 @@ describe RailsXapi::Context do
     expect(new_statement.context.statement).to eq(new_statement)
   end
 end
+
+# == Schema Information
+#
+# Table name: rails_xapi_contexts
+#
+#  id            :integer          not null, primary key
+#  language      :string
+#  platform      :string
+#  registration  :string
+#  revision      :string
+#  statement_ref :bigint
+#  instructor_id :bigint
+#  statement_id  :bigint           not null
+#  team_id       :bigint
+#
+# Indexes
+#
+#  index_rails_xapi_contexts_on_instructor_id  (instructor_id)
+#  index_rails_xapi_contexts_on_statement_id   (statement_id)
+#  index_rails_xapi_contexts_on_statement_ref  (statement_ref)
+#  index_rails_xapi_contexts_on_team_id        (team_id)
+#

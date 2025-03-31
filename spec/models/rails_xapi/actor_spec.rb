@@ -43,6 +43,48 @@ describe RailsXapi::Actor do
     expect(actor.valid?).to be_truthy
     expect(actor.to_hash[:objectType]).to eq("Agent")
   end
+
+  it "should create a group" do
+    actor = RailsXapi::Actor.build_actor_from_data({
+      name: "Team PB",
+      mbox: "mailto:teampb@example.com",
+      objectType: "Group"
+    })
+
+    expect(actor.valid?).to be_truthy
+    expect(actor.to_hash[:objectType]).to eq("Group")
+  end
+
+  it "should create group members" do
+    actor = RailsXapi::Actor.build_actor_from_data({
+      name: "Team PB",
+      mbox: "mailto:teampb@example.com",
+      objectType: "Group",
+      member: [
+        {
+          name: "Andrew Downes",
+          account: {
+            homePage: "http://www.example.com",
+            name: "13936749"
+          },
+          objectType: "Agent"
+        },
+        {
+          name: "Toby Nichols",
+          openid: "http://toby.openid.example.org/",
+          objectType: "Agent"
+        },
+        {
+          name: "Ena Hills",
+          mbox_sha1sum: "ebd31e95054c018b10727ccffd2ef2ec3a016ee9",
+          objectType: "Agent"
+        }
+      ]
+    })
+
+    expect(actor.valid?).to be_truthy
+    expect(actor.to_hash[:objectType]).to eq("Group")
+  end
 end
 
 # == Schema Information
