@@ -12,6 +12,7 @@ class RailsXapi::Actor < ApplicationRecord
 
   has_one :account, class_name: "RailsXapi::Account", dependent: :destroy
   has_many :statements, class_name: "RailsXapi::Statement", dependent: :nullify
+  has_many :members, class_name: "RailsXapi::GroupMember", dependent: :destroy
 
   validates :object_type, presence: true
   validate :validate_actor_ifi_presence, :validate_mbox, :validate_mbox_sha1sum, :validate_object_type, :validate_openid
