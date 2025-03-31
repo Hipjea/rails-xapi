@@ -42,6 +42,52 @@ describe RailsXapi::Context do
     expect(new_statement.context[:statement_ref]).to eq(@statement.id)
     expect(new_statement.context.statement).to eq(new_statement)
   end
+
+  it "should create context activities" do
+    context = RailsXapi::Context.new(
+      contextActivities: {
+        parent: [
+          {
+            id: "http://www.example.com/meetings/series/1",
+            objectType: "Activity"
+          },
+          {
+            id: "http://www.example.com/meetings/series/2",
+            objectType: "Activity"
+          }
+        ],
+        category: [
+          {
+            id: "http://www.example.com/meetings/categories/teammeeting",
+            objectType: "Activity",
+            definition: {
+              name: {
+                "en-US" => "team meeting"
+              },
+              description: {
+                "en-US" => "A category of meeting used for regular team meetings."
+              },
+              type: "http://example.com/expapi/activities/meetingcategory"
+            }
+          }
+        ]
+      },
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      }
+    )
+
+    new_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    new_statement.save!
+
+    expect(new_statement.valid?).to be_truthy
+    expect(new_statement.context.context_activities).to_not be_empty
+    new_statement.context.context_activities.each do |ca|
+      expect(ca.object).to_not be_nil if ca.object.object_type == "Activity"
+      expect(ca.object.definition).to_not be_nil if ca.activity_type == "category"
+    end
+  end
 end
 
 # == Schema Information
