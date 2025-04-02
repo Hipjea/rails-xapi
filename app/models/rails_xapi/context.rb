@@ -12,6 +12,8 @@ class RailsXapi::Context < ApplicationRecord
   has_many :context_activities, dependent: :destroy
   has_many :extensions, as: :extendable, dependent: :destroy
 
+  before_validation :validate_platform
+
   def contextActivities=(context_activities_hash)
     context_activities_hash.each do |activity_type, activities|
       activities.each do |activity|
@@ -78,6 +80,12 @@ class RailsXapi::Context < ApplicationRecord
       actor.object_type = object_type if object_type.present?
       actor.account = RailsXapi::Account.new(value[:account]) if value[:account].present?
     end
+  end
+
+  # The "platform" property MUST only be used if the Statement's Object is an Activity.
+  # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#requirements-10
+  def validate_platform
+    self[:platform] = nil if !statement.object.activity?
   end
 end
 

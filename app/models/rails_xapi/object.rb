@@ -47,6 +47,12 @@ class RailsXapi::Object < ApplicationRecord
     end
   end
 
+  def activity?
+    return true if object_type == "Activity"
+
+    false
+  end
+
   private
 
   def set_defaults
