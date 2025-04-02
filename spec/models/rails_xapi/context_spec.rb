@@ -88,6 +88,43 @@ describe RailsXapi::Context do
       expect(ca.object.definition).to_not be_nil if ca.activity_type == "category"
     end
   end
+
+  it "should set platform property if statement object is Activity" do
+    context = RailsXapi::Context.new(
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      },
+      platform: "platform-placeholder"
+    )
+
+    expect(context.platform).to_not be_nil
+  end
+
+  it "should not set platform property if statement object is not Activity" do
+    statement_struct = {
+      actor: RailsXapi::Actor.new(@actor),
+      verb: RailsXapi::Verb.new({
+        id: RailsXapi::Verb::VERBS_LIST.keys[0]
+      }),
+      object: RailsXapi::Object.new({
+        objectType: "StatementRef",
+        id: "9e13cefd-53d3-4eac-b5ed-2cf6693903bb"
+      }),
+      context: RailsXapi::Context.new(
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        },
+        platform: "platform-placeholder"
+      )
+    }
+
+    statement = RailsXapi::Statement.new(statement_struct)
+    statement.save!
+
+    expect(statement.context.platform).to be_nil
+  end
 end
 
 # == Schema Information
