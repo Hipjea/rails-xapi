@@ -32,17 +32,23 @@ class RailsXapi::Context < ApplicationRecord
 
   # Set the instructor value and create the actor if provided.
   def instructor=(value)
-    actor_row = find_or_create_actor_with_account(value)
-    self[:instructor_id] = actor_row.id if actor_row&.id.present?
+    return if value.blank?
+
+    actor = find_or_create_actor_with_account(value)
+    super(actor) if actor.present?
   end
 
   # Set the team value and create the actor if provided.
   def team=(value)
-    actor_row = find_or_create_actor_with_account(value, "Group")
-    self[:team_id] = actor_row.id if actor_row&.id.present?
+    return if value.blank?
+
+    actor = find_or_create_actor_with_account(value, "Group")
+    super(actor) if actor.present?
   end
 
   # Set the statement_ref value if provided.
+  # RailsXapi::Context needs a setter to save the "statement" data. However, it also
+  # belongs to a RailsXapi::Statement. Therefore, we use the attribute :statement_ref.
   def statement=(value)
     id = value[:id]
     return if id.nil? || value[:objectType] != "StatementRef"
@@ -85,7 +91,7 @@ class RailsXapi::Context < ApplicationRecord
   # The "platform" property MUST only be used if the Statement's Object is an Activity.
   # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#requirements-10
   def validate_platform
-    self[:platform] = nil if !statement.object.activity?
+    self[:platform] = nil if !statement&.object&.activity?
   end
 end
 

@@ -12,6 +12,12 @@ describe RailsXapi::Context do
       openid: "http://example.com/object/Actor#1"
     }
 
+    @team = {
+      name: "Team PB",
+      mbox: "mailto:teampb@example.com",
+      objectType: "Group"
+    }
+
     @object = RailsXapi::Object.new(id: "/statement-ref-object/1")
 
     @statement = RailsXapi::Statement.new(@default_statement)
@@ -25,8 +31,16 @@ describe RailsXapi::Context do
   end
 
   it "should create a team" do
-    context = RailsXapi::Context.new(team: @actor)
+    context = RailsXapi::Context.new(team: @team)
 
+    expect(context.team.class).to eq(RailsXapi::Actor)
+    expect(context.team.object_type).to eq("Group")
+  end
+
+  it "should create an instructor and a team" do
+    context = RailsXapi::Context.new(instructor: @actor, team: @team)
+
+    expect(context.instructor.class).to eq(RailsXapi::Actor)
     expect(context.team.class).to eq(RailsXapi::Actor)
     expect(context.team.object_type).to eq("Group")
   end
