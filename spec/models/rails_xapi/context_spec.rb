@@ -22,6 +22,34 @@ describe RailsXapi::Context do
 
     @statement = RailsXapi::Statement.new(@default_statement)
     @statement.save!
+
+    @context_activities = {
+      parent: [
+        {
+          id: "http://www.example.com/meetings/series/1",
+          objectType: "Activity"
+        },
+        {
+          id: "http://www.example.com/meetings/series/2",
+          objectType: "Activity"
+        }
+      ],
+      category: [
+        {
+          id: "http://www.example.com/meetings/categories/teammeeting",
+          objectType: "Activity",
+          definition: {
+            name: {
+              "en-US" => "team meeting"
+            },
+            description: {
+              "en-US" => "A category of meeting used for regular team meetings."
+            },
+            type: "http://example.com/expapi/activities/meetingcategory"
+          }
+        }
+      ]
+    }
   end
 
   it "should create an instructor" do
@@ -59,33 +87,7 @@ describe RailsXapi::Context do
 
   it "should create context activities" do
     context = RailsXapi::Context.new(
-      contextActivities: {
-        parent: [
-          {
-            id: "http://www.example.com/meetings/series/1",
-            objectType: "Activity"
-          },
-          {
-            id: "http://www.example.com/meetings/series/2",
-            objectType: "Activity"
-          }
-        ],
-        category: [
-          {
-            id: "http://www.example.com/meetings/categories/teammeeting",
-            objectType: "Activity",
-            definition: {
-              name: {
-                "en-US" => "team meeting"
-              },
-              description: {
-                "en-US" => "A category of meeting used for regular team meetings."
-              },
-              type: "http://example.com/expapi/activities/meetingcategory"
-            }
-          }
-        ]
-      },
+      contextActivities: @context_activities,
       statement: {
         objectType: "StatementRef",
         id: @statement.id
@@ -100,6 +102,109 @@ describe RailsXapi::Context do
     new_statement.context.context_activities.each do |ca|
       expect(ca.object).to_not be_nil if ca.object.object_type == "Activity"
       expect(ca.object.definition).to_not be_nil if ca.activity_type == "category"
+    end
+  end
+
+  it "should update the object when the context activity already exists" do
+    context = RailsXapi::Context.new(
+      contextActivities: @context_activities,
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      }
+    )
+
+    new_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    new_statement.save!
+
+    expect(new_statement.valid?).to be_truthy
+
+    context_activity_object_id = "http://www.example.com/meetings/categories/teammeeting"
+    context = RailsXapi::Context.new(
+      contextActivities: {
+        category: [
+          {
+            id: context_activity_object_id,
+            objectType: "Activity",
+            definition: {
+              name: {
+                "en-US" => "team meeting updated"
+              },
+              description: {
+                "en-US" => "A category of meeting used for regular team meetings."
+              },
+              type: "http://example.com/expapi/activities/meetingcategory/updated"
+            }
+          }
+        ]
+      },
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      }
+    )
+
+    updated_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    updated_statement.save!
+
+    expect(updated_statement.valid?).to be_truthy
+    updated_statement.context.context_activities.each do |ca|
+      if ca.object_id == context_activity_object_id
+        expect(ca.object.definition.name).to eq({"en-US" => "team meeting updated"}.to_json)
+        expect(ca.object.definition.activity_type).to eq("http://example.com/expapi/activities/meetingcategory/updated")
+      end
+    end
+  end
+
+  it "should create a context activity with extensions" do
+    context = RailsXapi::Context.new(
+      contextActivities: {
+        parent: [
+          {
+            id: "http://www.example.com/meetings/series/1",
+            objectType: "Activity"
+          }
+        ]
+      },
+      extensions: {
+        "http://example.com/profiles/meetings/activitydefinitionextensions/room": {
+          name: "Kilby",
+          id: "http://example.com/rooms/342"
+        }
+      },
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      }
+    )
+
+    statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    statement.save!
+
+    expect(statement.valid?).to be_truthy
+    expect(statement.context.extensions).to_not be_empty
+  end
+
+  it "should not accept a context extension that isn't a hash" do
+    context = {
+      contextActivities: {
+        parent: [
+          {
+            id: "http://www.example.com/meetings/series/1",
+            objectType: "Activity"
+          }
+        ]
+      },
+      extensions: "http://example.com/profiles/meetings/activitydefinitionextensions/room",
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      }
+    }
+
+    expect { RailsXapi::Context.new(context) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
     end
   end
 
