@@ -15,3 +15,18 @@ describe RailsXapi::Extension do
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: rails_xapi_extensions
+#
+#  id              :integer          not null, primary key
+#  extendable_type :string
+#  iri             :string           not null
+#  value           :text             not null
+#  extendable_id   :integer
+#
+# Indexes
+#
+#  index_rails_xapi_extensions_on_extendable  (extendable_type,extendable_id)
+#
