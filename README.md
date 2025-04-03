@@ -7,7 +7,6 @@ xAPI statements creation plugin.
 > [!IMPORTANT]
 > This is an ongoing development. The documentation will be provided as it becomes available.
 
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -34,7 +33,6 @@ Mount the engine in `config/routes.rb`:
 mount RailsXapi::Engine, at: "rails-xapi"
 ```
 
-
 ## Usage
 
 ### Statement creation
@@ -58,7 +56,7 @@ class XapiStatementCreator
     end
 
     statement_creator = RailsXapi::StatementCreator.new(data, actor)
-    return statement_creator.call_async if async
+    return statement_creator.call(async: true) if async
 
     statement_creator.call
   end
@@ -86,7 +84,6 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
 })
 ```
 
-
 ### Data query
 
 ```ruby
@@ -95,14 +92,12 @@ def logs_per_month(year = Date.current.year, month = Date.current.month)
 end
 ```
 
-
 ## Test
 
 ```bash
 bundle exec rails db:schema:load RAILS_ENV=test
 bundle exec rspec spec/
 ```
-
 
 ## License
 

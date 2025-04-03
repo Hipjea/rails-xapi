@@ -32,7 +32,7 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     it "calls the statement creator service asynchronously" do
       statement_creator = RailsXapi::StatementCreator.new(@statement, @actor)
 
-      expect { statement_creator.call_async }.to change {
+      expect { statement_creator.call(async: true) }.to change {
         RailsXapi::Statement.count
       }.by(1)
     end

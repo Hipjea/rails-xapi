@@ -8,16 +8,12 @@ class RailsXapi::StatementCreator < ApplicationService
     @actor = actor
   end
 
-  def call
+  def call(async: false)
     statement = prepare_statement
+    return RailsXapi::CreateStatementJob.perform_now(statement) if async
+
     statement.save
-
     {status: 200, statement: statement}
-  end
-
-  def call_async
-    statement = prepare_statement
-    RailsXapi::CreateStatementJob.perform_now(statement)
   end
 
   private
