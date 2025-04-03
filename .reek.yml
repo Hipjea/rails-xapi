@@ -1,0 +1,22 @@
+exclude_paths:
+  - vendor/
+  - lib/
+  - db/migrate/
+  - app/helpers/*.rb
+
+detectors:
+  IrresponsibleModule:
+    enabled: false
+
+  TooManyStatements:
+    max_statements: 5
+
+directories:
+  "app/controllers":
+    InstanceVariableAssumption:
+      enabled: false
+    TooManyStatements:
+      max_statements: 10
+  "app/helpers":
+    TooManyStatements:
+      max_statements: 8
