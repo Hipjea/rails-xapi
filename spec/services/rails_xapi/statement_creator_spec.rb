@@ -54,13 +54,13 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     end
 
     it "should accept a timestamp value when given" do
-      current_time = (Time.zone.now - 2.hours).freeze
+      current_time = Time.zone.now - 2.hours
       statement_creator = RailsXapi::StatementCreator.new(@statement.merge(actor: @actor, timestamp: current_time))
       result = statement_creator.call
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
-      expect(statement.timestamp).to eq(current_time)
+      expect(statement.timestamp.to_i).to eq(current_time.to_i)
     end
   end
 end
