@@ -5,13 +5,8 @@
 class RailsXapi::Extension < ApplicationRecord
   belongs_to :extendable, polymorphic: true
 
-  after_initialize :validate_data
-
-  def validate_data
-    unless attributes.is_a?(Hash)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
-    end
-  end
+  validates :iri, presence: true
+  validates :value, presence: true
 
   def parsed_value
     JSON.parse(value.gsub("=>", ":"))
