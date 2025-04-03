@@ -4,4 +4,4 @@
 
 ### Breaking Changes:
 
-- Removed `call_async` method from `RailsXapi::StatementCreator`, in profit of a merge into the `call` method.
+- Removed `call_async` method from `RailsXapi::StatementCreator`, in favor of merging it into the `call` method.
