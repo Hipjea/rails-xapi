@@ -8,22 +8,19 @@ class RailsXapi::StatementCreator < ApplicationService
     @actor = actor
   end
 
-  def call
+  def call(async: false)
     statement = prepare_statement
+    # Use a job for asynchronous calls.
+    return RailsXapi::CreateStatementJob.perform_now(statement) if async
+
     statement.save
-
     {status: 200, statement: statement}
-  end
-
-  def call_async
-    statement = prepare_statement
-    RailsXapi::CreateStatementJob.perform_now(statement)
   end
 
   private
 
   def prepare_statement
-    actor = RailsXapi::Actor.build_actor_from_data(@actor || @data[:actor])
+    actor = RailsXapi::Actor.build_actor_from_data(@actor.presence || @data[:actor])
 
     verb = RailsXapi::Verb.find_or_create_by(id: @data[:verb][:id]) do |v|
       v.display = @data[:verb][:display]
@@ -42,7 +39,7 @@ class RailsXapi::StatementCreator < ApplicationService
       object: object,
       result: result,
       context: context,
-      timestamp: @data[:timestamp]
+      timestamp: @data[:timestamp].presence || Time.zone.now
     )
     raise RailsXapi::Errors::XapiError, statement.errors.full_messages.join(", ") unless statement.valid?
 

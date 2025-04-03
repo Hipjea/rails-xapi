@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_144236) do
+ActiveRecord::Schema[7.2].define(version: 2024_07_16_144236) do
   create_table "rails_xapi_accounts", force: :cascade do |t|
     t.string "name", null: false
     t.string "home_page", null: false
@@ -110,5 +110,4 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_144236) do
     t.string "display"
     t.index ["id"], name: "index_rails_xapi_verbs_on_id", unique: true
   end
-
 end
