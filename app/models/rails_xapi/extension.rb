@@ -7,6 +7,10 @@ class RailsXapi::Extension < ApplicationRecord
 
   validates :iri, presence: true
   validates :value, presence: true
+
+  def as_json
+    {iri => value}.compact
+  end
 end
 
 # == Schema Information

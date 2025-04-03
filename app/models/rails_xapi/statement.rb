@@ -13,6 +13,17 @@ class RailsXapi::Statement < ApplicationRecord
   validate :verb_valid
   validate :object_valid
 
+  def as_json
+    {
+      actor: actor.as_json,
+      verb: verb.as_json,
+      object: object.as_json
+    }.tap do |hash|
+      hash[:result] = result.as_json if result.present?
+      hash[:context] = context.as_json if context.present?
+    end
+  end
+
   private
 
   def actor_valid

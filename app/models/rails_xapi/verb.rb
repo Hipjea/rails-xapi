@@ -216,6 +216,13 @@ class RailsXapi::Verb < ApplicationRecord
     parsed[loc] || fallback
   end
 
+  def as_json
+    {
+      id: id,
+      display: display
+    }.compact
+  end
+
   private
 
   def set_display

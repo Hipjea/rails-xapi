@@ -67,6 +67,17 @@ class RailsXapi::Context < ApplicationRecord
     end
   end
 
+  def as_json
+    context_attributes = {}
+    context_attributes[:registration] = registration if registration.present?
+    context_attributes[:instructor] = instructor if instructor.present?
+    context_attributes[:team] = team if team.present?
+    context_attributes[:contextActivities] = context_activities.as_json if context_activities.present?
+    context_attributes[:statement] = statement_ref.as_json if statement_ref.present?
+
+    context_attributes
+  end
+
   private
 
   def find_or_create_actor_with_account(value, object_type = nil)
