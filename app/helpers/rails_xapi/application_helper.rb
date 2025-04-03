@@ -20,10 +20,7 @@ module RailsXapi
     def result_success_rate(result)
       return nil if result.score_raw.blank? || result.score_max.blank?
 
-      raw = result.score_raw.to_f
-      max = result.score_max.to_f
-
-      (raw / max * 100).to_i
+      ((result.score_raw.to_f / result.score_max.to_f) * 100).to_i
     end
   end
 end
