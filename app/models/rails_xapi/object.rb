@@ -53,6 +53,15 @@ class RailsXapi::Object < ApplicationRecord
     false
   end
 
+  def as_json
+    {
+      id: id,
+      objectType: object_type
+    }.tap do |hash|
+      hash[:definition] = definition.as_json if definition.present?
+    end
+  end
+
   private
 
   def set_defaults
