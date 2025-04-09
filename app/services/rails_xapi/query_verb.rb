@@ -13,13 +13,13 @@ class RailsXapi::QueryVerb < ApplicationService
   #
   # @return [ActiveRecord::Relation] The unique verb_display values
   def self.verb_displays
-    RailsXapi::Statement.distinct.pluck(:verb_display)
+    RailsXapi::Statement.includes(:verb).distinct.pluck(:display)
   end
 
   # Get a hash of all unique verbs with verb_id as keys and verb_display as values.
   #
   # @return [Hash] A hash where keys are verb_id and values are verb_display.
   def self.verbs
-    RailsXapi::Statement.distinct.pluck(:verb_id, :verb_display).to_h
+    RailsXapi::Statement.includes(:verb).distinct.pluck(:verb_id, :display)
   end
 end
