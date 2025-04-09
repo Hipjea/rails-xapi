@@ -30,12 +30,24 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     end
 
     # Find any existing extension for the given activity definition.
-    exts = extensions.where(extendable_type: self.class, extendable_id: id)
-    # If none, build and save the extension.
-    if exts.blank? && extensions.blank?
+    exts = extensions.where(extendable_type: self.class.to_s, extendable_id: id)
+
+    # If none, build and save the extensions.
+    if exts.blank?
       extensions_data.each do |iri, data|
         extensions.build(iri: iri, value: serialized_value(data))
       end
+    end
+  end
+
+  def as_json
+    {
+      name: name,
+      description: description,
+      type: activity_type
+    }.tap do |hash|
+      hash[:extensions] = extensions.as_json if extensions.present?
+      hash[:moreInfo] = more_info if more_info.present?
     end
   end
 
