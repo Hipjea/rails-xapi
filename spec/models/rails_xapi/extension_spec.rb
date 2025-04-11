@@ -14,6 +14,23 @@ describe RailsXapi::Extension do
       expect(error.to_s.include?("Value can't be blank")).to be_truthy
     end
   end
+
+  it "should produce a valid as_json" do
+    extension = RailsXapi::Extension.new({
+      iri: "http://example.com/profiles/meetings/activitydefinitionextensions/room",
+      value: {
+        name: "Kilby",
+        id: "http://example.com/rooms/342"
+      }
+    })
+
+    expect(extension.as_json).to eq({
+      "http://example.com/profiles/meetings/activitydefinitionextensions/room" => {
+        name: "Kilby",
+        id: "http://example.com/rooms/342"
+      }.to_s
+    })
+  end
 end
 
 # == Schema Information
