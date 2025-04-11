@@ -15,7 +15,7 @@ describe RailsXapi::Extension do
     end
   end
 
-  it "should produce a valid as_json" do
+  it "should produce a valid as_json value" do
     extension = RailsXapi::Extension.new({
       iri: "http://example.com/profiles/meetings/activitydefinitionextensions/room",
       value: {
