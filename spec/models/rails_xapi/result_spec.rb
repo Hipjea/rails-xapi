@@ -15,7 +15,7 @@ describe RailsXapi::Result do
       score: {
         score_scaled: 0.5,
         raw: 50,
-        min: 0,
+        min: 1,
         max: 100
       },
       response: "The actor 1 answered",
@@ -30,6 +30,10 @@ describe RailsXapi::Result do
     )
 
     expect(result.valid?).to be_truthy
+    expect(result.score[:scaled]).to eq(0.5)
+    expect(result.score[:raw]).to eq(50)
+    expect(result.score[:min]).to eq(1)
+    expect(result.score[:max]).to eq(100)
   end
 
   it "should not be valid with an incorrect score" do
