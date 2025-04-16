@@ -86,9 +86,32 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
 
 ### Data query
 
+Ready-to-use queries are available in the [app/services/rails_xapi/query.rb](app/services/rails_xapi/query.rb) class.
+
+| Query symbol                                | Description                                               |
+| ------------------------------------------- | --------------------------------------------------------- |
+| `:statement`                                | Retrieve a single statement by its ID                     |
+| `:statements_by_actor_emails_and_object_id` | Get statements by actor emails and object ID              |
+| `:verb_ids`                                 | Get list of unique verb IDs                               |
+| `:verb_displays`                            | Get list of unique verb display values                    |
+| `:verbs`                                    | Get hash of unique verbs with ID and display values       |
+| `:actor_by_email`                           | Find statements by actor's email                          |
+| `:actor_by_mbox`                            | Find statements by actor's mbox                           |
+| `:actor_by_account_homepage`                | Find statements by actor's account homepage               |
+| `:actor_by_openid`                          | Find statements by actor's openID                         |
+| `:actor_by_mbox_sha1sum`                    | Find statements by actor's mbox SHA1 sum                  |
+| `:user_statements_per_month`                | Retrieve actor's statements for a specific month/year     |
+| `:per_month`                                | Group given records by creation date for a specific month |
+| `:month_graph_data`                         | Create date/count array of data for a month               |
+
+Example of usage:
+
 ```ruby
 def logs_per_month(year = Date.current.year, month = Date.current.month)
-  RailsXapi::QueryActor.user_statements_per_month({mbox: "mailto:#{email}"}, year, month)
+  RailsXapi::Query.call(
+    query: :user_statements_per_month,
+    args: [{mbox: "mailto:#{email}"}, year, month]
+  )
 end
 ```
 
