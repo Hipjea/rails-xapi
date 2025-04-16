@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe RailsXapi::QueryVerb, type: :service do
+RSpec.describe RailsXapi::Query, type: :service do
   include_context "statement"
 
   before :all do
@@ -10,17 +10,17 @@ RSpec.describe RailsXapi::QueryVerb, type: :service do
   end
 
   describe "methods" do
-    it "describes self.verb_ids" do
+    it "describes query verb_ids" do
       @statement_1.call
       @statement_2.call
       @statement_3.call
 
       verb_ids = RailsXapi::Verb::VERBS_LIST.keys.first(3)
 
-      expect(RailsXapi::QueryVerb.verb_ids).to contain_exactly(*verb_ids)
+      expect(RailsXapi::Query.call(query: :verb_ids)).to contain_exactly(*verb_ids)
     end
 
-    it "describes self.verb_displays" do
+    it "describes query verb_displays" do
       @statement_1.call
       @statement_2.call
       @statement_3.call
@@ -30,10 +30,10 @@ RSpec.describe RailsXapi::QueryVerb, type: :service do
         {"en-US" => display}.to_json
       end
 
-      expect(RailsXapi::QueryVerb.verb_displays).to contain_exactly(*verb_displays)
+      expect(RailsXapi::Query.call(query: :verb_displays)).to contain_exactly(*verb_displays)
     end
 
-    it "describes self.verbs" do
+    it "describes query verbs" do
       @statement_1.call
       @statement_2.call
       @statement_3.call
@@ -42,7 +42,7 @@ RSpec.describe RailsXapi::QueryVerb, type: :service do
         [verb, {"en-US" => display}.to_json]
       end
 
-      expect(RailsXapi::QueryVerb.verbs).to contain_exactly(*verbs)
+      expect(RailsXapi::Query.call(query: :verbs)).to contain_exactly(*verbs)
     end
   end
 end

@@ -14,9 +14,7 @@ describe RailsXapi::Object do
           "en-US" => "Definition name"
         },
         description: {
-          "en-US" => "A simple Experience API statement. Note that the LRS
-            does not need to have any prior information about the Actor (learner), the
-            verb, or the Activity/object."
+          "en-US" => "A simple Experience API statement. Note that the LRS does not need to have any prior information about the Actor (learner), the verb, or the Activity/object."
         }
       }
     })
@@ -28,6 +26,15 @@ describe RailsXapi::Object do
     })
 
     expect(statement.valid?).to be_truthy
+    expect(statement.object.definition.as_json).to eq({
+      name: {
+        "en-US" => "Definition name"
+      }.to_json,
+      description: {
+        "en-US" => "A simple Experience API statement. Note that the LRS does not need to have any prior information about the Actor (learner), the verb, or the Activity/object."
+      }.to_json,
+      type: nil
+    })
   end
 
   it "should raise an exception" do

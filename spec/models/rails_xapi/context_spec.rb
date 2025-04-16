@@ -52,6 +52,43 @@ describe RailsXapi::Context do
     }
   end
 
+  it "should be a valid as_json" do
+    context = RailsXapi::Context.new(
+      contextActivities: @context_activities,
+      statement: {
+        objectType: "StatementRef",
+        id: @statement.id
+      }
+    )
+
+    statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+
+    expect(statement.context.as_json).to eq({
+      contextActivities: [
+        {
+          id: "http://www.example.com/meetings/series/1",
+          objectType: "parent"
+        },
+        {
+          id: "http://www.example.com/meetings/series/2",
+          objectType: "parent"
+        },
+        {
+          definition: {
+            description: "{\"en-US\":\"A category of meeting used for regular team meetings.\"}",
+            name: "{\"en-US\":\"team meeting\"}",
+            type: "http://example.com/expapi/activities/meetingcategory"
+          },
+          id: "http://www.example.com/meetings/categories/teammeeting",
+          objectType: "category"
+        }
+      ]
+    })
+
+    expect(statement.context[:statement_ref]).to eq(@statement.id)
+    expect(statement.context.statement).to eq(statement)
+  end
+
   it "should create an instructor" do
     context = RailsXapi::Context.new(instructor: @actor)
 
