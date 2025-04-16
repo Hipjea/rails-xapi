@@ -21,15 +21,18 @@ class RailsXapi::Query < ApplicationService
 
   private
 
+  # @param id [Integer] The ID of the statement
+  # @return [RailsXapi::Statement] The statement record
   def statement(id)
     RailsXapi::Statement.includes([:actor, :verb, :object, :context, :result]).find(id)
   end
 
   # Get a hash of all statements concerning the actors emails and object_id.
   #
-  # @param [Hash] actor_emails
-  # @param [String] object_id The object IRI
-  # @return [Hash] A hash of statements.
+  # @param object_id [String] The object IRI
+  # @param actor_emails [Array<String>] List of actor emails
+  # @return [ActiveRecord::Relation] Statements matching criteria
+  # @raise [ArgumentError] If no emails provided
   def statements_by_actor_emails_and_object_id(object_id, actor_emails = [])
     raise ArgumentError, I18n.t("rails_xapi.errors.malformed_email") unless actor_emails.any?
 
@@ -43,30 +46,30 @@ class RailsXapi::Query < ApplicationService
 
   # Get a list of all unique verb_id values
   #
-  # @return [ActiveRecord::Relation] The unique verb_id values
+  # @return [Array<Integer>] Unique verb IDs
   def verb_ids
     RailsXapi::Statement.distinct.pluck(:verb_id)
   end
 
   # Get a list of all unique verb_display values
   #
-  # @return [ActiveRecord::Relation] The unique verb_display values
+  # @return [Array<String>] Unique verb display values
   def verb_displays
     RailsXapi::Statement.includes(:verb).distinct.pluck(:display)
   end
 
   # Get a hash of all unique verbs with verb_id as keys and verb_display as values.
   #
-  # @return [Hash] A hash where keys are verb_id and values are verb_display.
+  # @return [Hash{Integer => String}] verb_id => verb_display mapping
   def verbs
     RailsXapi::Statement.includes(:verb).distinct.pluck(:verb_id, :display)
   end
 
   # Query statements by actor's email
   #
-  # @param actor_email [String] The email address of the actor
-  # @return [ActiveRecord::Relation] The statements associated with the actor
-  # @raise [ArgumentError] If the email format is invalid
+  # @param actor_email [String] Actor email address
+  # @return [ActiveRecord::Relation] Statements from this actor
+  # @raise [ArgumentError] If email format is invalid
   def actor_by_email(actor_email)
     unless actor_email.match?(/\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
       raise ArgumentError, I18n.t("rails_xapi.errors.malformed_email", name: actor_email)
@@ -77,9 +80,9 @@ class RailsXapi::Query < ApplicationService
 
   # Query statements by actor's mbox
   #
-  # @param actor_mbox [String] The mbox identifier of the actor
-  # @return [ActiveRecord::Relation] The statements associated with the actor
-  # @raise [ArgumentError] If the mbox format is invalid
+  # @param actor_mbox [String] mbox (e.g., "mailto:user@example.com")
+  # @return [ActiveRecord::Relation] Statements for this mbox
+  # @raise [ArgumentError] If mbox format is invalid
   def actor_by_mbox(actor_mbox)
     unless actor_mbox.match?(/\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
       raise ArgumentError, I18n.t("rails_xapi.errors.malformed_mbox", name: actor_mbox)
@@ -90,65 +93,70 @@ class RailsXapi::Query < ApplicationService
 
   # Query statements by actor's account homepage
   #
-  # @param actor_account_homepage [String] The account home page URL of the actor
-  # @return [ActiveRecord::Relation] The statements associated with the actor
+  # @param actor_account_homepage [String] Account homepage URL
+  # @return [ActiveRecord::Relation] Statements for this account
   def actor_by_account_homepage(actor_account_homepage)
     RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {account: {home_page: actor_account_homepage}})
   end
 
   # Query statements by actor's openid
   #
-  # @param actor_id [String] The openID of the actor
-  # @return [ActiveRecord::Relation] The statements associated with the actor
+  # @param actor_openid [String] The openID
+  # @return [ActiveRecord::Relation] Statements for this openID
   def actor_by_openid(actor_openid)
     RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {openid: actor_openid})
   end
 
   # Query statements by actor's mbox_sha1sum
   #
-  # @param actor_id [String] The mbox_sha1sum of the actor
-  # @return [ActiveRecord::Relation] The statements associated with the actor
+  # @param actor_mbox_sha1sum [String] SHA1 hash of actor's mbox
+  # @return [ActiveRecord::Relation] Statements for this mbox_sha1sum identifier
   def actor_by_mbox_sha1sum(actor_mbox_sha1sum)
     RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {mbox_sha1sum: actor_mbox_sha1sum})
   end
 
   # Query statements by actor's identifier per month
   #
-  # @param actor_identifier [String] The mbox_sha1sum of the actor
-  # @param year [Integer] The year integer value
-  # @param month [Integer] The month integer value
-  # @return [ActiveRecord::Relation] The statements associated with the actor
+  # @param actor_identifier [Hash] One key-value pair representing the identifier
+  # @param year [Integer] Year (defaults to current)
+  # @param month [Integer] Month (defaults to current)
+  # @return [ActiveRecord::Relation] Statements in the given month
+  # @raise [ArgumentError] If identifier is empty
   def user_statements_per_month(actor_identifier = {}, year = Date.current.year, month = Date.current.month)
     raise ArgumentError, I18n.t("rails_xapi.errors.exactly_one_actor_identifier_must_be_provided") if actor_identifier.first.empty?
 
     identifier_key, identifier_value = actor_identifier.first
-    start_date, end_date = generate_start_date_end_date(year, month)
+    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
     RailsXapi::Statement.joins(:actor)
       .where(actor: {identifier_key => identifier_value}, created_at: start_date..end_date)
       .group(:id)
   end
 
-  # Takes a collection of records and generate a number of records created each day of the given month
+  # Take a collection of records and generate a number of records created each day of the given month
   #
-  # @param resources [ActiveRecord::Relation] The statement query to complement
-  # @param year [Integer] The year integer value
-  # @param month [Integer] The month integer value
-  # @return [ActiveRecord::Relation] The statements associated with the actor
+  # @param resources [ActiveRecord::Relation] Statement records
+  # @param year [Integer] Year for filtering
+  # @param month [Integer] Month for filtering
+  # @return [ActiveRecord::Relation] Grouped statements by date
   def per_month(resources, year = Date.current.year, month = Date.current.month)
-    start_date, end_date = generate_start_date_end_date(year, month)
+    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
     resources.where("rails_xapi_statements.created_at": start_date..end_date)
       .group("DATE(rails_xapi_statements.created_at)")
   end
 
-  def month_graph_data(data, year = Date.current.year, month = Date.current.month)
-    start_date, end_date = generate_start_date_end_date(year, month)
+  # @param data [Array<RailsXapi::Statement>] Statement list
+  # @param year [Integer] Year for generating the range
+  # @param month [Integer] Month for generating the range
+  # @return [Array<Hash>] Array of date/count pairs
+  def month_graph_data(statements, year = Date.current.year, month = Date.current.month)
+    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
     month_dates = (start_date..end_date).to_a
 
     # Create a hash with default value 0 for each date of the current month
     complete_data = month_dates.index_with { 0 }
 
     # Transform data to count occurrences for each date
-    data_by_date = data.group_by { |statement| statement.created_at.to_date }
+    data_by_date = statements.group_by { |statement| statement.created_at.to_date }
       .transform_values(&:count)
 
     # Merge the existing data with the complete data and format
