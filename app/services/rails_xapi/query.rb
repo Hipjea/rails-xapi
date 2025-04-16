@@ -2,17 +2,18 @@
 
 # This class manages the query interface for verbs.
 class RailsXapi::Query < ApplicationService
-  def initialize(query:)
+  def initialize(query:, args: [])
     @query = query
+    @args = args
   end
 
-  def self.call(query:)
-    new(query: query).call
+  def self.call(query:, args: [])
+    new(query: query, args: args).call
   end
 
   def call
     if respond_to?(@query, true)
-      send(@query)
+      send(@query, *@args)
     else
       raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.query_not_available")
     end
