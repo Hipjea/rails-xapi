@@ -122,7 +122,7 @@ class RailsXapi::Query < ApplicationService
     raise ArgumentError, I18n.t("rails_xapi.errors.exactly_one_actor_identifier_must_be_provided") if actor_identifier.first.empty?
 
     identifier_key, identifier_value = actor_identifier.first
-    start_date, end_date = generate_start_date_end_date(year, month)
+    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
     RailsXapi::Statement.joins(:actor)
       .where(actor: {identifier_key => identifier_value}, created_at: start_date..end_date)
       .group(:id)
@@ -135,13 +135,13 @@ class RailsXapi::Query < ApplicationService
   # @param month [Integer] The month integer value
   # @return [ActiveRecord::Relation] The statements associated with the actor
   def per_month(resources, year = Date.current.year, month = Date.current.month)
-    start_date, end_date = generate_start_date_end_date(year, month)
+    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
     resources.where("rails_xapi_statements.created_at": start_date..end_date)
       .group("DATE(rails_xapi_statements.created_at)")
   end
 
   def month_graph_data(data, year = Date.current.year, month = Date.current.month)
-    start_date, end_date = generate_start_date_end_date(year, month)
+    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
     month_dates = (start_date..end_date).to_a
 
     # Create a hash with default value 0 for each date of the current month
