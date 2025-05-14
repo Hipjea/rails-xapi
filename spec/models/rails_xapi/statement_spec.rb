@@ -6,7 +6,7 @@ RSpec.describe RailsXapi::Statement, type: :model do
   include_context "statement"
 
   describe "validations" do
-    before :all do
+    before :each do
       RailsXapi::Statement.delete_all
       RailsXapi::Actor.delete_all
       RailsXapi::Verb.delete_all
