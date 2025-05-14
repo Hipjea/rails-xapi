@@ -37,37 +37,21 @@ mount RailsXapi::Engine, at: "rails-xapi"
 
 ### Statement creation
 
-Create a service class or controller method within your main application that handles data preparation and invokes `RailsXapi::StatementCreator`:
+Example usage of the `RailsXapi::StatementCreator` service:
 
 ```ruby
-class XapiStatementCreator
-  def self.create_statement(data:, request: nil, user: nil, async: false)
-    if request.present? && user.present?
-      user_name = "#{user.firstname} #{user.lastname}"
-      actor = {
-        objectType: "Agent",
-        name: user_name,
-        mbox: "mailto:#{user.email}",
-        account: {
-          homePage: "#{data[:base_url] || request.base_url}/users/#{user&.id}",
-          name: user_name
-        }
-      }
-    end
+user_name = "#{user.firstname} #{user.lastname}"
 
-    statement_creator = RailsXapi::StatementCreator.new(data, actor)
-    return statement_creator.call(async: true) if async
-
-    statement_creator.call
-  end
-end
-```
-
-You can then use the class within your controllers, for e.g.:
-
-```ruby
-XapiStatementCreator.create_statement(request: request, user: current_user, data: {
-  # We can omit the actor struct if we pass the current_user to create_statement.
+data = {
+  actor: {
+    objectType: "Agent",
+    name: user_name,
+    mbox: "mailto:#{user.email}",
+    account: {
+      homePage: "http://example.com/some_user_homepage/#{user&.id}",
+      name: user_name
+    }
+  },
   verb: {
     id: "https://brindlewaye.com/xAPITerms/verbs/loggedin/"
   },
@@ -81,7 +65,9 @@ XapiStatementCreator.create_statement(request: request, user: current_user, data
       type: "sign-in"
     }
   }
-})
+}
+
+RailsXapi::StatementCreator.create(data)
 ```
 
 ### Data query

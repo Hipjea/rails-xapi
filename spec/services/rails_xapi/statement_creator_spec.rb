@@ -14,10 +14,9 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     }
   end
 
-  describe "statement creator calls" do
-    it "should create a statement through a call to the statement creator service" do
-      statement_creator = RailsXapi::StatementCreator.new(@statement.merge(actor: @actor))
-      result = statement_creator.call
+  describe "statement creator" do
+    it "should create a statement with an actor merged into the data parameter" do
+      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -25,17 +24,23 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
       expect { statement.as_json }.not_to raise_error
     end
 
-    it "should create a statement through an asynchronous call to the statement creator service" do
-      statement_creator = RailsXapi::StatementCreator.new(@statement.merge(actor: @actor))
+    it "should create a statement with an actor parameter" do
+      result = RailsXapi::StatementCreator.create(@statement, @actor)
+      status, statement = result.values_at(:status, :statement)
 
-      expect { statement_creator.call(async: true) }.to change {
+      expect(status).to eq(200)
+      expect(statement.is_a?(RailsXapi::Statement)).to be_truthy
+      expect { statement.as_json }.not_to raise_error
+    end
+
+    it "should create a statement through an asynchronous call to the service" do
+      expect { RailsXapi::StatementCreator.create(@statement, @actor, {async: true}) }.to change {
         RailsXapi::Statement.count
       }.by(1)
     end
 
     it "should create a statement with a given @actor instance variable" do
-      statement_creator = RailsXapi::StatementCreator.new(@statement, @actor)
-      result = statement_creator.call
+      result = RailsXapi::StatementCreator.create(@statement, @actor)
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -45,8 +50,7 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     end
 
     it "should set a timestamp when omitted" do
-      statement_creator = RailsXapi::StatementCreator.new(@statement.merge(actor: @actor))
-      result = statement_creator.call
+      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -55,8 +59,7 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
 
     it "should accept a timestamp value when given" do
       current_time = Time.zone.now - 2.hours
-      statement_creator = RailsXapi::StatementCreator.new(@statement.merge(actor: @actor, timestamp: current_time))
-      result = statement_creator.call
+      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor, timestamp: current_time))
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -67,8 +70,7 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
   describe "complex statements" do
     it "should create a complex xAPI statement" do
       # Save the statement to be able to get its ID within "context".
-      statement_creator = RailsXapi::StatementCreator.new(@statement.merge(actor: @actor))
-      result = statement_creator.call
+      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
       _, statement_ref = result.values_at(:status, :statement)
 
       statement_hash = {
@@ -148,8 +150,7 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
         }
       }
 
-      statement_creator = RailsXapi::StatementCreator.new(statement_hash)
-      result = statement_creator.call
+      result = RailsXapi::StatementCreator.create(statement_hash)
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
