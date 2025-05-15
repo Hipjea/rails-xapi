@@ -1,7 +1,7 @@
 RSpec.shared_context "statement" do
-  before :all do
-    def build_statement(actor_num, verb_index)
-      RailsXapi::StatementCreator.new({
+  before :each do
+    def build_statement(actor_num:, verb_index:)
+      {
         actor: {
           name: "Actor #{actor_num}",
           mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f5#{actor_num}",
@@ -9,7 +9,7 @@ RSpec.shared_context "statement" do
         },
         verb: {id: RailsXapi::Verb::VERBS_LIST.keys[verb_index]},
         object: {id: "/object/#{actor_num}"}
-      })
+      }
     end
 
     @verb = RailsXapi::Verb.new(id: RailsXapi::Verb::VERBS_LIST.keys[0])

@@ -5,7 +5,7 @@ require "rails_helper"
 describe RailsXapi::Context do
   include_context "statement"
 
-  before do
+  before :each do
     @actor = {
       name: "Actor 1",
       mbox_sha1sum: "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52",
@@ -260,9 +260,7 @@ describe RailsXapi::Context do
   it "should not set platform property if statement object is not Activity" do
     statement_struct = {
       actor: RailsXapi::Actor.new(@actor),
-      verb: RailsXapi::Verb.new({
-        id: RailsXapi::Verb::VERBS_LIST.keys[0]
-      }),
+      verb: @verb,
       object: RailsXapi::Object.new({
         objectType: "StatementRef",
         id: "9e13cefd-53d3-4eac-b5ed-2cf6693903bb"

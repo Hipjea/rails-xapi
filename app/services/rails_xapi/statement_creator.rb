@@ -1,23 +1,20 @@
 # frozen_string_literal: true
 
 class RailsXapi::StatementCreator < ApplicationService
-  attr_reader :data, :user
-
-  def initialize(data, actor = {})
+  def initialize(data, actor = {}, opts = {})
     @data = data
     @actor = actor
+    @opts = opts
   end
 
-  def call(async: false)
-    statement = prepare_statement
-    # Use a job for asynchronous calls.
-    return RailsXapi::CreateStatementJob.perform_now(statement) if async
+  def self.create(data, actor = {}, opts = {})
+    statement = RailsXapi::StatementCreator.new(data, actor, opts).prepare_statement
+    # Use a job for asynchronous calls
+    return RailsXapi::CreateStatementJob.perform_now(statement) if opts[:async]
 
     statement.save
     {status: 200, statement: statement}
   end
-
-  private
 
   def prepare_statement
     actor = RailsXapi::Actor.build_actor_from_data(@actor.presence || @data[:actor])
