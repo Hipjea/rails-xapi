@@ -4,9 +4,9 @@ RSpec.describe RailsXapi::Query, type: :service do
   include_context "statement"
 
   before :each do
-    @statement_1 = RailsXapi::StatementCreator.create(build_statement(1, 0))
-    @statement_2 = RailsXapi::StatementCreator.create(build_statement(2, 1))
-    @statement_3 = RailsXapi::StatementCreator.create(build_statement(3, 2))
+    @statement_1 = RailsXapi::StatementCreator.create(build_statement(actor_num: 1, verb_index: 0))
+    @statement_2 = RailsXapi::StatementCreator.create(build_statement(actor_num: 2, verb_index: 1))
+    @statement_3 = RailsXapi::StatementCreator.create(build_statement(actor_num: 3, verb_index: 2))
   end
 
   describe "methods" do

@@ -1,6 +1,6 @@
 RSpec.shared_context "statement" do
   before :each do
-    def build_statement(actor_num, verb_index)
+    def build_statement(actor_num:, verb_index:)
       {
         actor: {
           name: "Actor #{actor_num}",
