@@ -2,7 +2,7 @@
 
 xAPI statements creation plugin.
 
-[![Actions Status](https://github.com/Hipjea/rails-xapi/actions/workflows/ci.yml/badge.svg)](https://github.com/Hipjea/rails-xapi/actions/workflows/ci.yml/)
+[![Actions Status](https://github.com/fondation-unit/rails-xapi/actions/workflows/ci.yml/badge.svg)](https://github.com/fondation-unit/rails-xapi/actions/workflows/ci.yml/)
 
 > [!IMPORTANT]
 > This is an ongoing development. The documentation will be provided as it becomes available.
@@ -12,7 +12,7 @@ xAPI statements creation plugin.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "rails-xapi", git: "https://github.com/Hipjea/rails-xapi"
+gem "rails-xapi", git: "https://github.com/fondation-unit/rails-xapi"
 ```
 
 And then execute:
