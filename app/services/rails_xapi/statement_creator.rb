@@ -9,7 +9,7 @@ class RailsXapi::StatementCreator < ApplicationService
 
   def self.create(data, actor = {}, opts = {})
     statement = RailsXapi::StatementCreator.new(data, actor, opts).prepare_statement
-    # Use a job for asynchronous calls.
+    # Use a job for asynchronous calls
     return RailsXapi::CreateStatementJob.perform_now(statement) if opts[:async]
 
     statement.save
