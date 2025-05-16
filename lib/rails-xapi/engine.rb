@@ -10,6 +10,14 @@ module RailsXapi
       end
     end
 
+    initializer :load_factories, after: "factory_bot.set_factory_paths" do
+      if defined?(FactoryBot) && !Rails.env.production?
+        FactoryBot.definition_file_paths.prepend(
+          File.join(RailsXapi::Engine.root, "spec", "factories")
+        )
+      end
+    end
+
     config.before_configuration do
       RailsXapi.configuration ||= RailsXapi::Configuration.new
     end
