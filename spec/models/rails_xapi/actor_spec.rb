@@ -9,12 +9,12 @@ describe RailsXapi::Actor do
   let(:group) { build(:actor, :group) }
   let(:group_with_members) { build(:actor, :group_with_members) }
 
-  it "should be valid" do
-    expect(mbox_actor.valid?).to be_truthy
-    expect(complete_actor.valid?).to be_truthy
+  it "is valid" do
+    expect(mbox_actor).to be_valid
+    expect(complete_actor).to be_valid
   end
 
-  it "should be missing the actor inverse functional identifier (IFI)" do
+  it "misses the actor inverse functional identifier (IFI)" do
     expect { base_actor.save }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
       expect(error.message).to eq I18n.t(
@@ -23,20 +23,20 @@ describe RailsXapi::Actor do
     end
   end
 
-  it "should build an actor from data" do
-    actor = RailsXapi::Actor.build_actor_from_data(complete_actor.attributes)
+  it "builds an actor from data" do
+    actor = described_class.build_actor_from_data(complete_actor.attributes)
 
-    expect(actor.valid?).to be_truthy
+    expect(actor).to be_valid
     expect(actor.to_hash[:objectType]).to eq("Agent")
   end
 
-  it "should create a group" do
-    expect(group.valid?).to be_truthy
+  it "creates a group" do
+    expect(group).to be_valid
     expect(group.to_hash[:objectType]).to eq("Group")
   end
 
-  it "should create group members" do
-    expect(group_with_members.valid?).to be_truthy
+  it "creates group members" do
+    expect(group_with_members).to be_valid
     expect(group_with_members.to_hash[:objectType]).to eq("Group")
   end
 end

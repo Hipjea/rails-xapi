@@ -22,10 +22,6 @@ FactoryBot.define do
       timestamp { Time.zone.now }
     end
 
-    trait :invalid_object_type do
-      object_type { "Rogue" }
-    end
-
     trait :with_activity_definition do
       definition do
         {
