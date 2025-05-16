@@ -13,7 +13,7 @@ class RailsXapi::ContextActivity < ApplicationRecord
             }
 
   def as_json
-    { id: object_id, objectType: activity_type }.tap do |hash|
+    { id: object_id, objectType: object&.object_type }.tap do |hash|
       hash[
         :definition
       ] = object&.definition&.as_json if object&.definition.present?

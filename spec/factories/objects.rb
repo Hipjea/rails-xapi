@@ -1,6 +1,8 @@
 FactoryBot.define do
   factory :object, class: "RailsXapi::Object" do
     sequence(:id) { |n| "/object/#{n}" }
+    object_type { "Activity" }
+    definition { nil }
 
     trait :activity do
       id { "substatement-activity" }
@@ -51,6 +53,20 @@ FactoryBot.define do
           },
           extensions:
             "http://example.com/profiles/meetings/activitydefinitionextensions/room"
+        }
+      end
+    end
+
+    trait :with_definition do
+      definition do
+        {
+          name: {
+            "en-US" => "default name"
+          },
+          description: {
+            "en-US" => "default description"
+          },
+          activity_type: "http://example.com/expapi/activities/default"
         }
       end
     end
