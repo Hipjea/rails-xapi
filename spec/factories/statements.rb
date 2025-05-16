@@ -23,5 +23,9 @@ FactoryBot.define do
         statement.context.statement_ref = statement
       end
     end
+
+    trait :without_actor do
+      actor { nil }
+    end
   end
 end
