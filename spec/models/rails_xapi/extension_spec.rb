@@ -3,28 +3,17 @@
 require "rails_helper"
 
 describe RailsXapi::Extension do
-  it "should validate prensence of attributes" do
-    extension = RailsXapi::Extension.new({ iri: nil, value: nil })
+  let(:extension) { build(:extension) }
+  let(:empty_extension) { build(:extension, iri: nil, value: nil) }
 
-    expect { extension.save! }.to raise_error do |error|
-      expect(error.to_s.include?("Iri can't be blank")).to be_truthy
-      expect(error.to_s.include?("Value can't be blank")).to be_truthy
+  it "validates prensence of attributes" do
+    expect { empty_extension.save! }.to raise_error do |error|
+      expect(error.to_s).to include("Iri can't be blank")
+      expect(error.to_s).to include("Value can't be blank")
     end
   end
 
-  it "should produce a valid as_json value" do
-    extension =
-      RailsXapi::Extension.new(
-        {
-          iri:
-            "http://example.com/profiles/meetings/activitydefinitionextensions/room",
-          value: {
-            name: "Kilby",
-            id: "http://example.com/rooms/342"
-          }
-        }
-      )
-
+  it "produces a valid as_json value" do
     expect(extension.as_json).to eq(
       {
         "http://example.com/profiles/meetings/activitydefinitionextensions/room" => {

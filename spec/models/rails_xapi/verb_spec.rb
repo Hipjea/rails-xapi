@@ -18,10 +18,12 @@ describe RailsXapi::Verb do
 
     expect { verb.save! }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t(
-           "rails_xapi.errors.definition_description_invalid_keys",
-           values: "e"
-         )
+      error_msg =
+        I18n.t(
+          "rails_xapi.errors.definition_description_invalid_keys",
+          values: "e"
+        )
+      expect(error.message).to eq(error_msg)
     end
   end
 
@@ -45,9 +47,8 @@ describe RailsXapi::Verb do
 
     expect { verb.save! }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t(
-           "rails_xapi.errors.missing_verb_display"
-         )
+      error_msg = I18n.t("rails_xapi.errors.missing_verb_display")
+      expect(error.message).to eq(error_msg)
     end
   end
 end
