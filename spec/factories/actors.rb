@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :actor, class: 'RailsXapi::Actor' do
+  factory :actor, class: "RailsXapi::Actor" do
     name { "Actor 1" }
 
     trait :mbox do
@@ -8,12 +8,12 @@ FactoryBot.define do
 
     trait :complete do
       mbox_sha1sum { "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52" }
-      account {
+      account do
         RailsXapi::Account.new(
           name: "Actor#1",
           homePage: "http://example.com/actor/1"
         )
-      }
+      end
       openid { "http://example.com/object/Actor#1" }
     end
 
@@ -25,14 +25,15 @@ FactoryBot.define do
 
     trait :group_with_members do
       group
-      member {
+      member do
         [
           RailsXapi::Actor.new(
             name: "Andrew Downes",
-            account: RailsXapi::Account.new(
-              homePage: "http://www.example.com",
-              name: "13936749"
-            ),
+            account:
+              RailsXapi::Account.new(
+                homePage: "http://www.example.com",
+                name: "13936749"
+              ),
             object_type: "Agent"
           ),
           RailsXapi::Actor.new(
@@ -46,7 +47,7 @@ FactoryBot.define do
             object_type: "Agent"
           )
         ]
-      }
+      end
     end
   end
 end

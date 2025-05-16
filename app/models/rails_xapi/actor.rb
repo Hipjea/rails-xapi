@@ -6,7 +6,7 @@ class RailsXapi::Actor < ApplicationRecord
   require "uri"
   include Serializable
 
-  OBJECT_TYPES = ["Agent", "Group"]
+  OBJECT_TYPES = %w[Agent Group]
 
   attr_accessor :objectType, :member
 
@@ -15,7 +15,11 @@ class RailsXapi::Actor < ApplicationRecord
   has_many :members, class_name: "RailsXapi::GroupMember", dependent: :destroy
 
   validates :object_type, presence: true
-  validate :validate_actor_ifi_presence, :validate_mbox, :validate_mbox_sha1sum, :validate_object_type, :validate_openid
+  validate :validate_actor_ifi_presence,
+           :validate_mbox,
+           :validate_mbox_sha1sum,
+           :validate_object_type,
+           :validate_openid
 
   after_initialize :set_defaults
   before_validation :normalize_actor
@@ -39,11 +43,17 @@ class RailsXapi::Actor < ApplicationRecord
   def self.by_iri_or_create(data)
     data = handle_account_data(data)
 
-    actor = find_or_create_by(mbox: data[:mbox], mbox_sha1sum: data[:mbox_sha1sum], openid: data[:openid]) do |a|
-      a.attributes = data
-    end
+    actor =
+      find_or_create_by(
+        mbox: data[:mbox],
+        mbox_sha1sum: data[:mbox_sha1sum],
+        openid: data[:openid]
+      ) { |a| a.attributes = data }
 
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_actor") unless actor.valid?
+    unless actor.valid?
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.invalid_actor")
+    end
 
     actor
   end
@@ -67,7 +77,8 @@ class RailsXapi::Actor < ApplicationRecord
 
   def set_defaults
     # We need to match the camel case notation from JSON data.
-    self.object_type = objectType.presence || object_type.presence || OBJECT_TYPES.first
+    self.object_type =
+      objectType.presence || object_type.presence || OBJECT_TYPES.first
     self.member = member.presence || nil
   end
 
@@ -83,10 +94,14 @@ class RailsXapi::Actor < ApplicationRecord
     self.object_type = object_type.presence || OBJECT_TYPES.first
 
     if name.present?
-      self.name = name.gsub(Serializable::LATIN_LETTERS_REGEX, "")
-        .to_s
-        .humanize
-        .gsub(/\b('?[#{Serializable::LATIN_LETTERS}])/o) { Regexp.last_match(1).capitalize }
+      self.name =
+        name
+          .gsub(Serializable::LATIN_LETTERS_REGEX, "")
+          .to_s
+          .humanize
+          .gsub(/\b('?[#{Serializable::LATIN_LETTERS}])/o) do
+            Regexp.last_match(1).capitalize
+          end
     end
 
     self.mbox = mbox.strip.downcase if mbox.present?
@@ -98,9 +113,10 @@ class RailsXapi::Actor < ApplicationRecord
   # @return [Hash] The actor's data.
   private_class_method def self.handle_account_data(data)
     if (account_data = data[:account]).present?
-      account = RailsXapi::Account.find_or_create_by(home_page: account_data[:homePage]) do |a|
-        a.name = account_data[:name]
-      end
+      account =
+        RailsXapi::Account.find_or_create_by(
+          home_page: account_data[:homePage]
+        ) { |a| a.name = account_data[:name] }
 
       data[:account] = account
       data[:name] ||= account_data[:name]
@@ -110,16 +126,22 @@ class RailsXapi::Actor < ApplicationRecord
   end
 
   def validate_actor_ifi_presence
-    unless mbox.present? || mbox_sha1sum.present? || openid.present? || account.present?
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.actor_ifi_must_be_present")
+    unless mbox.present? || mbox_sha1sum.present? || openid.present? ||
+             account.present?
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.actor_ifi_must_be_present")
     end
   end
 
   def validate_mbox
     return if mbox.blank?
 
-    mbox_valid = mbox.strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.malformed_mbox", name: mbox) unless mbox_valid
+    mbox_valid =
+      mbox.strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
+    unless mbox_valid
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.malformed_mbox", name: mbox)
+    end
 
     true
   end
@@ -127,14 +149,23 @@ class RailsXapi::Actor < ApplicationRecord
   def validate_mbox_sha1sum
     return if mbox_sha1sum.blank?
 
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.malformed_mbox_sha1sum") unless is_sha1?(mbox_sha1sum)
+    unless is_sha1?(mbox_sha1sum)
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.malformed_mbox_sha1sum")
+    end
 
     true
   end
 
   def validate_object_type
     object_type_valid = OBJECT_TYPES.include?(object_type)
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_actor_object_type", name: object_type) unless object_type_valid
+    unless object_type_valid
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.invalid_actor_object_type",
+              name: object_type
+            )
+    end
 
     true
   end
@@ -144,7 +175,10 @@ class RailsXapi::Actor < ApplicationRecord
 
     uri = URI.parse(openid)
     is_valid_openid_uri = uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.malformed_openid_uri", uri: openid) unless is_valid_openid_uri
+    unless is_valid_openid_uri
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.malformed_openid_uri", uri: openid)
+    end
 
     true
   end
@@ -164,13 +198,17 @@ class RailsXapi::Actor < ApplicationRecord
     # We should end the function here when we create a group without members (ex: a team in the context object).
     return if member.blank?
 
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.failed_to_create_group_members") if id.blank?
+    if id.blank?
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.failed_to_create_group_members")
+    end
 
     member.each do |m|
       new_actor = RailsXapi::Actor.by_iri_or_create(m)
       RailsXapi::GroupMember.create(group_id: id, actor_id: new_actor.id)
     rescue => _
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.failed_to_create_member", member: m)
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.failed_to_create_member", member: m)
     end
   end
 end

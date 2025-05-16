@@ -53,37 +53,42 @@ describe RailsXapi::Context do
   end
 
   it "should be a valid as_json" do
-    context = RailsXapi::Context.new(
-      contextActivities: @context_activities,
-      statement: {
-        objectType: "StatementRef",
-        id: @statement.id
+    context =
+      RailsXapi::Context.new(
+        contextActivities: @context_activities,
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        }
+      )
+
+    statement =
+      RailsXapi::Statement.new(@default_statement.merge(context: context))
+
+    expect(statement.context.as_json).to eq(
+      {
+        contextActivities: [
+          {
+            id: "http://www.example.com/meetings/series/1",
+            objectType: "parent"
+          },
+          {
+            id: "http://www.example.com/meetings/series/2",
+            objectType: "parent"
+          },
+          {
+            definition: {
+              description:
+                "{\"en-US\":\"A category of meeting used for regular team meetings.\"}",
+              name: "{\"en-US\":\"team meeting\"}",
+              type: "http://example.com/expapi/activities/meetingcategory"
+            },
+            id: "http://www.example.com/meetings/categories/teammeeting",
+            objectType: "category"
+          }
+        ]
       }
     )
-
-    statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
-
-    expect(statement.context.as_json).to eq({
-      contextActivities: [
-        {
-          id: "http://www.example.com/meetings/series/1",
-          objectType: "parent"
-        },
-        {
-          id: "http://www.example.com/meetings/series/2",
-          objectType: "parent"
-        },
-        {
-          definition: {
-            description: "{\"en-US\":\"A category of meeting used for regular team meetings.\"}",
-            name: "{\"en-US\":\"team meeting\"}",
-            type: "http://example.com/expapi/activities/meetingcategory"
-          },
-          id: "http://www.example.com/meetings/categories/teammeeting",
-          objectType: "category"
-        }
-      ]
-    })
 
     expect(statement.context[:statement_ref]).to eq(@statement.id)
     expect(statement.context.statement).to eq(statement)
@@ -111,111 +116,132 @@ describe RailsXapi::Context do
   end
 
   it "should link to a statement" do
-    context = RailsXapi::Context.new(statement: {
-      objectType: "StatementRef",
-      id: @statement.id
-    })
+    context =
+      RailsXapi::Context.new(
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        }
+      )
 
-    new_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    new_statement =
+      RailsXapi::Statement.new(@default_statement.merge(context: context))
 
     expect(new_statement.context[:statement_ref]).to eq(@statement.id)
     expect(new_statement.context.statement).to eq(new_statement)
   end
 
   it "should create context activities" do
-    context = RailsXapi::Context.new(
-      contextActivities: @context_activities,
-      statement: {
-        objectType: "StatementRef",
-        id: @statement.id
-      }
-    )
+    context =
+      RailsXapi::Context.new(
+        contextActivities: @context_activities,
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        }
+      )
 
-    new_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    new_statement =
+      RailsXapi::Statement.new(@default_statement.merge(context: context))
     new_statement.save!
 
     expect(new_statement.valid?).to be_truthy
     expect(new_statement.context.context_activities).to_not be_empty
     new_statement.context.context_activities.each do |ca|
       expect(ca.object).to_not be_nil if ca.object.object_type == "Activity"
-      expect(ca.object.definition).to_not be_nil if ca.activity_type == "category"
+      if ca.activity_type == "category"
+        expect(ca.object.definition).to_not be_nil
+      end
     end
   end
 
   it "should update the object when the context activity already exists" do
-    context = RailsXapi::Context.new(
-      contextActivities: @context_activities,
-      statement: {
-        objectType: "StatementRef",
-        id: @statement.id
-      }
-    )
+    context =
+      RailsXapi::Context.new(
+        contextActivities: @context_activities,
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        }
+      )
 
-    new_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    new_statement =
+      RailsXapi::Statement.new(@default_statement.merge(context: context))
     new_statement.save!
 
     expect(new_statement.valid?).to be_truthy
 
-    context_activity_object_id = "http://www.example.com/meetings/categories/teammeeting"
-    context = RailsXapi::Context.new(
-      contextActivities: {
-        category: [
-          {
-            id: context_activity_object_id,
-            objectType: "Activity",
-            definition: {
-              name: {
-                "en-US" => "team meeting updated"
-              },
-              description: {
-                "en-US" => "A category of meeting used for regular team meetings."
-              },
-              type: "http://example.com/expapi/activities/meetingcategory/updated"
+    context_activity_object_id =
+      "http://www.example.com/meetings/categories/teammeeting"
+    context =
+      RailsXapi::Context.new(
+        contextActivities: {
+          category: [
+            {
+              id: context_activity_object_id,
+              objectType: "Activity",
+              definition: {
+                name: {
+                  "en-US" => "team meeting updated"
+                },
+                description: {
+                  "en-US" =>
+                    "A category of meeting used for regular team meetings."
+                },
+                type:
+                  "http://example.com/expapi/activities/meetingcategory/updated"
+              }
             }
-          }
-        ]
-      },
-      statement: {
-        objectType: "StatementRef",
-        id: @statement.id
-      }
-    )
+          ]
+        },
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        }
+      )
 
-    updated_statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    updated_statement =
+      RailsXapi::Statement.new(@default_statement.merge(context: context))
     updated_statement.save!
 
     expect(updated_statement.valid?).to be_truthy
     updated_statement.context.context_activities.each do |ca|
       if ca.object_id == context_activity_object_id
-        expect(ca.object.definition.name).to eq({"en-US" => "team meeting updated"}.to_json)
-        expect(ca.object.definition.activity_type).to eq("http://example.com/expapi/activities/meetingcategory/updated")
+        expect(ca.object.definition.name).to eq(
+          { "en-US" => "team meeting updated" }.to_json
+        )
+        expect(ca.object.definition.activity_type).to eq(
+          "http://example.com/expapi/activities/meetingcategory/updated"
+        )
       end
     end
   end
 
   it "should create a context activity with extensions" do
-    context = RailsXapi::Context.new(
-      contextActivities: {
-        parent: [
-          {
-            id: "http://www.example.com/meetings/series/1",
-            objectType: "Activity"
+    context =
+      RailsXapi::Context.new(
+        contextActivities: {
+          parent: [
+            {
+              id: "http://www.example.com/meetings/series/1",
+              objectType: "Activity"
+            }
+          ]
+        },
+        extensions: {
+          "http://example.com/profiles/meetings/activitydefinitionextensions/room": {
+            name: "Kilby",
+            id: "http://example.com/rooms/342"
           }
-        ]
-      },
-      extensions: {
-        "http://example.com/profiles/meetings/activitydefinitionextensions/room": {
-          name: "Kilby",
-          id: "http://example.com/rooms/342"
+        },
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
         }
-      },
-      statement: {
-        objectType: "StatementRef",
-        id: @statement.id
-      }
-    )
+      )
 
-    statement = RailsXapi::Statement.new(@default_statement.merge(context: context))
+    statement =
+      RailsXapi::Statement.new(@default_statement.merge(context: context))
     statement.save!
 
     expect(statement.valid?).to be_truthy
@@ -232,7 +258,8 @@ describe RailsXapi::Context do
           }
         ]
       },
-      extensions: "http://example.com/profiles/meetings/activitydefinitionextensions/room",
+      extensions:
+        "http://example.com/profiles/meetings/activitydefinitionextensions/room",
       statement: {
         objectType: "StatementRef",
         id: @statement.id
@@ -241,18 +268,22 @@ describe RailsXapi::Context do
 
     expect { RailsXapi::Context.new(context) }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.attribute_must_be_a_hash",
+           name: "extensions"
+         )
     end
   end
 
   it "should set platform property if statement object is Activity" do
-    context = RailsXapi::Context.new(
-      statement: {
-        objectType: "StatementRef",
-        id: @statement.id
-      },
-      platform: "platform-placeholder"
-    )
+    context =
+      RailsXapi::Context.new(
+        statement: {
+          objectType: "StatementRef",
+          id: @statement.id
+        },
+        platform: "platform-placeholder"
+      )
 
     expect(context.platform).to_not be_nil
   end
@@ -261,17 +292,21 @@ describe RailsXapi::Context do
     statement_struct = {
       actor: RailsXapi::Actor.new(@actor),
       verb: @verb,
-      object: RailsXapi::Object.new({
-        objectType: "StatementRef",
-        id: "9e13cefd-53d3-4eac-b5ed-2cf6693903bb"
-      }),
-      context: RailsXapi::Context.new(
-        statement: {
-          objectType: "StatementRef",
-          id: @statement.id
-        },
-        platform: "platform-placeholder"
-      )
+      object:
+        RailsXapi::Object.new(
+          {
+            objectType: "StatementRef",
+            id: "9e13cefd-53d3-4eac-b5ed-2cf6693903bb"
+          }
+        ),
+      context:
+        RailsXapi::Context.new(
+          statement: {
+            objectType: "StatementRef",
+            id: @statement.id
+          },
+          platform: "platform-placeholder"
+        )
     }
 
     statement = RailsXapi::Statement.new(statement_struct)

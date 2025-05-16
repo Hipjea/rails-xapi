@@ -26,7 +26,11 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
 
   def extensions=(extensions_data)
     unless extensions_data.is_a?(Hash)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.attribute_must_be_a_hash",
+              name: "extensions"
+            )
     end
 
     # Find any existing extension for the given activity definition.
@@ -41,11 +45,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   end
 
   def as_json
-    {
-      name: name,
-      description: description,
-      type: activity_type
-    }.tap do |hash|
+    { name: name, description: description, type: activity_type }.tap do |hash|
       hash[:extensions] = extensions.as_json if extensions.present?
       hash[:moreInfo] = more_info if more_info.present?
     end
@@ -60,7 +60,11 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     begin
       value = JSON.parse(value.to_s.gsub("=>", ":"))
     rescue JSON::ParserError => _
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_valid_language_map", name: attribute)
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.attribute_must_be_a_valid_language_map",
+              name: attribute
+            )
     end
 
     self[attribute] = value.to_json

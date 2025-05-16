@@ -1,29 +1,12 @@
 {
-  "editor.detectIndentation": false,
-  "editor.insertSpaces": true,
-  "editor.tabSize": 2,
-  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[scss]": {
-    "editor.tabSize": 2,
-    "editor.insertSpaces": true
-  },
-  "[sass]": {
-    "editor.tabSize": 2,
-    "editor.insertSpaces": true
-  },
   "[ruby]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "Shopify.ruby-lsp"
-  }
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.semanticHighlighting.enabled": true
+  },
+  "task.autoDetect": "off",
+  "rubyLsp.formatter": "syntax_tree"
 }

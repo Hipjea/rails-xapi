@@ -10,7 +10,12 @@ class RailsXapi::Verb < ApplicationRecord
 
   before_validation :set_display
 
-  validates :id, presence: true, format: {with: /\A\w+:\/\/\S+\z/, message: I18n.t("rails_xapi.errors.must_be_a_valid_iri")}
+  validates :id,
+            presence: true,
+            format: {
+              with: %r{\A\w+://\S+\z},
+              message: I18n.t("rails_xapi.errors.must_be_a_valid_iri")
+            }
   validate :language_map_validation
 
   # Constants representing a mapping of xAPI activity verbs.
@@ -55,7 +60,8 @@ class RailsXapi::Verb < ApplicationRecord
     "http://activitystrea.ms/schema/1.0/experience" => "experienced",
     "http://activitystrea.ms/schema/1.0/favorite" => "favorited",
     "http://activitystrea.ms/schema/1.0/find" => "found",
-    "http://activitystrea.ms/schema/1.0/flag-as-inappropriate" => "flagged as inappropriate",
+    "http://activitystrea.ms/schema/1.0/flag-as-inappropriate" =>
+      "flagged as inappropriate",
     "http://activitystrea.ms/schema/1.0/follow" => "followed",
     "http://activitystrea.ms/schema/1.0/give" => "gave",
     "http://activitystrea.ms/schema/1.0/host" => "hosted",
@@ -155,7 +161,8 @@ class RailsXapi::Verb < ApplicationRecord
     "http://id.tincanapi.com/verb/downloaded" => "downloaded",
     "http://id.tincanapi.com/verb/earned" => "earned",
     "http://id.tincanapi.com/verb/enabled" => "enabled",
-    "http://id.tincanapi.com/verb/estimated-duration" => "estimated the duration",
+    "http://id.tincanapi.com/verb/estimated-duration" =>
+      "estimated the duration",
     "http://id.tincanapi.com/verb/expected" => "expected",
     "http://id.tincanapi.com/verb/expired" => "expired",
     "http://id.tincanapi.com/verb/focused" => "focused",
@@ -182,22 +189,27 @@ class RailsXapi::Verb < ApplicationRecord
     "http://id.tincanapi.com/verb/selected" => "selected",
     "http://id.tincanapi.com/verb/skipped" => "skipped",
     "http://id.tincanapi.com/verb/talked-with" => "talked",
-    "http://id.tincanapi.com/verb/terminated-employment-with" => "terminated employment with",
+    "http://id.tincanapi.com/verb/terminated-employment-with" =>
+      "terminated employment with",
     "http://id.tincanapi.com/verb/tweeted" => "tweeted",
     "http://id.tincanapi.com/verb/unfocused" => "unfocused",
     "http://id.tincanapi.com/verb/unregistered" => "unregistered",
     "http://id.tincanapi.com/verb/viewed" => "viewed",
     "http://id.tincanapi.com/verb/voted-down" => "down voted",
     "http://id.tincanapi.com/verb/voted-up" => "up voted",
-    "http://id.tincanapi.com/verb/was-assigned-job-title" => "was assigned job title",
+    "http://id.tincanapi.com/verb/was-assigned-job-title" =>
+      "was assigned job title",
     "http://id.tincanapi.com/verb/was-hired-by" => "was hired by",
     "http://risc-inc.com/annotator/verbs/annotated" => "annotated",
     "http://risc-inc.com/annotator/verbs/modified" => "modified annotation",
-    "http://specification.openbadges.org/xapi/verbs/earned" => "earned an Open Badge",
+    "http://specification.openbadges.org/xapi/verbs/earned" =>
+      "earned an Open Badge",
     "http://www.digital-knowledge.co.jp/tincanapi/verbs/drew" => "drew",
-    "http://www.tincanapi.co.uk/pages/verbs.html#cancelled_planned_learning" => "cancelled planned learning",
+    "http://www.tincanapi.co.uk/pages/verbs.html#cancelled_planned_learning" =>
+      "cancelled planned learning",
     "http://www.tincanapi.co.uk/pages/verbs.html#planned_learning" => "planned",
-    "http://www.tincanapi.co.uk/verbs/enrolled_onto_learning_plan" => "enrolled onto learning plan",
+    "http://www.tincanapi.co.uk/verbs/enrolled_onto_learning_plan" =>
+      "enrolled onto learning plan",
     "http://www.tincanapi.co.uk/verbs/evaluated" => "evaluated",
     "https://brindlewaye.com/xAPITerms/verbs/added/" => "added",
     "https://brindlewaye.com/xAPITerms/verbs/loggedin/" => "log in",
@@ -217,10 +229,7 @@ class RailsXapi::Verb < ApplicationRecord
   end
 
   def as_json
-    {
-      id: id,
-      display: display
-    }.compact
+    { id: id, display: display }.compact
   end
 
   private
@@ -231,11 +240,10 @@ class RailsXapi::Verb < ApplicationRecord
       self.display = JSON.parse(display.gsub("=>", ":")).to_json
     elsif VERBS_LIST.key?(id)
       verb_list_id = VERBS_LIST[id]
-      self.display = {
-        "en-US": verb_list_id
-      }.to_json
+      self.display = { "en-US": verb_list_id }.to_json
     else
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.missing_verb_display")
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.missing_verb_display")
     end
   end
 end

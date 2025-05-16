@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :statement, class: 'RailsXapi::Statement' do
+  factory :statement, class: "RailsXapi::Statement" do
     association :actor
     association :verb
     association :object
