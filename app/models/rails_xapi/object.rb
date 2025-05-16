@@ -65,7 +65,7 @@ class RailsXapi::Object < ApplicationRecord
   private
 
   def set_defaults
-    self.object_type = objectType.presence || "Activity"
+    self.object_type ||= objectType.presence || "Activity"
 
     if new_record? && object_type == "SubStatement"
       self.actor = actor

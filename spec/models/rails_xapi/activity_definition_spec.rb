@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-describe RailsXapi::Object do
+describe RailsXapi::ActivityDefinition do
   include_context "statement"
 
   it "should be valid" do
