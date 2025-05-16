@@ -5,7 +5,7 @@ require "rails_helper"
 describe RailsXapi::ActivityDefinition do
   include_context "statement"
 
-  it "should be valid" do
+  it "is valid" do
     local_object =
       RailsXapi::Object.new(
         {
@@ -41,7 +41,7 @@ describe RailsXapi::ActivityDefinition do
     )
   end
 
-  it "should raise an exception" do
+  it "raises an exception" do
     local_object =
       RailsXapi::Object.new(
         {
