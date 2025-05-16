@@ -3,22 +3,18 @@
 require "rails_helper"
 
 describe RailsXapi::Verb do
-  before :each do
-    RailsXapi::Verb.delete_all
+  let(:verb) { build(:verb) }
 
-    @base_verb = { id: RailsXapi::Verb::VERBS_LIST.keys[0] }
+  it "is valid" do
+    verb_data = verb.attributes.merge(display: { "en-US" => "Example" })
+    verb = described_class.new(verb_data)
+
+    expect(verb).to be_valid
   end
 
-  it "should be valid" do
-    verb_data = @base_verb.merge(display: { "en-US" => "Example" })
-    verb = RailsXapi::Verb.new(verb_data)
-
-    expect(verb.valid?).to be_truthy
-  end
-
-  it "should not be valid with an incorrect language map key" do
-    verb_data = @base_verb.merge(display: { "e" => "Example" })
-    verb = RailsXapi::Verb.new(verb_data)
+  it "is not valid with an incorrect language map key" do
+    verb_data = verb.attributes.merge(display: { "e" => "Example" })
+    verb = described_class.new(verb_data)
 
     expect { verb.save! }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
@@ -29,22 +25,22 @@ describe RailsXapi::Verb do
     end
   end
 
-  it "should automatically set the display value" do
-    verb = RailsXapi::Verb.new(@base_verb)
+  it "sets the display value automatically" do
     verb.save!
 
-    expect(verb.display).to_not be_nil
+    expect(verb.display).not_to be_nil
   end
 
-  it "should display the correct hash value" do
-    verb = RailsXapi::Verb.new(@base_verb)
-    verb.save!
+  it "displays the correct hash value" do
+    verb = create(:verb)
+    expected_value = RailsXapi::Verb::VERBS_LIST[verb.id]
 
-    expect(verb.to_locale).to eq(RailsXapi::Verb::VERBS_LIST.values[0])
+    expect(expected_value).not_to be_nil
+    expect(verb.to_locale).to eq(expected_value)
   end
 
-  it "should raise an exception if no display value" do
-    verb = RailsXapi::Verb.new(id: "http://example.com/verbs/not-in-the-list")
+  it "raises an exception if no display value" do
+    verb = described_class.new(id: "http://example.com/verbs/not-in-the-list")
     verb.display = nil
 
     expect { verb.save! }.to raise_error do |error|
