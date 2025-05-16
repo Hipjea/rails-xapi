@@ -7,8 +7,11 @@ class RailsXapi::Context < ApplicationRecord
 
   belongs_to :instructor, class_name: "RailsXapi::Actor", optional: true
   belongs_to :team, class_name: "RailsXapi::Actor", optional: true
-  belongs_to :statement_ref, class_name: "RailsXapi::Statement", optional: true
   belongs_to :statement, class_name: "RailsXapi::Statement", dependent: :destroy
+  belongs_to :statement_ref,
+             class_name: "RailsXapi::Statement",
+             foreign_key: :statement_ref,
+             optional: true
   has_many :context_activities, dependent: :destroy
   has_many :extensions, as: :extendable, dependent: :destroy
 
@@ -57,8 +60,10 @@ class RailsXapi::Context < ApplicationRecord
   # RailsXapi::Context needs a setter to save the "statement" data. However, it also
   # belongs to a RailsXapi::Statement. Therefore, we use the attribute :statement_ref.
   def statement=(value)
+    return unless value.is_a?(Hash) && value[:objectType] == "StatementRef"
+
     id = value[:id]
-    return if id.nil? || value[:objectType] != "StatementRef"
+    return if id.nil?
 
     statement_row = RailsXapi::Statement.find_by(id: id)
     self[:statement_ref] = statement_row.id if statement_row&.id.present?
@@ -83,12 +88,18 @@ class RailsXapi::Context < ApplicationRecord
     context_attributes[:registration] = registration if registration.present?
     context_attributes[:instructor] = instructor if instructor.present?
     context_attributes[:team] = team if team.present?
-    context_attributes[
-      :contextActivities
-    ] = context_activities.as_json if context_activities.present?
+
+    if context_activities.present?
+      grouped = context_activities.group_by(&:activity_type)
+      # convert string keys to symbols
+      context_attributes[:contextActivities] = grouped
+        .transform_keys(&:to_sym)
+        .transform_values { |activities| activities.map(&:as_json) }
+    end
+
     context_attributes[
       :statement
-    ] = statement_ref.as_json if statement_ref.present?
+    ] = statement_ref.id if statement_ref&.id.present?
 
     context_attributes
   end
@@ -120,7 +131,12 @@ class RailsXapi::Context < ApplicationRecord
   # The "platform" property MUST only be used if the Statement's Object is an Activity.
   # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#requirements-10
   def validate_platform
-    self[:platform] = nil if !statement&.object&.activity?
+    ref_statement =
+      statement_ref ? RailsXapi::Statement.find_by(id: statement_ref) : nil
+
+    ref_statement ||= statement_ref
+
+    self[:platform] = nil if !ref_statement&.object&.activity?
   end
 end
 
