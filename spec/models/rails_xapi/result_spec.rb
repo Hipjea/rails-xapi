@@ -5,29 +5,34 @@ require "rails_helper"
 describe RailsXapi::Result do
   before :all do
     @verb = RailsXapi::Verb.new(id: RailsXapi::Verb::VERBS_LIST.keys[0])
-    @actor = RailsXapi::Actor.new(name: "Actor 1", openid: "http://example.com/object/Actor#1")
+    @actor =
+      RailsXapi::Actor.new(
+        name: "Actor 1",
+        openid: "http://example.com/object/Actor#1"
+      )
     @object = RailsXapi::Object.new(id: "/object/1")
-    @default_statement = {verb: @verb, object: @object, actor: @actor}
+    @default_statement = { verb: @verb, object: @object, actor: @actor }
   end
 
   it "should be valid" do
-    result = RailsXapi::Result.new(
-      score: {
-        score_scaled: 0.5,
-        raw: 50,
-        min: 1,
-        max: 100
-      },
-      response: "The actor 1 answered",
-      success: true,
-      completion: "false",
-      duration: "PT4H35M59.14S",
-      extensions: {
-        "http://example.com/extension/1": "empty",
-        "http://example.com/extension/2": "also empty"
-      },
-      statement: RailsXapi::Statement.new(@default_statement)
-    )
+    result =
+      RailsXapi::Result.new(
+        score: {
+          score_scaled: 0.5,
+          raw: 50,
+          min: 1,
+          max: 100
+        },
+        response: "The actor 1 answered",
+        success: true,
+        completion: "false",
+        duration: "PT4H35M59.14S",
+        extensions: {
+          "http://example.com/extension/1": "empty",
+          "http://example.com/extension/2": "also empty"
+        },
+        statement: RailsXapi::Statement.new(@default_statement)
+      )
 
     expect(result.valid?).to be_truthy
     expect(result.score[:scaled]).to eq(0.5)
@@ -48,20 +53,27 @@ describe RailsXapi::Result do
 
     expect { RailsXapi::Result.new(result) }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.raw"))
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.invalid_score_value",
+           value: I18n.t("rails_xapi.validations.score.raw")
+         )
     end
   end
 
   it "should not be valid with an incorrect duration string" do
-    result = RailsXapi::Result.new(
-      duration: "IncorrectDuration",
-      statement: RailsXapi::Statement.new(@default_statement)
-    )
+    result =
+      RailsXapi::Result.new(
+        duration: "IncorrectDuration",
+        statement: RailsXapi::Statement.new(@default_statement)
+      )
 
     expect { result.valid? }.to raise_error do |error|
-      expect(error).to be_a(ActiveSupport::Duration::ISO8601Parser::ParsingError)
-      expect(error.message).to eq 'Invalid ISO 8601 duration: "IncorrectDuration"'
+      expect(error).to be_a(
+        ActiveSupport::Duration::ISO8601Parser::ParsingError
+      )
+      expect(
+        error.message
+      ).to eq 'Invalid ISO 8601 duration: "IncorrectDuration"'
     end
   end
 
@@ -78,8 +90,10 @@ describe RailsXapi::Result do
 
     expect { RailsXapi::Result.new(result) }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.scaled"))
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.invalid_score_value",
+           value: I18n.t("rails_xapi.validations.score.scaled")
+         )
     end
   end
 
@@ -94,8 +108,10 @@ describe RailsXapi::Result do
 
     expect { RailsXapi::Result.new(result) }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.min"))
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.invalid_score_value",
+           value: I18n.t("rails_xapi.validations.score.min")
+         )
     end
   end
 
@@ -114,10 +130,11 @@ describe RailsXapi::Result do
   end
 
   it "should set the duration in iso8601 from seconds" do
-    result = RailsXapi::Result.new(
-      duration_in_seconds: 120,
-      statement: RailsXapi::Statement.new(@default_statement)
-    )
+    result =
+      RailsXapi::Result.new(
+        duration_in_seconds: 120,
+        statement: RailsXapi::Statement.new(@default_statement)
+      )
 
     expect(result.valid?).to be_truthy
     expect(result.duration).to eq("PT2M")
@@ -131,7 +148,10 @@ describe RailsXapi::Result do
 
     expect { RailsXapi::Result.new(result) }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.attribute_must_be_a_hash",
+           name: "extensions"
+         )
     end
   end
 end

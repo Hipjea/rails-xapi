@@ -9,7 +9,7 @@ class RailsXapi::Extension < ApplicationRecord
   validates :value, presence: true
 
   def as_json
-    {iri => value}.compact
+    { iri => value }.compact
   end
 end
 

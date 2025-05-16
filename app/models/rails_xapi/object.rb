@@ -4,16 +4,24 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object
 # The Object of a Statement can be an Activity, Agent/Group, SubStatement, or Statement Reference.
 class RailsXapi::Object < ApplicationRecord
-  OBJECT_TYPES = ["Activity", "Agent", "Group", "SubStatement", "StatementRef"]
+  OBJECT_TYPES = %w[Activity Agent Group SubStatement StatementRef]
 
-  attr_accessor :objectType, :actor, :verb, :object, :result, :context, :timestamp
+  attr_accessor :objectType,
+                :actor,
+                :verb,
+                :object,
+                :result,
+                :context,
+                :timestamp
 
-  has_one :definition, class_name: "RailsXapi::ActivityDefinition", dependent: :destroy
+  has_one :definition,
+          class_name: "RailsXapi::ActivityDefinition",
+          dependent: :destroy
   has_many :statements, class_name: "RailsXapi::Statement", dependent: :nullify
   belongs_to :statement, class_name: "RailsXapi::Statement", optional: true
 
   validates :id, presence: true
-  validates :object_type, presence: true, inclusion: {in: OBJECT_TYPES}
+  validates :object_type, presence: true, inclusion: { in: OBJECT_TYPES }
   validates :statement, presence: true, if: -> { object_type == "SubStatement" }
   validates :actor, presence: true, if: -> { object_type == "SubStatement" }
   validates :object, presence: true, if: -> { object_type == "SubStatement" }
@@ -54,10 +62,7 @@ class RailsXapi::Object < ApplicationRecord
   end
 
   def as_json
-    {
-      id: id,
-      objectType: object_type
-    }.tap do |hash|
+    { id: id, objectType: object_type }.tap do |hash|
       hash[:definition] = definition.as_json if definition.present?
     end
   end
@@ -90,26 +95,28 @@ class RailsXapi::Object < ApplicationRecord
     substatement_result = create_result
     substatement_context = create_context
 
-    self.statement = RailsXapi::Statement.create!(
-      actor: substatement_actor,
-      verb: substatement_verb,
-      object: substatement_object,
-      result: substatement_result,
-      context: substatement_context,
-      timestamp: timestamp
-    )
+    self.statement =
+      RailsXapi::Statement.create!(
+        actor: substatement_actor,
+        verb: substatement_verb,
+        object: substatement_object,
+        result: substatement_result,
+        context: substatement_context,
+        timestamp: timestamp
+      )
   end
 
   def create_or_find_actor
-    raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.missing_actor") if actor.blank?
+    if actor.blank?
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.missing_actor")
+    end
 
     RailsXapi::Actor.by_iri_or_create(actor)
   end
 
   def create_or_find_verb
-    RailsXapi::Verb.find_or_create_by(id: verb[:id]) do |v|
-      v.attributes = verb
-    end
+    RailsXapi::Verb.find_or_create_by(id: verb[:id]) { |v| v.attributes = verb }
   end
 
   def create_or_find_object

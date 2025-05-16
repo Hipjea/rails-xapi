@@ -6,31 +6,26 @@ describe RailsXapi::Verb do
   before :each do
     RailsXapi::Verb.delete_all
 
-    @base_verb = {id: RailsXapi::Verb::VERBS_LIST.keys[0]}
+    @base_verb = { id: RailsXapi::Verb::VERBS_LIST.keys[0] }
   end
 
   it "should be valid" do
-    verb_data = @base_verb.merge(
-      display: {
-        "en-US" => "Example"
-      }
-    )
+    verb_data = @base_verb.merge(display: { "en-US" => "Example" })
     verb = RailsXapi::Verb.new(verb_data)
 
     expect(verb.valid?).to be_truthy
   end
 
   it "should not be valid with an incorrect language map key" do
-    verb_data = @base_verb.merge(
-      display: {
-        "e" => "Example"
-      }
-    )
+    verb_data = @base_verb.merge(display: { "e" => "Example" })
     verb = RailsXapi::Verb.new(verb_data)
 
     expect { verb.save! }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.definition_description_invalid_keys", values: "e")
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.definition_description_invalid_keys",
+           values: "e"
+         )
     end
   end
 
@@ -54,7 +49,9 @@ describe RailsXapi::Verb do
 
     expect { verb.save! }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.missing_verb_display")
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.missing_verb_display"
+         )
     end
   end
 end

@@ -8,11 +8,7 @@ module Serializable
 
   included do
     def serialized_value(data)
-      if data.is_a?(Hash)
-        data.to_json
-      else
-        data.to_s
-      end
+      data.is_a?(Hash) ? data.to_json : data.to_s
     end
   end
 end

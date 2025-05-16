@@ -9,14 +9,19 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     }
 
     @statement = {
-      verb: {id: RailsXapi::Verb::VERBS_LIST.keys[0]},
-      object: {id: "/object/1"}
+      verb: {
+        id: RailsXapi::Verb::VERBS_LIST.keys[0]
+      },
+      object: {
+        id: "/object/1"
+      }
     }
   end
 
   describe "statement creator" do
     it "should create a statement with an actor merged into the data parameter" do
-      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
+      result =
+        RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -34,9 +39,9 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     end
 
     it "should create a statement through an asynchronous call to the service" do
-      expect { RailsXapi::StatementCreator.create(@statement, @actor, {async: true}) }.to change {
-        RailsXapi::Statement.count
-      }.by(1)
+      expect {
+        RailsXapi::StatementCreator.create(@statement, @actor, { async: true })
+      }.to change { RailsXapi::Statement.count }.by(1)
     end
 
     it "should create a statement with a given @actor instance variable" do
@@ -50,7 +55,8 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
     end
 
     it "should set a timestamp when omitted" do
-      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
+      result =
+        RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -59,7 +65,10 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
 
     it "should accept a timestamp value when given" do
       current_time = Time.zone.now - 2.hours
-      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor, timestamp: current_time))
+      result =
+        RailsXapi::StatementCreator.create(
+          @statement.merge(actor: @actor, timestamp: current_time)
+        )
       status, statement = result.values_at(:status, :statement)
 
       expect(status).to eq(200)
@@ -70,7 +79,8 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
   describe "complex statements" do
     it "should create a complex xAPI statement" do
       # Save the statement to be able to get its ID within "context".
-      result = RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
+      result =
+        RailsXapi::StatementCreator.create(@statement.merge(actor: @actor))
       _, statement_ref = result.values_at(:status, :statement)
 
       statement_hash = {
@@ -106,9 +116,12 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
               "fr-FR" => "réunion d'exemple"
             },
             description: {
-              "en-GB" => "An example meeting that happened on a specific occasion with certain people present.",
-              "en-US" => "An example meeting that happened on a specific occasion with certain people present.",
-              "fr-FR" => "Une réunion qui a eu lieu avec certaines personnes lors d'une occasion spéciale."
+              "en-GB" =>
+                "An example meeting that happened on a specific occasion with certain people present.",
+              "en-US" =>
+                "An example meeting that happened on a specific occasion with certain people present.",
+              "fr-FR" =>
+                "Une réunion qui a eu lieu avec certaines personnes lors d'une occasion spéciale."
             },
             type: "http://adlnet.gov/expapi/activities/meeting",
             moreInfo: "http://virtualmeeting.example.com/345256"
@@ -136,7 +149,8 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
                     "en-US" => "team meeting"
                   },
                   description: {
-                    "en-US" => "A category of meeting used for regular team meetings."
+                    "en-US" =>
+                      "A category of meeting used for regular team meetings."
                   },
                   type: "http://example.com/expapi/activities/meetingcategory"
                 }
@@ -160,8 +174,12 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
       expect(statement.actor.account.is_a?(RailsXapi::Account)).to be_truthy
       expect(statement.verb.is_a?(RailsXapi::Verb)).to be_truthy
       expect(statement.object.is_a?(RailsXapi::Object)).to be_truthy
-      expect(statement.object.definition.is_a?(RailsXapi::ActivityDefinition)).to be_truthy
-      expect(statement.object.definition.extensions).to all(be_a(RailsXapi::Extension))
+      expect(
+        statement.object.definition.is_a?(RailsXapi::ActivityDefinition)
+      ).to be_truthy
+      expect(statement.object.definition.extensions).to all(
+        be_a(RailsXapi::Extension)
+      )
     end
   end
 end

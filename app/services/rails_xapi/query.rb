@@ -15,7 +15,8 @@ class RailsXapi::Query < ApplicationService
     if respond_to?(@query, true)
       send(@query, *@args)
     else
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.query_not_available")
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.query_not_available")
     end
   end
 
@@ -24,7 +25,7 @@ class RailsXapi::Query < ApplicationService
   # @param id [Integer] The ID of the statement
   # @return [RailsXapi::Statement] The statement record
   def statement(id)
-    RailsXapi::Statement.includes([:actor, :verb, :object, :context, :result]).find(id)
+    RailsXapi::Statement.includes(%i[actor verb object context result]).find(id)
   end
 
   # Get a hash of all statements concerning the actors emails and object_id.
@@ -34,14 +35,18 @@ class RailsXapi::Query < ApplicationService
   # @return [ActiveRecord::Relation] Statements matching criteria
   # @raise [ArgumentError] If no emails provided
   def statements_by_actor_emails_and_object_id(object_id, actor_emails = [])
-    raise ArgumentError, I18n.t("rails_xapi.errors.malformed_email") unless actor_emails.any?
-
-    mailto_emails = actor_emails.map do |email|
-      email.start_with?("mailto:") ? email : "mailto:#{email}"
+    unless actor_emails.any?
+      raise ArgumentError, I18n.t("rails_xapi.errors.malformed_email")
     end
 
-    RailsXapi::Statement.includes([:actor, {actor: :account}, :verb, :object, :context, :result])
-      .where(actor: {mbox: mailto_emails}, object: {id: object_id})
+    mailto_emails =
+      actor_emails.map do |email|
+        email.start_with?("mailto:") ? email : "mailto:#{email}"
+      end
+
+    RailsXapi::Statement.includes(
+      [:actor, { actor: :account }, :verb, :object, :context, :result]
+    ).where(actor: { mbox: mailto_emails }, object: { id: object_id })
   end
 
   # Get a list of all unique verb_id values
@@ -72,10 +77,15 @@ class RailsXapi::Query < ApplicationService
   # @raise [ArgumentError] If email format is invalid
   def actor_by_email(actor_email)
     unless actor_email.match?(/\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
-      raise ArgumentError, I18n.t("rails_xapi.errors.malformed_email", name: actor_email)
+      raise ArgumentError,
+            I18n.t("rails_xapi.errors.malformed_email", name: actor_email)
     end
 
-    RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {mbox: "mailto:#{actor_email}"})
+    RailsXapi::Statement.includes(%i[actor verb object]).where(
+      actor: {
+        mbox: "mailto:#{actor_email}"
+      }
+    )
   end
 
   # Query statements by actor's mbox
@@ -84,11 +94,18 @@ class RailsXapi::Query < ApplicationService
   # @return [ActiveRecord::Relation] Statements for this mbox
   # @raise [ArgumentError] If mbox format is invalid
   def actor_by_mbox(actor_mbox)
-    unless actor_mbox.match?(/\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
-      raise ArgumentError, I18n.t("rails_xapi.errors.malformed_mbox", name: actor_mbox)
+    unless actor_mbox.match?(
+             /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
+           )
+      raise ArgumentError,
+            I18n.t("rails_xapi.errors.malformed_mbox", name: actor_mbox)
     end
 
-    RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {mbox: actor_mbox})
+    RailsXapi::Statement.includes(%i[actor verb object]).where(
+      actor: {
+        mbox: actor_mbox
+      }
+    )
   end
 
   # Query statements by actor's account homepage
@@ -96,7 +113,13 @@ class RailsXapi::Query < ApplicationService
   # @param actor_account_homepage [String] Account homepage URL
   # @return [ActiveRecord::Relation] Statements for this account
   def actor_by_account_homepage(actor_account_homepage)
-    RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {account: {home_page: actor_account_homepage}})
+    RailsXapi::Statement.includes(%i[actor verb object]).where(
+      actor: {
+        account: {
+          home_page: actor_account_homepage
+        }
+      }
+    )
   end
 
   # Query statements by actor's openid
@@ -104,7 +127,11 @@ class RailsXapi::Query < ApplicationService
   # @param actor_openid [String] The openID
   # @return [ActiveRecord::Relation] Statements for this openID
   def actor_by_openid(actor_openid)
-    RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {openid: actor_openid})
+    RailsXapi::Statement.includes(%i[actor verb object]).where(
+      actor: {
+        openid: actor_openid
+      }
+    )
   end
 
   # Query statements by actor's mbox_sha1sum
@@ -112,7 +139,11 @@ class RailsXapi::Query < ApplicationService
   # @param actor_mbox_sha1sum [String] SHA1 hash of actor's mbox
   # @return [ActiveRecord::Relation] Statements for this mbox_sha1sum identifier
   def actor_by_mbox_sha1sum(actor_mbox_sha1sum)
-    RailsXapi::Statement.includes([:actor, :verb, :object]).where(actor: {mbox_sha1sum: actor_mbox_sha1sum})
+    RailsXapi::Statement.includes(%i[actor verb object]).where(
+      actor: {
+        mbox_sha1sum: actor_mbox_sha1sum
+      }
+    )
   end
 
   # Query statements by actor's identifier per month
@@ -122,13 +153,29 @@ class RailsXapi::Query < ApplicationService
   # @param month [Integer] Month (defaults to current)
   # @return [ActiveRecord::Relation] Statements in the given month
   # @raise [ArgumentError] If identifier is empty
-  def user_statements_per_month(actor_identifier = {}, year = Date.current.year, month = Date.current.month)
-    raise ArgumentError, I18n.t("rails_xapi.errors.exactly_one_actor_identifier_must_be_provided") if actor_identifier.first.empty?
+  def user_statements_per_month(
+    actor_identifier = {},
+    year = Date.current.year,
+    month = Date.current.month
+  )
+    if actor_identifier.first.empty?
+      raise ArgumentError,
+            I18n.t(
+              "rails_xapi.errors.exactly_one_actor_identifier_must_be_provided"
+            )
+    end
 
     identifier_key, identifier_value = actor_identifier.first
-    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
-    RailsXapi::Statement.joins(:actor)
-      .where(actor: {identifier_key => identifier_value}, created_at: start_date..end_date)
+    start_date, end_date =
+      self.class.send(:generate_start_date_end_date, year, month)
+    RailsXapi::Statement
+      .joins(:actor)
+      .where(
+        actor: {
+          identifier_key => identifier_value
+        },
+        created_at: start_date..end_date
+      )
       .group(:id)
   end
 
@@ -139,29 +186,38 @@ class RailsXapi::Query < ApplicationService
   # @param month [Integer] Month for filtering
   # @return [ActiveRecord::Relation] Grouped statements by date
   def per_month(resources, year = Date.current.year, month = Date.current.month)
-    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
-    resources.where("rails_xapi_statements.created_at": start_date..end_date)
-      .group("DATE(rails_xapi_statements.created_at)")
+    start_date, end_date =
+      self.class.send(:generate_start_date_end_date, year, month)
+    resources.where(
+      "rails_xapi_statements.created_at": start_date..end_date
+    ).group("DATE(rails_xapi_statements.created_at)")
   end
 
   # @param data [Array<RailsXapi::Statement>] Statement list
   # @param year [Integer] Year for generating the range
   # @param month [Integer] Month for generating the range
   # @return [Array<Hash>] Array of date/count pairs
-  def month_graph_data(statements, year = Date.current.year, month = Date.current.month)
-    start_date, end_date = self.class.send(:generate_start_date_end_date, year, month)
+  def month_graph_data(
+    statements,
+    year = Date.current.year,
+    month = Date.current.month
+  )
+    start_date, end_date =
+      self.class.send(:generate_start_date_end_date, year, month)
     month_dates = (start_date..end_date).to_a
 
     # Create a hash with default value 0 for each date of the current month
     complete_data = month_dates.index_with { 0 }
 
     # Transform data to count occurrences for each date
-    data_by_date = statements.group_by { |statement| statement.created_at.to_date }
-      .transform_values(&:count)
+    data_by_date =
+      statements
+        .group_by { |statement| statement.created_at.to_date }
+        .transform_values(&:count)
 
     # Merge the existing data with the complete data and format
-    complete_data.merge(data_by_date).map do |date, count|
-      {date: date.strftime("%Y-%m-%d"), value: count}
-    end
+    complete_data
+      .merge(data_by_date)
+      .map { |date, count| { date: date.strftime("%Y-%m-%d"), value: count } }
   end
 end

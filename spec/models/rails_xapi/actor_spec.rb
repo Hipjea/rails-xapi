@@ -17,7 +17,9 @@ describe RailsXapi::Actor do
   it "should be missing the actor inverse functional identifier (IFI)" do
     expect { base_actor.save }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
-      expect(error.message).to eq I18n.t("rails_xapi.errors.actor_ifi_must_be_present")
+      expect(error.message).to eq I18n.t(
+           "rails_xapi.errors.actor_ifi_must_be_present"
+         )
     end
   end
 

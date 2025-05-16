@@ -4,7 +4,9 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "dummy/config/environment"
 
 # Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
+if Rails.env.production?
+  abort("The Rails environment is running in production mode!")
+end
 require "rspec/rails"
 
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -34,7 +36,8 @@ require_relative "shared/statement"
 ENGINE_ROOT = File.join(File.dirname(__FILE__), "../")
 
 begin
-  ActiveRecord::Migrator.migrations_paths = File.join(ENGINE_ROOT, "spec/dummy/db/migrate")
+  ActiveRecord::Migrator.migrations_paths =
+    File.join(ENGINE_ROOT, "spec/dummy/db/migrate")
   ActiveRecord::Migration.maintain_test_schema!
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
@@ -42,9 +45,7 @@ end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_paths = [
-    Rails.root.join("spec/fixtures")
-  ]
+  config.fixture_paths = [Rails.root.join("spec/fixtures")]
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
@@ -73,10 +74,8 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
-  
+
   config.include FactoryBot::Syntax::Methods
 
-  config.before(:each) do
-    FactoryBot.rewind_sequences
-  end
+  config.before(:each) { FactoryBot.rewind_sequences }
 end

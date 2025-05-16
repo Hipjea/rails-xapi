@@ -6,14 +6,17 @@ class RailsXapi::ContextActivity < ApplicationRecord
   belongs_to :context, class_name: "RailsXapi::Context"
   belongs_to :object, class_name: "RailsXapi::Object"
 
-  validates :activity_type, presence: true, inclusion: {in: ["parent", "grouping", "category", "other"]}
+  validates :activity_type,
+            presence: true,
+            inclusion: {
+              in: %w[parent grouping category other]
+            }
 
   def as_json
-    {
-      id: object_id,
-      objectType: activity_type
-    }.tap do |hash|
-      hash[:definition] = object&.definition&.as_json if object&.definition.present?
+    { id: object_id, objectType: activity_type }.tap do |hash|
+      hash[
+        :definition
+      ] = object&.definition&.as_json if object&.definition.present?
     end
   end
 end

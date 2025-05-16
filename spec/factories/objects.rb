@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :object, class: 'RailsXapi::Object' do
+  factory :object, class: "RailsXapi::Object" do
     sequence(:id) { |n| "/object/#{n}" }
 
     trait :activity do
@@ -9,24 +9,16 @@ FactoryBot.define do
 
     trait :substatement do
       object_type { "SubStatement" }
-      actor {
-        {
-          name: "Actor 1",
-          mbox: "mailto:actor@localhost.com"
-        }
-      }
-      verb {
+      actor { { name: "Actor 1", mbox: "mailto:actor@localhost.com" } }
+      verb do
         {
           id: RailsXapi::Verb::VERBS_LIST.keys.sample,
-          display: { "en-US" => "completed" }
+          display: {
+            "en-US" => "completed"
+          }
         }
-      }
-      object {
-        {
-          id: "/object/#{rand(1000)}",
-          objectType: "Activity"
-        }
-      }
+      end
+      object { { id: "/object/#{rand(1000)}", objectType: "Activity" } }
       timestamp { Time.zone.now }
     end
 
@@ -35,29 +27,36 @@ FactoryBot.define do
     end
 
     trait :with_activity_definition do
-      definition {
+      definition do
         {
-          name: {"en-US" => "object definition"},
-          description: {"en" => "Object definition"},
+          name: {
+            "en-US" => "object definition"
+          },
+          description: {
+            "en" => "Object definition"
+          },
           type: "Activity",
           extensions: {
             "http://example.com/profiles/meetings/activitydefinitionextensions/room": {
-              "name": "Kilby",
-              "id": "http://example.com/rooms/342"
+              name: "Kilby",
+              id: "http://example.com/rooms/342"
             }
           },
           moreInfo: "http://example.com/more_infos"
         }
-      }
+      end
     end
 
     trait :with_invalid_activity_definition do
-      definition {
+      definition do
         {
-          name: {"en-US" => "object definition"},
-          extensions: "http://example.com/profiles/meetings/activitydefinitionextensions/room"
+          name: {
+            "en-US" => "object definition"
+          },
+          extensions:
+            "http://example.com/profiles/meetings/activitydefinitionextensions/room"
         }
-      }
+      end
     end
   end
 end
