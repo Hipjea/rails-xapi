@@ -1,24 +1,17 @@
 require "rails_helper"
 
 RSpec.describe RailsXapi::Query, type: :service do
-  include_context "statement"
-
-  before :each do
-    @statement_1 =
-      RailsXapi::StatementCreator.create(
-        build_statement(actor_num: 1, verb_index: 0)
-      )
-    @statement_2 =
-      RailsXapi::StatementCreator.create(
-        build_statement(actor_num: 2, verb_index: 1)
-      )
-    @statement_3 =
-      RailsXapi::StatementCreator.create(
-        build_statement(actor_num: 3, verb_index: 2)
-      )
-  end
-
   describe "methods" do
+    # Create 3 statements using the first 3 verb IDs
+    RailsXapi::Verb::VERBS_LIST
+      .keys
+      .first(3)
+      .each_with_index do |verb_id, i|
+        let!("statement#{i + 1}".to_sym) do
+          create(:statement, verb: build(:verb, id: verb_id))
+        end
+      end
+
     it "describes query verb_ids" do
       verb_ids = RailsXapi::Verb::VERBS_LIST.keys.first(3)
 
@@ -28,7 +21,7 @@ RSpec.describe RailsXapi::Query, type: :service do
     end
 
     it "describes query verb_displays" do
-      # Get the VERBS_LIST display values and convert them into the expected JSON value.s
+      # Get the VERBS_LIST display values and convert them into the expected JSON values
       verb_displays =
         RailsXapi::Verb::VERBS_LIST
           .values
