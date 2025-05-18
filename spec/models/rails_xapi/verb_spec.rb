@@ -16,14 +16,13 @@ describe RailsXapi::Verb do
     verb_data = verb.attributes.merge(display: { "e" => "Example" })
     verb = described_class.new(verb_data)
 
-    expect { verb.save! }.to raise_error do |error|
-      expect(error).to be_a(RailsXapi::Errors::XapiError)
-      error_msg =
+    expect { verb.save! }.to raise_error(ActiveRecord::RecordInvalid) do |error|
+      expect(error.record.errors[:display]).to include(
         I18n.t(
           "rails_xapi.errors.definition_description_invalid_keys",
           values: "e"
         )
-      expect(error.message).to eq(error_msg)
+      )
     end
   end
 

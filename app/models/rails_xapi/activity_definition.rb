@@ -4,23 +4,28 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#activity-definition
 class RailsXapi::ActivityDefinition < ApplicationRecord
   include Serializable
-  include LanguageMap
   include RailsXapi::ApplicationHelper
 
   belongs_to :object, class_name: "RailsXapi::Object"
   has_many :extensions, as: :extendable, dependent: :destroy
 
   before_validation :set_name, :set_description
-  validate :language_map_validation
+  validates_with RailsXapi::Validators::LanguageMapValidator,
+                 attributes: %i[description]
+
+  def type
+    # Virtual attribute to bypass the Single Table Inheritance keyword.
+    activity_type
+  end
 
   def type=(value)
-    # We store the `type` attribute into `activity_type` column to avoid
+    # Store the `type` attribute into `activity_type` column to avoid
     # reserved key-words issues.
     self.activity_type = value
   end
 
   def moreInfo=(value)
-    # We need to match the camel case notation from JSON data.
+    # Match the camel case notation from JSON data.
     self.more_info = value
   end
 

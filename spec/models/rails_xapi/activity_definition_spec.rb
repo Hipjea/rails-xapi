@@ -4,6 +4,10 @@ require "rails_helper"
 
 describe RailsXapi::ActivityDefinition do
   let(:statement) { build(:statement) }
+  let(:definition_with_type) { build(:activity_definition, :with_type) }
+  let(:definition_with_invalid_description) do
+    build(:activity_definition, :with_invalid_description)
+  end
 
   it "is valid" do
     statement.object.definition = {
@@ -50,6 +54,21 @@ describe RailsXapi::ActivityDefinition do
            name: "description"
          )
     end
+  end
+
+  it "sets the type attribute" do
+    expect(definition_with_type.activity_type).not_to be_nil
+    expect(definition_with_type.type).not_to be_nil
+  end
+
+  it "is not valid with an incorrect description language map key" do
+    expect { definition_with_invalid_description.valid? }.to raise_error(
+      RailsXapi::Errors::XapiError,
+      I18n.t(
+        "rails_xapi.errors.attribute_must_be_a_valid_language_map",
+        name: :description
+      )
+    )
   end
 end
 

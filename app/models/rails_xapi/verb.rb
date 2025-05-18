@@ -4,8 +4,6 @@
 # The systems reading the statements must use the verb IRI to infer meaning.
 # See : https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb
 class RailsXapi::Verb < ApplicationRecord
-  include LanguageMap
-
   has_many :statements, class_name: "RailsXapi::Statement", dependent: :nullify
 
   before_validation :set_display
@@ -16,7 +14,8 @@ class RailsXapi::Verb < ApplicationRecord
               with: %r{\A\w+://\S+\z},
               message: I18n.t("rails_xapi.errors.must_be_a_valid_iri")
             }
-  validate :language_map_validation
+  validates_with RailsXapi::Validators::LanguageMapValidator,
+                 attributes: %i[display description]
 
   # Constants representing a mapping of xAPI activity verbs.
   #
