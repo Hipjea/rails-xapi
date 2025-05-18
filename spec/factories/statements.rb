@@ -27,5 +27,9 @@ FactoryBot.define do
     trait :without_actor do
       actor { nil }
     end
+
+    trait :with_substatement do
+      object { :substatement }
+    end
   end
 end

@@ -3,8 +3,6 @@
 require "rails_helper"
 
 RSpec.describe RailsXapi::Statement, type: :model do
-  include_context "statement"
-
   describe "validations" do
     before do
       described_class.delete_all
@@ -16,33 +14,9 @@ RSpec.describe RailsXapi::Statement, type: :model do
     let(:invalid_actor) { build(:actor) }
     let(:actor) { build(:actor, :mbox) }
     let(:verb) { build(:verb) }
-
+    let(:substatement_object) { build(:object, :substatement) }
     let(:account) do
       build(:account, name: "Actor#1", homePage: "http://example.com/actor1")
-    end
-
-    let(:substatement_object) do
-      build(
-        :object,
-        objectType: "SubStatement",
-        actor:
-          build(
-            :actor,
-            objectType: "Agent",
-            name: "Example Admin",
-            mbox: "mailto:admin@example.com"
-          ),
-        verb:
-          build(
-            :verb,
-            id: "http://adlnet.gov/expapi/verbs/voided",
-            display: {
-              "en-US" => "voided"
-            }
-          ),
-        object:
-          build(:object, objectType: "Activity", id: "substatement-activity")
-      )
     end
 
     it "is valid with default statement and substatement" do
