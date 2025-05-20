@@ -21,6 +21,7 @@ describe RailsXapi::Object do
     expect(substatement_object.object_type).to eq("SubStatement")
     expect(substatement_object).to be_valid
     expect(substatement_object.statement).not_to be_nil
+    expect(substatement_object.activity?).to be_falsy
   end
 
   it "is not valid with an invalid object_type" do

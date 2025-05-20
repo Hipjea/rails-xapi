@@ -15,7 +15,7 @@ class RailsXapi::Verb < ApplicationRecord
               message: I18n.t("rails_xapi.errors.must_be_a_valid_iri")
             }
   validates_with RailsXapi::Validators::LanguageMapValidator,
-                 attributes: %i[display description]
+                 attributes: %i[display]
 
   # Constants representing a mapping of xAPI activity verbs.
   #

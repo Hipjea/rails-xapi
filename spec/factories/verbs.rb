@@ -5,5 +5,9 @@ FactoryBot.define do
 
   factory :verb, class: "RailsXapi::Verb" do
     id { generate(:verb_key) }
+
+    trait :with_invalid_display do
+      display { "en-US" }
+    end
   end
 end

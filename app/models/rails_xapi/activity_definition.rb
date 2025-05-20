@@ -11,7 +11,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
 
   before_validation :set_name, :set_description
   validates_with RailsXapi::Validators::LanguageMapValidator,
-                 attributes: %i[description]
+                 attributes: %i[name description]
 
   def type
     # Virtual attribute to bypass the Single Table Inheritance keyword.
