@@ -11,6 +11,7 @@ FactoryBot.define do
         "http://example.com/extension/2": "also empty"
       }
     end
+
     association :statement
   end
 end

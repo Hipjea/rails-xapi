@@ -15,9 +15,6 @@ RSpec.describe RailsXapi::Statement, type: :model do
     let(:actor) { build(:actor, :mbox) }
     let(:verb) { build(:verb) }
     let(:substatement_object) { build(:object, :substatement) }
-    let(:account) do
-      build(:account, name: "Actor#1", homePage: "http://example.com/actor1")
-    end
 
     it "is valid with default statement and substatement" do
       default_statement = build(:statement)
