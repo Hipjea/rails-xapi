@@ -41,6 +41,11 @@ module RailsXapi
             return
           end
 
+        unless data_hash.is_a?(Hash)
+          raise RailsXapi::Errors::XapiError,
+                I18n.t("rails_xapi.errors.expected_hash", type: data_hash.class)
+        end
+
         invalid_keys =
           data_hash.keys.reject { |key| key.match?(LANGUAGE_MAP_REGEX) }
 

@@ -24,6 +24,16 @@ describe RailsXapi::Verb do
         )
       )
     end
+
+    # Send an incorrect data type as display value
+    verb_data = verb.attributes.merge(display: 1)
+    verb = described_class.new(verb_data)
+
+    expect { verb.save! }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      error_msg = I18n.t("rails_xapi.errors.expected_hash", type: Integer)
+      expect(error.message).to eq(error_msg)
+    end
   end
 
   it "sets the display value automatically" do
