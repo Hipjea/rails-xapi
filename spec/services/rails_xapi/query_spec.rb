@@ -42,4 +42,40 @@ RSpec.describe RailsXapi::Query, type: :service do
       expect(RailsXapi::Query.call(query: :verbs)).to contain_exactly(*verbs)
     end
   end
+
+  describe "statement" do
+    let(:actor) { create(:actor, :mbox) }
+    let(:verb) { create(:verb) }
+    let(:object) { create(:object) }
+    let(:result) { create(:result) }
+
+    let(:statement_record) do
+      create(
+        :statement,
+        :with_context,
+        actor: actor,
+        verb: verb,
+        object: object,
+        result: result
+      )
+    end
+
+    it "returns the statement with all included associations" do
+      statement =
+        RailsXapi::Query.call(query: :statement, args: statement_record&.id)
+
+      expect(statement).to eq(statement_record)
+      expect(statement.association(:actor)).to be_loaded
+      expect(statement.association(:verb)).to be_loaded
+      expect(statement.association(:object)).to be_loaded
+      expect(statement.association(:context)).to be_loaded
+      expect(statement.association(:result)).to be_loaded
+    end
+
+    it "raises ActiveRecord::RecordNotFound if the ID does not exist" do
+      expect {
+        RailsXapi::Query.call(query: :statement, args: -1)
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end
