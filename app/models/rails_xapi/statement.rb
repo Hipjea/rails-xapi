@@ -13,6 +13,10 @@ class RailsXapi::Statement < ApplicationRecord
   validate :verb_valid
   validate :object_valid
 
+  default_scope do
+    includes([:actor, { actor: :account }, :verb, :object, :context, :result])
+  end
+
   def as_json
     {
       actor: actor.as_json,

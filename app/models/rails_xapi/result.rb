@@ -11,7 +11,12 @@ class RailsXapi::Result < ApplicationRecord
 
   attr_reader :duration_in_seconds
 
-  validates :score_scaled, numericality: {greater_than_or_equal_to: -1, less_than_or_equal_to: 1}, allow_nil: true
+  validates :score_scaled,
+            numericality: {
+              greater_than_or_equal_to: -1,
+              less_than_or_equal_to: 1
+            },
+            allow_nil: true
   validate :completion_attribute_must_be_boolean, if: -> { completion.present? }
   validate :success_attribute_must_be_boolean, if: -> { success.present? }
   validate :correct_duration, if: -> { duration.present? }
@@ -44,12 +49,17 @@ class RailsXapi::Result < ApplicationRecord
   #
   # @param [String|Number] value The duration in seconds.
   def duration_in_seconds=(value)
-    self.duration = ActiveSupport::Duration.build(value).iso8601 if value.present?
+    self.duration =
+      ActiveSupport::Duration.build(value).iso8601 if value.present?
   end
 
   def extensions=(extensions_data)
     unless extensions_data.is_a?(Hash)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.attribute_must_be_a_hash",
+              name: "extensions"
+            )
     end
 
     extensions_data.each do |iri, data|
@@ -65,21 +75,34 @@ class RailsXapi::Result < ApplicationRecord
   # @param [Hash] value The result's score hash values.
   def validate_score(value)
     if value[:scaled].present? && !value[:scaled]&.between?(-1, 1)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.scaled"))
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.invalid_score_value",
+              value: I18n.t("rails_xapi.validations.score.scaled")
+            )
     end
 
     min_value = value[:min].to_i if value[:min].present?
     max_value = value[:max].to_i if value[:max].present?
 
-    if value[:raw].present? && !value[:raw]&.between?(min_value || -Float::INFINITY, max_value || Float::INFINITY)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.raw"))
+    if value[:raw].present? &&
+         !value[:raw]&.between?(
+           min_value || -Float::INFINITY,
+           max_value || Float::INFINITY
+         )
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.invalid_score_value",
+              value: I18n.t("rails_xapi.validations.score.raw")
+            )
     end
 
     if max_value.present? && min_value && min_value >= max_value
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.validations.score.min"))
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.invalid_score_value",
+              value: I18n.t("rails_xapi.validations.score.min")
+            )
     end
   end
 
@@ -94,15 +117,31 @@ class RailsXapi::Result < ApplicationRecord
 
   def completion_attribute_must_be_boolean
     unless [true, false].include?(completion)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.errors.wrong_attribute_type", name: "completion", value: completion))
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.invalid_score_value",
+              value:
+                I18n.t(
+                  "rails_xapi.errors.wrong_attribute_type",
+                  name: "completion",
+                  value: completion
+                )
+            )
     end
   end
 
   def success_attribute_must_be_boolean
     unless [true, false].include?(success)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.invalid_score_value",
-        value: I18n.t("rails_xapi.errors.wrong_attribute_type", name: "success", value: success))
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.invalid_score_value",
+              value:
+                I18n.t(
+                  "rails_xapi.errors.wrong_attribute_type",
+                  name: "success",
+                  value: success
+                )
+            )
     end
   end
 

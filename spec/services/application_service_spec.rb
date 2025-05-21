@@ -5,13 +5,13 @@ RSpec.describe ApplicationService do
     let(:service_class) do
       Class.new(ApplicationService) do
         def call
-          {status: 200}
+          { status: 200 }
         end
       end
     end
 
     it "instantiates and calls the service" do
-      expect(service_class.call).to eq({status: 200})
+      expect(service_class.call).to eq({ status: 200 })
     end
   end
 
@@ -20,7 +20,8 @@ RSpec.describe ApplicationService do
       year = 2025
       month = 1
 
-      start_date, end_date = ApplicationService.send(:generate_start_date_end_date, year, month)
+      start_date, end_date =
+        ApplicationService.send(:generate_start_date_end_date, year, month)
 
       expect(start_date).to eq(Date.new(2025, 1, 1))
       expect(end_date).to eq(Date.new(2025, 1, 31))

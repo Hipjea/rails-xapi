@@ -4,29 +4,38 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#activity-definition
 class RailsXapi::ActivityDefinition < ApplicationRecord
   include Serializable
-  include LanguageMap
   include RailsXapi::ApplicationHelper
 
   belongs_to :object, class_name: "RailsXapi::Object"
   has_many :extensions, as: :extendable, dependent: :destroy
 
   before_validation :set_name, :set_description
-  validate :language_map_validation
+  validates_with RailsXapi::Validators::LanguageMapValidator,
+                 attributes: %i[name description]
+
+  def type
+    # Virtual attribute to bypass the Single Table Inheritance keyword.
+    activity_type
+  end
 
   def type=(value)
-    # We store the `type` attribute into `activity_type` column to avoid
+    # Store the `type` attribute into `activity_type` column to avoid
     # reserved key-words issues.
     self.activity_type = value
   end
 
   def moreInfo=(value)
-    # We need to match the camel case notation from JSON data.
+    # Match the camel case notation from JSON data.
     self.more_info = value
   end
 
   def extensions=(extensions_data)
     unless extensions_data.is_a?(Hash)
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.attribute_must_be_a_hash",
+              name: "extensions"
+            )
     end
 
     # Find any existing extension for the given activity definition.
@@ -41,11 +50,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   end
 
   def as_json
-    {
-      name: name,
-      description: description,
-      type: activity_type
-    }.tap do |hash|
+    { name: name, description: description, type: activity_type }.tap do |hash|
       hash[:extensions] = extensions.as_json if extensions.present?
       hash[:moreInfo] = more_info if more_info.present?
     end
@@ -60,7 +65,11 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     begin
       value = JSON.parse(value.to_s.gsub("=>", ":"))
     rescue JSON::ParserError => _
-      raise RailsXapi::Errors::XapiError, I18n.t("rails_xapi.errors.attribute_must_be_a_valid_language_map", name: attribute)
+      raise RailsXapi::Errors::XapiError,
+            I18n.t(
+              "rails_xapi.errors.attribute_must_be_a_valid_language_map",
+              name: attribute
+            )
     end
 
     self[attribute] = value.to_json

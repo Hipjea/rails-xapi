@@ -24,8 +24,11 @@ group :development do
 end
 
 group :development, :test do
-  gem "rspec-rails"
+  gem "factory_bot_rails"
   gem "guard-rspec", require: false
+  gem "rspec-rails"
+  gem "rubocop-rails-omakase", require: false
+  gem "syntax_tree"
 end
 
 group :test do
