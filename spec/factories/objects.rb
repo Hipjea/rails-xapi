@@ -33,7 +33,7 @@ FactoryBot.define do
           description: {
             "en" => "Object definition"
           },
-          type: "Activity",
+          type: "http://adlnet.gov/expapi/activities/cmi.interaction",
           extensions: {
             "http://example.com/profiles/meetings/activitydefinitionextensions/room": {
               name: "Kilby",

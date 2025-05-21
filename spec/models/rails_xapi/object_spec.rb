@@ -67,7 +67,7 @@ describe RailsXapi::Object do
         description: {
           "en" => "Object updated definition"
         },
-        type: "Activity"
+        type: "http://adlnet.gov/expapi/activities/cmi.interaction"
       }
     )
 

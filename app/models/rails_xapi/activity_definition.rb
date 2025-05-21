@@ -9,6 +9,13 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   belongs_to :object, class_name: "RailsXapi::Object"
   has_many :extensions, as: :extendable, dependent: :destroy
 
+  validates :activity_type,
+            format: {
+              with: %r{\A\w+://\S+\z},
+              message: I18n.t("rails_xapi.errors.must_be_a_valid_iri")
+            },
+            allow_blank: true
+
   before_validation :set_name, :set_description
   validates_with RailsXapi::Validators::LanguageMapValidator,
                  attributes: %i[name description]
