@@ -58,6 +58,19 @@ class RailsXapi::Actor < ApplicationRecord
     actor
   end
 
+  def validate_mbox
+    return if mbox.blank?
+
+    mbox_valid =
+      mbox.strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
+    unless mbox_valid
+      raise RailsXapi::Errors::XapiError,
+            I18n.t("rails_xapi.errors.malformed_mbox", name: mbox)
+    end
+
+    true
+  end
+
   # Overrides the Hash class method to camelize object_type, according to the xAPI specification.
   # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
   #
@@ -131,19 +144,6 @@ class RailsXapi::Actor < ApplicationRecord
       raise RailsXapi::Errors::XapiError,
             I18n.t("rails_xapi.errors.actor_ifi_must_be_present")
     end
-  end
-
-  def validate_mbox
-    return if mbox.blank?
-
-    mbox_valid =
-      mbox.strip =~ /\Amailto:([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/
-    unless mbox_valid
-      raise RailsXapi::Errors::XapiError,
-            I18n.t("rails_xapi.errors.malformed_mbox", name: mbox)
-    end
-
-    true
   end
 
   def validate_mbox_sha1sum

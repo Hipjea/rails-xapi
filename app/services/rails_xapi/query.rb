@@ -34,14 +34,15 @@ class RailsXapi::Query < ApplicationService
   # @param actor_emails [Array<String>] List of actor emails
   # @return [ActiveRecord::Relation] Statements matching criteria
   # @raise [ArgumentError] If no emails provided
-  def statements_by_actor_emails_and_object_id(object_id, actor_emails = [])
-    unless actor_emails.any?
-      raise ArgumentError, I18n.t("rails_xapi.errors.malformed_email")
+  def statements_by_object_and_actors(object_id, actor_emails = [])
+    if actor_emails.empty?
+      raise ArgumentError, I18n.t("rails_xapi.errors.no_emails_provided")
     end
 
     mailto_emails =
       actor_emails.map do |email|
-        email.start_with?("mailto:") ? email : "mailto:#{email}"
+        # Validate each email using RailsXapi::Actor's validation method
+        email if RailsXapi::Actor.new(mbox: email).validate_mbox
       end
 
     RailsXapi::Statement.includes(

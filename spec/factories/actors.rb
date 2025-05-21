@@ -6,6 +6,10 @@ FactoryBot.define do
       mbox { "mailto:actor@localhost.com" }
     end
 
+    trait :invalid_mbox do
+      mbox { "mailto:actor@localhost.c" }
+    end
+
     trait :complete do
       mbox_sha1sum { "sha1:d35132bd0bfc15ada6f5229002b5288d94a46f52" }
       account do

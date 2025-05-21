@@ -78,4 +78,65 @@ RSpec.describe RailsXapi::Query, type: :service do
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
+
+  describe "statements_by_object_and_actors" do
+    let(:invalid_actor) { build(:actor, :invalid_mbox) }
+    let(:actor) { create(:actor, :mbox) }
+    let(:verb) { create(:verb) }
+    let(:object) { create(:object) }
+    let(:result) { create(:result) }
+
+    let(:statement_record) do
+      create(
+        :statement,
+        :with_context,
+        actor: actor,
+        verb: verb,
+        object: object,
+        result: result
+      )
+    end
+
+    it "raises an error with no emails provided" do
+      expect {
+        RailsXapi::Query.call(
+          query: :statements_by_object_and_actors,
+          args: [object.id, []]
+        )
+      }.to raise_error do |error|
+        expect(error).to be_a(ArgumentError)
+        expect(error.message).to eq I18n.t(
+             "rails_xapi.errors.no_emails_provided"
+           )
+      end
+    end
+
+    it "raises an error with an invalid actor's email" do
+      expect {
+        RailsXapi::Query.call(
+          query: :statements_by_object_and_actors,
+          args: [object.id, [invalid_actor.mbox]]
+        )
+      }.to raise_error do |error|
+        expect(error).to be_a(RailsXapi::Errors::XapiError)
+        expect(error.message).to eq I18n.t(
+             "rails_xapi.errors.malformed_mbox",
+             name: invalid_actor.mbox
+           )
+      end
+    end
+
+    it "returns correct results" do
+      statement_record.save!
+
+      statements =
+        RailsXapi::Query.call(
+          query: :statements_by_object_and_actors,
+          args: [object.id, [actor.mbox]]
+        )
+
+      expect(statements.count).not_to eq(0)
+      expect(statements).to include(statement_record)
+    end
+  end
 end

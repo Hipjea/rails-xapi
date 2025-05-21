@@ -30,6 +30,7 @@ en:
       missing_values_or_invalid_type: "missing values or invalid type %{values}"
       missing_verb_display: "missing verb display"
       must_be_a_valid_iri: "must be a valid IRI"
+      no_emails_provided: "no emails provided"
       query_not_available: "query is not available"
       unexpected_substatement_object_keys: "unexpected substatement object keys: %{keys}"
       value_must_not_be_nil: "value must not be null for the key: %{name}"
