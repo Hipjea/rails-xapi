@@ -4,11 +4,18 @@ require "rails_helper"
 
 describe RailsXapi::ApplicationHelper, type: :helper do
   it "should output the duration in minutes" do
+<<<<<<< HEAD
     result =
       RailsXapi::Result.new(
         duration: "PT1H00M01.00S",
         statement: RailsXapi::Statement.new(@default_statement)
       )
+=======
+    result = RailsXapi::Result.new(
+      duration: "PT1H00M01.00S",
+      statement: RailsXapi::Statement.new(@default_statement)
+    )
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
 
     expect(duration_to_minutes(result.duration)).to eq("60.02")
   end

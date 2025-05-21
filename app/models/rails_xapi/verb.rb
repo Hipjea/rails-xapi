@@ -235,7 +235,7 @@ class RailsXapi::Verb < ApplicationRecord
 
   def set_display
     if display.present?
-      # We need to parse the data as JSON to store it.
+      # Parse the data as JSON to store it
       self.display = JSON.parse(display.gsub("=>", ":")).to_json
     elsif VERBS_LIST.key?(id)
       verb_list_id = VERBS_LIST[id]

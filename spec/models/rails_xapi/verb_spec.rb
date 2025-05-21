@@ -3,6 +3,7 @@
 require "rails_helper"
 
 describe RailsXapi::Verb do
+<<<<<<< HEAD
   let(:verb) { build(:verb) }
 
   it "is valid" do
@@ -52,12 +53,65 @@ describe RailsXapi::Verb do
 
   it "raises an exception if no display value" do
     verb = described_class.new(id: "http://example.com/verbs/not-in-the-list")
+=======
+  before :each do
+    RailsXapi::Verb.delete_all
+
+    @base_verb = {id: RailsXapi::Verb::VERBS_LIST.keys[0]}
+  end
+
+  it "should be valid" do
+    verb_data = @base_verb.merge(
+      display: {
+        "en-US" => "Example"
+      }
+    )
+    verb = RailsXapi::Verb.new(verb_data)
+
+    expect(verb.valid?).to be_truthy
+  end
+
+  it "should not be valid with an incorrect language map key" do
+    verb_data = @base_verb.merge(
+      display: {
+        "e" => "Example"
+      }
+    )
+    verb = RailsXapi::Verb.new(verb_data)
+
+    expect { verb.save! }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.definition_description_invalid_keys", values: "e")
+    end
+  end
+
+  it "should automatically set the display value" do
+    verb = RailsXapi::Verb.new(@base_verb)
+    verb.save!
+
+    expect(verb.display).to_not be_nil
+  end
+
+  it "should display the correct hash value" do
+    verb = RailsXapi::Verb.new(@base_verb)
+    verb.save!
+
+    expect(verb.to_locale).to eq(RailsXapi::Verb::VERBS_LIST.values[0])
+  end
+
+  it "should raise an exception if no display value" do
+    verb = RailsXapi::Verb.new(id: "http://example.com/verbs/not-in-the-list")
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
     verb.display = nil
 
     expect { verb.save! }.to raise_error do |error|
       expect(error).to be_a(RailsXapi::Errors::XapiError)
+<<<<<<< HEAD
       error_msg = I18n.t("rails_xapi.errors.missing_verb_display")
       expect(error.message).to eq(error_msg)
+=======
+      expect(error.message).to eq I18n.t("rails_xapi.errors.missing_verb_display")
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
     end
   end
 end

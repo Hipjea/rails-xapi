@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/Hipjea/rails-xapi"
+<<<<<<< HEAD
   spec.metadata[
     "changelog_uri"
   ] = "https://github.com/Hipjea/rails-xapi/CHANGELOG.md"
@@ -24,6 +25,13 @@ Gem::Specification.new do |spec|
     Dir.chdir(File.expand_path(__dir__)) do
       Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
     end
+=======
+  spec.metadata["changelog_uri"] = "https://github.com/Hipjea/rails-xapi/CHANGELOG.md"
+
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
+    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+  end
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
 
   spec.add_dependency "rails", ">= 7.1.2"
   spec.add_development_dependency "rspec-rails"

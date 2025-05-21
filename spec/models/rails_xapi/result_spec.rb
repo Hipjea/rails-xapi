@@ -3,17 +3,48 @@
 require "rails_helper"
 
 describe RailsXapi::Result do
+<<<<<<< HEAD
   let(:result) { build(:result) }
   let(:statement) { build(:statement) }
 
   it "is valid" do
     expect(result).to be_valid
+=======
+  before :all do
+    @verb = RailsXapi::Verb.new(id: RailsXapi::Verb::VERBS_LIST.keys[0])
+    @actor = RailsXapi::Actor.new(name: "Actor 1", openid: "http://example.com/object/Actor#1")
+    @object = RailsXapi::Object.new(id: "/object/1")
+    @default_statement = {verb: @verb, object: @object, actor: @actor}
+  end
+
+  it "should be valid" do
+    result = RailsXapi::Result.new(
+      score: {
+        score_scaled: 0.5,
+        raw: 50,
+        min: 1,
+        max: 100
+      },
+      response: "The actor 1 answered",
+      success: true,
+      completion: "false",
+      duration: "PT4H35M59.14S",
+      extensions: {
+        "http://example.com/extension/1": "empty",
+        "http://example.com/extension/2": "also empty"
+      },
+      statement: RailsXapi::Statement.new(@default_statement)
+    )
+
+    expect(result.valid?).to be_truthy
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
     expect(result.score[:scaled]).to eq(0.5)
     expect(result.score[:raw]).to eq(50)
     expect(result.score[:min]).to eq(1)
     expect(result.score[:max]).to eq(100)
   end
 
+<<<<<<< HEAD
   it "is not valid with an incorrect score" do
     result = { score: { raw: 1, min: 2, max: 10 }, statement: statement }
 
@@ -41,6 +72,38 @@ describe RailsXapi::Result do
   end
 
   it "is not valid with an incorrect scaled value" do
+=======
+  it "should not be valid with an incorrect score" do
+    result = {
+      score: {
+        raw: 1,
+        min: 2,
+        max: 10
+      },
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
+        value: I18n.t("rails_xapi.validations.score.raw"))
+    end
+  end
+
+  it "should not be valid with an incorrect duration string" do
+    result = RailsXapi::Result.new(
+      duration: "IncorrectDuration",
+      statement: RailsXapi::Statement.new(@default_statement)
+    )
+
+    expect { result.valid? }.to raise_error do |error|
+      expect(error).to be_a(ActiveSupport::Duration::ISO8601Parser::ParsingError)
+      expect(error.message).to eq 'Invalid ISO 8601 duration: "IncorrectDuration"'
+    end
+  end
+
+  it "should not be valid with an incorrect scaled value" do
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
     result = {
       score: {
         raw: 1,
@@ -48,6 +111,7 @@ describe RailsXapi::Result do
         max: 10,
         scaled: -1.1
       },
+<<<<<<< HEAD
       statement: statement
     }
 
@@ -101,6 +165,67 @@ describe RailsXapi::Result do
       error_msg =
         I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
       expect(error.message).to eq(error_msg)
+=======
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
+        value: I18n.t("rails_xapi.validations.score.scaled"))
+    end
+  end
+
+  it "should not be valid with a min value greater than max" do
+    result = {
+      score: {
+        min: 10,
+        max: 2
+      },
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.invalid_score_value",
+        value: I18n.t("rails_xapi.validations.score.min"))
+    end
+  end
+
+  it "should have a boolean completion value" do
+    completion_val = "yes"
+    result = {
+      completion: false,
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    result_object = RailsXapi::Result.new(result)
+    result_object.completion = completion_val
+    result_object.save!
+
+    expect(result_object.completion).to eq(true)
+  end
+
+  it "should set the duration in iso8601 from seconds" do
+    result = RailsXapi::Result.new(
+      duration_in_seconds: 120,
+      statement: RailsXapi::Statement.new(@default_statement)
+    )
+
+    expect(result.valid?).to be_truthy
+    expect(result.duration).to eq("PT2M")
+  end
+
+  it "should not be a valid extension" do
+    result = {
+      extensions: "http://example.com/extension/1",
+      statement: RailsXapi::Statement.new(@default_statement)
+    }
+
+    expect { RailsXapi::Result.new(result) }.to raise_error do |error|
+      expect(error).to be_a(RailsXapi::Errors::XapiError)
+      expect(error.message).to eq I18n.t("rails_xapi.errors.attribute_must_be_a_hash", name: "extensions")
+>>>>>>> 6f951bba9fea07eb45e19bb596af7a54ba23a187
     end
   end
 end
