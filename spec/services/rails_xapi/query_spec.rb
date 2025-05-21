@@ -1,6 +1,23 @@
 require "rails_helper"
 
 RSpec.describe RailsXapi::Query, type: :service do
+  let(:invalid_actor) { build(:actor, :invalid_mbox) }
+  let(:actor) { create(:actor, :mbox) }
+  let(:verb) { create(:verb) }
+  let(:object) { create(:object) }
+  let(:result) { create(:result) }
+
+  let(:statement_record) do
+    create(
+      :statement,
+      :with_context,
+      actor: actor,
+      verb: verb,
+      object: object,
+      result: result
+    )
+  end
+
   describe "methods" do
     # Create 3 statements using the first 3 verb IDs
     RailsXapi::Verb::VERBS_LIST
@@ -44,22 +61,6 @@ RSpec.describe RailsXapi::Query, type: :service do
   end
 
   describe "statement" do
-    let(:actor) { create(:actor, :mbox) }
-    let(:verb) { create(:verb) }
-    let(:object) { create(:object) }
-    let(:result) { create(:result) }
-
-    let(:statement_record) do
-      create(
-        :statement,
-        :with_context,
-        actor: actor,
-        verb: verb,
-        object: object,
-        result: result
-      )
-    end
-
     it "returns the statement with all included associations" do
       statement =
         RailsXapi::Query.call(query: :statement, args: statement_record&.id)
@@ -80,23 +81,6 @@ RSpec.describe RailsXapi::Query, type: :service do
   end
 
   describe "statements_by_object_and_actors" do
-    let(:invalid_actor) { build(:actor, :invalid_mbox) }
-    let(:actor) { create(:actor, :mbox) }
-    let(:verb) { create(:verb) }
-    let(:object) { create(:object) }
-    let(:result) { create(:result) }
-
-    let(:statement_record) do
-      create(
-        :statement,
-        :with_context,
-        actor: actor,
-        verb: verb,
-        object: object,
-        result: result
-      )
-    end
-
     it "raises an error with no emails provided" do
       expect {
         RailsXapi::Query.call(
@@ -141,23 +125,6 @@ RSpec.describe RailsXapi::Query, type: :service do
   end
 
   describe "actor_by_email" do
-    let(:invalid_actor) { build(:actor, :invalid_mbox) }
-    let(:actor) { create(:actor, :mbox) }
-    let(:verb) { create(:verb) }
-    let(:object) { create(:object) }
-    let(:result) { create(:result) }
-
-    let(:statement_record) do
-      create(
-        :statement,
-        :with_context,
-        actor: actor,
-        verb: verb,
-        object: object,
-        result: result
-      )
-    end
-
     it "raises an error with an invalid actor's email" do
       expect {
         RailsXapi::Query.call(query: :actor_by_email, args: invalid_actor.mbox)
@@ -188,6 +155,42 @@ RSpec.describe RailsXapi::Query, type: :service do
 
       expect(statements.count).not_to eq(0)
       expect(statements).to include(statement_record)
+    end
+  end
+
+  describe "verbs" do
+    before :each do
+      # Create 10 verbs using samples of RailsXapi::Verb::VERBS_LIST
+      RailsXapi::Verb::VERBS_LIST
+        .to_a
+        .sample(10)
+        .each do |id, display|
+          new_verb =
+            RailsXapi::Verb.new(id: id, display: { "en-US" => display })
+          new_verb.save!
+        end
+    end
+
+    it "returns an array of verbs IDs" do
+      verb_ids = RailsXapi::Query.call(query: :verb_ids)
+
+      expect(verb_ids).not_to be_empty
+      expect(RailsXapi::Verb.pluck(:id)).to match_array(verb_ids)
+    end
+
+    it "returns an array of verb displays" do
+      verb_displays = RailsXapi::Query.call(query: :verb_displays)
+
+      expect(verb_displays).not_to be_empty
+      expect(RailsXapi::Verb.pluck(:display)).to match_array(verb_displays)
+    end
+
+    it "returns a hash of unique verbs" do
+      verbs = RailsXapi::Query.call(query: :verbs)
+      current_verbs = RailsXapi::Verb.all.map { |v| [v.id, v.display] }
+
+      expect(verbs).not_to be_empty
+      expect(current_verbs).to match_array(verbs)
     end
   end
 end

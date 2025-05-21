@@ -156,25 +156,21 @@ class RailsXapi::Query < ApplicationService
   #
   # @return [Array<Integer>] Unique verb IDs
   def verb_ids
-    RailsXapi::Statement.distinct.pluck(:verb_id)
+    RailsXapi::Verb.pluck(:id)
   end
 
   # Get a list of all unique verb_display values
   #
   # @return [Array<String>] Unique verb display values
   def verb_displays
-    RailsXapi::Statement.unscoped.includes(:verb).distinct.pluck(:display)
+    RailsXapi::Verb.pluck(:display)
   end
 
   # Get a hash of all unique verbs with verb_id as keys and verb_display as values.
   #
   # @return [Hash{Integer => String}] verb_id => verb_display mapping
   def verbs
-    RailsXapi::Statement
-      .unscoped
-      .includes(:verb)
-      .distinct
-      .pluck(:verb_id, :display)
+    RailsXapi::Verb.pluck(:id, :display)
   end
 
   # Take a collection of records and generate a number of records created each day of the given month
