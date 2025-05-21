@@ -85,10 +85,10 @@ class RailsXapi::Object < ApplicationRecord
   def create_statement_for_substatement
     return unless object_type == "SubStatement" && statement.nil?
 
-    # We need to generate a random primary key in place of the object ID
+    # Generate a random primary key in place of the object ID
     self.id = Digest::SHA1.hexdigest([Time.zone.now, rand(111..999)].join)
 
-    # Then, we can create the substatement
+    # Then, create the substatement
     substatement_actor = create_or_find_actor
     substatement_verb = create_or_find_verb
     substatement_object = create_or_find_object
