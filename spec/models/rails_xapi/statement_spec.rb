@@ -16,6 +16,17 @@ RSpec.describe RailsXapi::Statement, type: :model do
     let(:verb) { build(:verb) }
     let(:substatement_object) { build(:object, :substatement) }
 
+    it "includes the specified associations" do
+      scope = described_class.all
+
+      expect(scope.includes_values).to include(:actor)
+      expect(scope.includes_values).to include(actor: :account)
+      expect(scope.includes_values).to include(:verb)
+      expect(scope.includes_values).to include(:object)
+      expect(scope.includes_values).to include(:context)
+      expect(scope.includes_values).to include(:result)
+    end
+
     it "is valid with default statement and substatement" do
       default_statement = build(:statement)
       substatement_statement =

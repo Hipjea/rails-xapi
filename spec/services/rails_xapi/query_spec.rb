@@ -139,4 +139,55 @@ RSpec.describe RailsXapi::Query, type: :service do
       expect(statements).to include(statement_record)
     end
   end
+
+  describe "actor_by_email" do
+    let(:invalid_actor) { build(:actor, :invalid_mbox) }
+    let(:actor) { create(:actor, :mbox) }
+    let(:verb) { create(:verb) }
+    let(:object) { create(:object) }
+    let(:result) { create(:result) }
+
+    let(:statement_record) do
+      create(
+        :statement,
+        :with_context,
+        actor: actor,
+        verb: verb,
+        object: object,
+        result: result
+      )
+    end
+
+    it "raises an error with an invalid actor's email" do
+      expect {
+        RailsXapi::Query.call(query: :actor_by_email, args: invalid_actor.mbox)
+      }.to raise_error do |error|
+        expect(error).to be_a(RailsXapi::Errors::XapiError)
+        expect(error.message).to eq I18n.t(
+             "rails_xapi.errors.malformed_mbox",
+             name: invalid_actor.mbox
+           )
+      end
+    end
+
+    it "returns statements with a valid actor's email" do
+      statement_record.save!
+
+      statements =
+        RailsXapi::Query.call(query: :actor_by_email, args: actor.mbox[7..-1])
+
+      expect(statements.count).not_to eq(0)
+      expect(statements).to include(statement_record)
+    end
+
+    it "returns statements when a mbox is provided" do
+      statement_record.save!
+
+      statements =
+        RailsXapi::Query.call(query: :actor_by_email, args: actor.mbox)
+
+      expect(statements.count).not_to eq(0)
+      expect(statements).to include(statement_record)
+    end
+  end
 end

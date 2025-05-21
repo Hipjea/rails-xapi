@@ -25,7 +25,7 @@ class RailsXapi::Query < ApplicationService
   # @param id [Integer] The ID of the statement
   # @return [RailsXapi::Statement] The statement record
   def statement(id)
-    RailsXapi::Statement.includes(%i[actor verb object context result]).find(id)
+    RailsXapi::Statement.find(id)
   end
 
   # Get a hash of all statements concerning the actors emails and object_id.
@@ -45,30 +45,14 @@ class RailsXapi::Query < ApplicationService
         email if RailsXapi::Actor.new(mbox: email).validate_mbox
       end
 
-    RailsXapi::Statement.includes(
-      [:actor, { actor: :account }, :verb, :object, :context, :result]
-    ).where(actor: { mbox: mailto_emails }, object: { id: object_id })
-  end
-
-  # Get a list of all unique verb_id values
-  #
-  # @return [Array<Integer>] Unique verb IDs
-  def verb_ids
-    RailsXapi::Statement.distinct.pluck(:verb_id)
-  end
-
-  # Get a list of all unique verb_display values
-  #
-  # @return [Array<String>] Unique verb display values
-  def verb_displays
-    RailsXapi::Statement.includes(:verb).distinct.pluck(:display)
-  end
-
-  # Get a hash of all unique verbs with verb_id as keys and verb_display as values.
-  #
-  # @return [Hash{Integer => String}] verb_id => verb_display mapping
-  def verbs
-    RailsXapi::Statement.includes(:verb).distinct.pluck(:verb_id, :display)
+    RailsXapi::Statement.where(
+      actor: {
+        mbox: mailto_emails
+      },
+      object: {
+        id: object_id
+      }
+    )
   end
 
   # Query statements by actor's email
@@ -77,16 +61,16 @@ class RailsXapi::Query < ApplicationService
   # @return [ActiveRecord::Relation] Statements from this actor
   # @raise [ArgumentError] If email format is invalid
   def actor_by_email(actor_email)
-    unless actor_email.match?(/\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/)
-      raise ArgumentError,
-            I18n.t("rails_xapi.errors.malformed_email", name: actor_email)
+    if actor_email.start_with?("mailto:")
+      mbox_value = actor_email
+    else
+      mbox_value = "mailto:#{actor_email}"
     end
 
-    RailsXapi::Statement.includes(%i[actor verb object]).where(
-      actor: {
-        mbox: "mailto:#{actor_email}"
-      }
-    )
+    # Validate email using RailsXapi::Actor's validation method
+    RailsXapi::Actor.new(mbox: mbox_value).validate_mbox
+
+    RailsXapi::Statement.where(actor: { mbox: mbox_value })
   end
 
   # Query statements by actor's mbox
@@ -102,11 +86,7 @@ class RailsXapi::Query < ApplicationService
             I18n.t("rails_xapi.errors.malformed_mbox", name: actor_mbox)
     end
 
-    RailsXapi::Statement.includes(%i[actor verb object]).where(
-      actor: {
-        mbox: actor_mbox
-      }
-    )
+    RailsXapi::Statement.where(actor: { mbox: actor_mbox })
   end
 
   # Query statements by actor's account homepage
@@ -114,7 +94,7 @@ class RailsXapi::Query < ApplicationService
   # @param actor_account_homepage [String] Account homepage URL
   # @return [ActiveRecord::Relation] Statements for this account
   def actor_by_account_homepage(actor_account_homepage)
-    RailsXapi::Statement.includes(%i[actor verb object]).where(
+    RailsXapi::Statement.where(
       actor: {
         account: {
           home_page: actor_account_homepage
@@ -128,11 +108,7 @@ class RailsXapi::Query < ApplicationService
   # @param actor_openid [String] The openID
   # @return [ActiveRecord::Relation] Statements for this openID
   def actor_by_openid(actor_openid)
-    RailsXapi::Statement.includes(%i[actor verb object]).where(
-      actor: {
-        openid: actor_openid
-      }
-    )
+    RailsXapi::Statement.where(actor: { openid: actor_openid })
   end
 
   # Query statements by actor's mbox_sha1sum
@@ -140,11 +116,7 @@ class RailsXapi::Query < ApplicationService
   # @param actor_mbox_sha1sum [String] SHA1 hash of actor's mbox
   # @return [ActiveRecord::Relation] Statements for this mbox_sha1sum identifier
   def actor_by_mbox_sha1sum(actor_mbox_sha1sum)
-    RailsXapi::Statement.includes(%i[actor verb object]).where(
-      actor: {
-        mbox_sha1sum: actor_mbox_sha1sum
-      }
-    )
+    RailsXapi::Statement.where(actor: { mbox_sha1sum: actor_mbox_sha1sum })
   end
 
   # Query statements by actor's identifier per month
@@ -178,6 +150,31 @@ class RailsXapi::Query < ApplicationService
         created_at: start_date..end_date
       )
       .group(:id)
+  end
+
+  # Get a list of all unique verb_id values
+  #
+  # @return [Array<Integer>] Unique verb IDs
+  def verb_ids
+    RailsXapi::Statement.distinct.pluck(:verb_id)
+  end
+
+  # Get a list of all unique verb_display values
+  #
+  # @return [Array<String>] Unique verb display values
+  def verb_displays
+    RailsXapi::Statement.unscoped.includes(:verb).distinct.pluck(:display)
+  end
+
+  # Get a hash of all unique verbs with verb_id as keys and verb_display as values.
+  #
+  # @return [Hash{Integer => String}] verb_id => verb_display mapping
+  def verbs
+    RailsXapi::Statement
+      .unscoped
+      .includes(:verb)
+      .distinct
+      .pluck(:verb_id, :display)
   end
 
   # Take a collection of records and generate a number of records created each day of the given month
