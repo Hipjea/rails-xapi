@@ -183,6 +183,12 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
       expect(statement.actor.account.is_a?(RailsXapi::Account)).to be_truthy
       expect(statement.verb.is_a?(RailsXapi::Verb)).to be_truthy
       expect(statement.object.is_a?(RailsXapi::Object)).to be_truthy
+      expect(
+        statement.object.definition.is_a?(RailsXapi::ActivityDefinition)
+      ).to be_truthy
+      expect(
+        statement.object.definition.extensions.first.is_a?(RailsXapi::Extension)
+      ).to be_truthy
       expect(statement.result.is_a?(RailsXapi::Result)).to be_truthy
       expect(statement.context.is_a?(RailsXapi::Context)).to be_truthy
       expect(

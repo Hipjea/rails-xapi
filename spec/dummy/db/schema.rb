@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_07_16_144236) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_22_122830) do
   create_table "rails_xapi_accounts", force: :cascade do |t|
     t.string "name", null: false
     t.string "home_page", null: false
@@ -73,6 +73,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_07_16_144236) do
     t.datetime "created_at", null: false
     t.index ["actor_id"], name: "index_rails_xapi_group_members_on_actor_id"
     t.index ["group_id"], name: "index_rails_xapi_group_members_on_group_id"
+  end
+
+  create_table "rails_xapi_interaction_activities", force: :cascade do |t|
+    t.string "interaction_type", null: false
+    t.text "correct_responses_pattern"
+    t.bigint "activity_definition_id", null: false
+    t.index ["activity_definition_id"], name: "idx_on_activity_definition_id_0cc615114b"
+  end
+
+  create_table "rails_xapi_interaction_components", force: :cascade do |t|
+    t.string "component_id", null: false
+    t.text "description"
+    t.bigint "interaction_activity_id", null: false
+    t.index ["interaction_activity_id"], name: "idx_on_interaction_activity_id_863e21bede"
   end
 
   create_table "rails_xapi_objects", id: :string, force: :cascade do |t|

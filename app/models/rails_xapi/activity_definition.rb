@@ -7,6 +7,9 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   include RailsXapi::ApplicationHelper
 
   belongs_to :object, class_name: "RailsXapi::Object"
+  has_one :interaction_activity,
+          class_name: "RailsXapi::InteractionActivity",
+          dependent: :destroy
   has_many :extensions, as: :extendable, dependent: :destroy
 
   validates :activity_type,

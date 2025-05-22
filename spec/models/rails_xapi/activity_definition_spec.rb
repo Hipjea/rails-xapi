@@ -91,6 +91,20 @@ describe RailsXapi::ActivityDefinition do
       )
     end
   end
+
+  it "has a valid interaction_activity" do
+    definition_with_interaction_activity =
+      create(:activity_definition, :with_interaction_activity)
+
+    interaction = definition_with_interaction_activity.interaction_activity
+
+    expect(interaction).to be_a(RailsXapi::InteractionActivity)
+    expect(interaction.activity_definition).to eq(
+      definition_with_interaction_activity
+    )
+    expect(interaction.interaction_type).to eq("true-false")
+    expect(interaction.correct_responses_pattern).to eq(["true"])
+  end
 end
 
 # == Schema Information
