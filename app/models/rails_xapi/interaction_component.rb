@@ -3,7 +3,7 @@
 # The optional structure for interactions or assessments.
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#interaction-components
 class RailsXapi::InteractionComponent < ApplicationRecord
-  belongs_to :interaction_activity
+  belongs_to :interaction_activity, class_name: "RailsXapi::InteractionActivity"
 
   def parsed_description
     return {} unless description.present?
@@ -20,6 +20,7 @@ end
 # Table name: rails_xapi_interaction_components
 #
 #  id                      :integer          not null, primary key
+#  component_type          :string           not null
 #  description             :text
 #  component_id            :string           not null
 #  interaction_activity_id :bigint           not null

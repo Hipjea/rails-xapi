@@ -39,3 +39,17 @@ describe RailsXapi::InteractionActivity do
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: rails_xapi_interaction_activities
+#
+#  id                        :integer          not null, primary key
+#  correct_responses_pattern :text
+#  interaction_type          :string           not null
+#  activity_definition_id    :bigint           not null
+#
+# Indexes
+#
+#  idx_on_activity_definition_id_0cc615114b  (activity_definition_id)
+#

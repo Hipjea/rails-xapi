@@ -1,3 +1,5 @@
+# spec/services/rails_xapi/query_spec.rb
+
 require "rails_helper"
 
 RSpec.describe RailsXapi::Query, type: :service do

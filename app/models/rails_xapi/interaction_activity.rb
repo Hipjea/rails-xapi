@@ -3,8 +3,12 @@
 # The optional structure for interactions or assessments.
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#interaction-activities
 class RailsXapi::InteractionActivity < ApplicationRecord
-  belongs_to :activity_definition
+  belongs_to :activity_definition, class_name: "RailsXapi::ActivityDefinition"
   has_many :interaction_components, foreign_key: :interaction_activity_id
+
+  INTERACTION_COMPONENT_TYPES = %w[scale choices source target steps]
+  INTERACTION_KEYS =
+    %w[interactionType correctResponsesPattern] + INTERACTION_COMPONENT_TYPES
 
   validates :interaction_type,
             presence: true,
@@ -24,6 +28,25 @@ class RailsXapi::InteractionActivity < ApplicationRecord
             }
 
   attribute :correct_responses_pattern, :string, default: -> { [].to_json }
+
+  def assign_interaction_components(interaction_attrs)
+    return unless interaction_attrs.present?
+
+    interaction_components.where(
+      component_type: INTERACTION_COMPONENT_TYPES
+    ).destroy_all
+
+    INTERACTION_COMPONENT_TYPES.each do |component_type|
+      Array(interaction_attrs[component_type]).each do |data|
+        interaction_components.build(
+          component_type: component_type,
+          component_id: data["id"],
+          description: data["description"].to_json,
+          interaction_activity: self
+        )
+      end
+    end
+  end
 
   def correct_responses_pattern
     JSON.parse(super || "[]")

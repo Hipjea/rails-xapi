@@ -39,6 +39,35 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     self.more_info = value
   end
 
+  def assign_from_json_definition(definition_hash)
+    return unless definition_hash.present?
+
+    normalized_hash = definition_hash.deep_stringify_keys
+    interaction_keys = RailsXapi::InteractionActivity::INTERACTION_KEYS
+
+    interaction_attrs = normalized_hash.slice(*interaction_keys)
+    core_attrs = normalized_hash.except(*interaction_keys)
+    # Assign base definition attributes
+    self.attributes = core_attrs
+
+    if normalized_hash["interactionType"].present?
+      # Assign InteractionActivity attributes
+      build_interaction_activity unless interaction_activity
+
+      interaction_activity.interaction_type =
+        interaction_attrs["interactionType"]
+      interaction_activity.correct_responses_pattern =
+        interaction_attrs["correctResponsesPattern"]
+      # Build the interaction_components association
+      interaction_activity.assign_interaction_components(interaction_attrs)
+
+      # Trigger the validation
+      unless interaction_activity.valid?
+        raise ActiveRecord::RecordInvalid, interaction_activity
+      end
+    end
+  end
+
   def extensions=(extensions_data)
     unless extensions_data.is_a?(Hash)
       raise RailsXapi::Errors::XapiError,
@@ -63,6 +92,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
     { name: name, description: description, type: activity_type }.tap do |hash|
       hash[:extensions] = extensions.as_json if extensions.present?
       hash[:moreInfo] = more_info if more_info.present?
+      hash.merge!(interaction_activity.as_json) if interaction_activity.present?
     end
   end
 

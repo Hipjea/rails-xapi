@@ -83,6 +83,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_22_122830) do
   end
 
   create_table "rails_xapi_interaction_components", force: :cascade do |t|
+    t.string "component_type", null: false
     t.string "component_id", null: false
     t.text "description"
     t.bigint "interaction_activity_id", null: false
