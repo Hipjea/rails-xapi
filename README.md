@@ -1,6 +1,6 @@
 # Rails xAPI
 
-xAPI statements creation plugin.
+This gem is a Rails engine that allows the validation of data from an xAPI statement. It enables the storage of xAPI statements in relational tables.
 
 [![Actions Status](https://github.com/fondation-unit/rails-xapi/actions/workflows/ci.yml/badge.svg)](https://github.com/fondation-unit/rails-xapi/actions/workflows/ci.yml/)
 

@@ -267,9 +267,6 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
         result[:statement].object.definition.interaction_activity
       expect(result[:status]).to eq(200)
       expect(interaction_activity.interaction_type).to eq("likert")
-      p "*" * 90
-      puts JSON.pretty_generate(result[:statement].as_json)
-      p "*" * 90
     end
 
     it "creates a choice interaction activity" do
