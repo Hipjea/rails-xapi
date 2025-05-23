@@ -243,7 +243,13 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
           interaction_type: "likert",
           component_key: "scale",
           components: [
-            { id: "likert_0", description: { "en-US": "It's OK" } },
+            {
+              id: "likert_0",
+              description: {
+                "en-US": "It's OK",
+                fr: "C'est ok"
+              }
+            },
             { id: "likert_1", description: { "en-US": "It's Pretty Cool" } },
             { id: "likert_2", description: { "en-US": "It's Damn Cool" } },
             {
@@ -257,14 +263,13 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
         )
 
       result = RailsXapi::StatementCreator.create(statement_hash)
+      interaction_activity =
+        result[:statement].object.definition.interaction_activity
       expect(result[:status]).to eq(200)
-      expect(
-        result[:statement]
-          .object
-          .definition
-          .interaction_activity
-          .interaction_type
-      ).to eq("likert")
+      expect(interaction_activity.interaction_type).to eq("likert")
+      p "*" * 90
+      puts JSON.pretty_generate(result[:statement].as_json)
+      p "*" * 90
     end
 
     it "creates a choice interaction activity" do
@@ -282,14 +287,10 @@ RSpec.describe RailsXapi::StatementCreator, type: :service do
         )
 
       result = RailsXapi::StatementCreator.create(statement_hash)
+      interaction_activity =
+        result[:statement].object.definition.interaction_activity
       expect(result[:status]).to eq(200)
-      expect(
-        result[:statement]
-          .object
-          .definition
-          .interaction_activity
-          .interaction_type
-      ).to eq("choice")
+      expect(interaction_activity.interaction_type).to eq("choice")
     end
   end
 end

@@ -5,6 +5,9 @@
 class RailsXapi::InteractionComponent < ApplicationRecord
   belongs_to :interaction_activity, class_name: "RailsXapi::InteractionActivity"
 
+  validates_with RailsXapi::Validators::LanguageMapValidator,
+                 attributes: %i[description]
+
   def parsed_description
     return {} unless description.present?
     begin
