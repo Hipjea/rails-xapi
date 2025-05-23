@@ -94,6 +94,44 @@ Ready-to-use queries are available in the [app/services/rails_xapi/query.rb](app
 Example of usage:
 
 ```ruby
+def create_statement
+  data = {
+    actor: {
+      objectType: "Agent",
+      name: "John Doe",
+      mbox: "mailto:example@localhost.com",
+      account: {
+        homePage: "http://example.com/some_user_homepage/1",
+        name: "JohnDoe#1"
+      }
+    },
+    verb: {
+      id: "https://brindlewaye.com/xAPITerms/verbs/loggedin/"
+    },
+    object: {
+      id: "http://localhost:3000/new_user_session",
+      definition: {
+        name: {
+          "en-GB" => "login"
+        },
+        description: {
+          "en-US" => "User signed in."
+        }
+      }
+    }
+  }
+
+  statement = RailsXapi::StatementCreator.create(data)
+  redirect_to statement_show_path(id: statement[:statement][:id])
+end
+
+def statement_show
+  @statement = RailsXapi::Query.call(
+    query: :statement,
+    args: params[:id]
+  )
+end
+
 def logs_per_month(year = Date.current.year, month = Date.current.month)
   RailsXapi::Query.call(
     query: :user_statements_per_month,
