@@ -58,11 +58,12 @@ data = {
   object: {
     id: new_user_session_url,
     definition: {
-      name: "log in",
+      name: {
+        "en-US" => "log in"
+      },
       description: {
         "en-US" => "User signed in"
-      },
-      type: "sign-in"
+      }
     }
   }
 }
