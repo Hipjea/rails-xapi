@@ -75,13 +75,13 @@ class RailsXapi::Actor < ApplicationRecord
   # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#part-two-experience-api-data
   #
   # @return [Hash] The actor hash with the camel-case version of object_type.
-  def to_hash
+  def as_json
     {
       objectType: object_type,
       name: name,
       mbox: mbox,
       mbox_sha1sum: mbox_sha1sum,
-      account: account,
+      account: account.as_json,
       openid: openid
     }.compact
   end

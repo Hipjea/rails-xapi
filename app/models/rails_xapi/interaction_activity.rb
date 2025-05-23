@@ -4,7 +4,9 @@
 # See: https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#interaction-activities
 class RailsXapi::InteractionActivity < ApplicationRecord
   belongs_to :activity_definition, class_name: "RailsXapi::ActivityDefinition"
-  has_many :interaction_components, foreign_key: :interaction_activity_id
+  has_many :interaction_components,
+           foreign_key: :interaction_activity_id,
+           dependent: :destroy
 
   INTERACTION_COMPONENT_TYPES = %w[scale choices source target steps]
   INTERACTION_KEYS =
