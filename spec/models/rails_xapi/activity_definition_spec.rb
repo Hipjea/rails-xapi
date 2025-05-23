@@ -70,6 +70,41 @@ describe RailsXapi::ActivityDefinition do
       )
     )
   end
+
+  it "expects an IRI activity_type" do
+    object = statement.object
+    object.definition = {
+      name: {
+        "en-US" => "Definition name"
+      },
+      description: {
+        "en-US" =>
+          "A simple Experience API statement. Note that the LRS does not need to have any prior information about the Actor (learner), the verb, or the Activity/object."
+      },
+      type: "Activity"
+    }
+
+    expect { object.save! }.to raise_error do |error|
+      expect(error).to be_a(ActiveRecord::RecordInvalid)
+      expect(error.message).to include(
+        I18n.t("rails_xapi.errors.must_be_a_valid_iri")
+      )
+    end
+  end
+
+  it "has a valid interaction_activity" do
+    definition_with_interaction_activity =
+      create(:activity_definition, :with_interaction_activity)
+
+    interaction = definition_with_interaction_activity.interaction_activity
+
+    expect(interaction).to be_a(RailsXapi::InteractionActivity)
+    expect(interaction.activity_definition).to eq(
+      definition_with_interaction_activity
+    )
+    expect(interaction.interaction_type).to eq("true-false")
+    expect(interaction.correct_responses_pattern).to eq(["true"])
+  end
 end
 
 # == Schema Information

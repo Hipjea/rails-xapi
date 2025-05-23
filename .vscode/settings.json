@@ -5,7 +5,9 @@
   "[ruby]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "Shopify.ruby-lsp",
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
+    "editor.wordWrapColumn": 100,
+    "editor.wordWrap": "bounded"
   },
   "task.autoDetect": "off",
   "rubyLsp.formatter": "syntax_tree"

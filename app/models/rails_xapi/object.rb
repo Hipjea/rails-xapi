@@ -32,11 +32,11 @@ class RailsXapi::Object < ApplicationRecord
   accepts_nested_attributes_for :definition
 
   def definition=(definition_hash)
-    if definition_hash.present?
-      # Build or create the associated object.
-      build_definition(definition_hash) if definition.nil?
-      definition.attributes = definition_hash
-    end
+    return unless definition_hash.present?
+
+    # Build or create the associated object.
+    build_definition if definition.nil?
+    definition.assign_from_json_definition(definition_hash)
   end
 
   # Find an Object by its id or create a new one.
@@ -47,12 +47,13 @@ class RailsXapi::Object < ApplicationRecord
     find_by(id: attributes[:id]) || create(attributes)
   end
 
-  # Update the Activity Definition if existing.
+  # Update the ActivityDefinition if it's existing.
   def update_definition(definition_data)
-    if definition_data.present?
-      definition = self.definition || create_definition
-      definition.update(definition_data)
-    end
+    return unless definition_data.present?
+
+    definition = self.definition || create_definition
+    definition.assign_from_json_definition(definition_data)
+    definition.save!
   end
 
   def activity?
@@ -85,10 +86,10 @@ class RailsXapi::Object < ApplicationRecord
   def create_statement_for_substatement
     return unless object_type == "SubStatement" && statement.nil?
 
-    # We need to generate a random primary key in place of the object ID
+    # Generate a random primary key in place of the object ID
     self.id = Digest::SHA1.hexdigest([Time.zone.now, rand(111..999)].join)
 
-    # Then, we can create the substatement
+    # Then, create the substatement
     substatement_actor = create_or_find_actor
     substatement_verb = create_or_find_verb
     substatement_object = create_or_find_object
