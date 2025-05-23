@@ -32,7 +32,7 @@ group :development, :test do
 end
 
 group :test do
-  gem "sqlite3", "~> 1.3", ">= 1.3.11"
+  gem "sqlite3", "~>  2.6"
   gem "simplecov", require: false
 end
 
