@@ -27,17 +27,17 @@ describe RailsXapi::Actor do
     actor = described_class.build_actor_from_data(complete_actor.attributes)
 
     expect(actor).to be_valid
-    expect(actor.to_hash[:objectType]).to eq("Agent")
+    expect(actor.as_json[:objectType]).to eq("Agent")
   end
 
   it "creates a group" do
     expect(group).to be_valid
-    expect(group.to_hash[:objectType]).to eq("Group")
+    expect(group.as_json[:objectType]).to eq("Group")
   end
 
   it "creates group members" do
     expect(group_with_members).to be_valid
-    expect(group_with_members.to_hash[:objectType]).to eq("Group")
+    expect(group_with_members.as_json[:objectType]).to eq("Group")
   end
 end
 
