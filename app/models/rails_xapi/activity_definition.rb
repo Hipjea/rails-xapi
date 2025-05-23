@@ -65,6 +65,8 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
       unless interaction_activity.valid?
         raise ActiveRecord::RecordInvalid, interaction_activity
       end
+
+      interaction_activity.save!
     end
   end
 
