@@ -12,7 +12,7 @@ This gem is a Rails engine that allows the validation of data from an xAPI state
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "rails-xapi", git: "https://github.com/fondation-unit/rails-xapi"
+gem "rails-xapi", "~> 0.1.2"
 ```
 
 And then execute:
