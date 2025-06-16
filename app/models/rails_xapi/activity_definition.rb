@@ -42,7 +42,7 @@ class RailsXapi::ActivityDefinition < ApplicationRecord
   def assign_from_json_definition(definition_hash)
     return unless definition_hash.present?
 
-    normalized_hash = definition_hash.deep_stringify_keys
+    normalized_hash = definition_hash.to_h.deep_stringify_keys
     interaction_keys = RailsXapi::InteractionActivity::INTERACTION_KEYS
 
     interaction_attrs = normalized_hash.slice(*interaction_keys)
